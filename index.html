@@ -2,36 +2,19 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- 1. 網站主要標題與描述 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 加入社群分享預設圖與 Meta 標籤 -->
     <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
-    <meta name="description" content="專為 LE SSERAFIM KIM CHAEWON 打造的個人化多媒體足跡與動態典藏系統，統整社群、活動與重要日程。">
-    <meta name="keywords" content="KIM CHAEWON, LE SSERAFIM, 金采源, 偶像典藏系統, KPOP">
-
-    <!-- 2. 瀏覽器分頁標籤 Logo (Favicon) - 使用相對路徑 -->
+    <meta name="description" content="專為 LE SSERAFIM KIM CHAEWON 打造的多媒體足跡與動態典藏系統。">
     <link rel="icon" type="image/png" href="images/logo.png">
     <link rel="apple-touch-icon" href="images/logo.png">
-
-    <!-- 3. Open Graph / Facebook / LINE 預覽設定 -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="CHAEWON Archive | 偶像多媒體足跡與動態典藏系統">
-    <meta property="og:description" content="專為 LE SSERAFIM KIM CHAEWON 打造的個人化多媒體足跡與動態典藏系統。">
-    
-    <!-- ⚠️【重要】請將下方網址替換為你真實的 GitHub Pages 完整網址 -->
+    <meta property="og:description" content="專為 LE SSERAFIM KIM CHAEWON 打造的多媒體足跡與動態典藏系統。">
+    <!-- GitHub Pages 的真實網址 -->
     <meta property="og:url" content="https://soda8-hub.github.io/CHAEWON_archive/">
-    <!-- ⚠️【重要】分享預覽圖必須是完整絕對網址！請替換你的帳號與專案名 -->
     <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
-    <!-- 建議的社群分享圖比例為 1.91:1 (例如 1200x630 px)。若直接用 logo.png，兩側可能會留白，這是正常的 -->
-
-    <!-- 4. X (Twitter) 預覽設定 -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="CHAEWON Archive | 偶像多媒體足跡與動態典藏系統">
-    <meta name="twitter:description" content="專為 LE SSERAFIM KIM CHAEWON 打造的個人化多媒體足跡與動態典藏系統。">
-    <!-- ⚠️【重要】同上，請替換為完整絕對網址 -->
-    <meta name="twitter:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
-
-    <!-- 連結外部 CSS 樣式表 -->
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -119,7 +102,7 @@
                             <button id="applyDateBtn" class="btn-primary-small">篩選</button>
                             <button id="clearDateBtn" class="btn-secondary-small">清除</button>
                             
-                            <!-- 完美客製化：排序下拉選單 -->
+                            <!-- 排序下拉選單 -->
                             <div class="custom-dropdown" id="sortDropdown">
                                 <div class="dropdown-selected">
                                     <span id="sortText">由新到舊 ↓</span> 
@@ -133,7 +116,6 @@
                         </div>
                     </div>
                     
-                    <!-- 標籤狀態提示與清除按鈕區 -->
                     <div class="tags-header-row">
                         <p id="filterMsg" class="filter-msg"></p>
                         <div id="clearTagsContainer"></div>
@@ -141,8 +123,15 @@
 
                     <div class="toolbar-divider"></div>
                     
+                    <!-- 手機版專屬標籤折疊按鈕 -->
+                    <button id="mobileTagToggle" class="mobile-tag-toggle hide-on-desktop">
+                        🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span>
+                    </button>
+
                     <!-- 次標籤區塊 -->
-                    <div id="subTagsContainer" class="sub-tags-container"></div>
+                    <div id="subTagsWrapper" class="sub-tags-wrapper">
+                        <div id="subTagsContainer" class="sub-tags-container"></div>
+                    </div>
                 </div>
             </div>
             
@@ -190,7 +179,6 @@
     </div>
 
     <script>
-        // --- 1. 模擬資料庫 ---
         const mockData = [
             { id: 'p1', module: 'social', date: '2026-10-20', time: '14:20:00', tags: ['Instagram POST', 'Instagram--_chaechae_1', 'CHAEWON單人'], content: '今日 CRAZY 舞台結束! 感謝 FEARNOT... 今天也玩得很開心 🖤⚡️ #KIMCHAEWON', source: 'Instagram', links: [{ title: 'IG 原文', url: '#' }] },
             { id: 'p3', module: 'event', date: '2026-10-20', time: '18:30:00', tags: ['打歌舞臺'], content: 'KBS Music Bank \'CRAZY\' 舞台播出與直拍 FanCam 更新。', source: 'YouTube', links: [{ title: '📺 舞台播出', url: '#' }, { title: '🎥 CHAEWON 直拍', url: '#' }] },
@@ -200,8 +188,21 @@
             { id: 'p7', module: 'schedule', date: '2026-10-15', time: '00:00:00', tags: ['官方公告'], content: 'MAKE UP FOR EVER 形象大片釋出日', source: 'Official', links: [{ title: '關聯品牌公告', url: '#' }] }
         ];
 
-        // --- 核心更新：Weverse 圖示替換為 Wikimedia 連結 ---
+        const weverseSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="official-icon" viewBox="0 0 24 24" fill="#00DACA"><path d="M14.65 17.65l-2.45-7.75h-1.8l-2.4 7.75h-2.1l3.45-9.85h2.2l1.85 6.3 1.8-6.3h2.2l3.45 9.85h-2.15l-2.4-7.75-2.45 7.75z"/></svg>`;
+
+        // --- 核心優化：全域標籤命名對齊與圖示加入 ---
         const moduleSubTags = {
+            all: {
+                '🐆 CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON'],
+                '<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'],
+                '<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Weverse_logo.svg" class="official-icon" style="filter: invert(15%) sepia(18%) saturate(1469%) hue-rotate(170deg) brightness(97%) contrast(92%);"> Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'],
+                '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'],
+                '<img src="https://images.icon-icons.com/1488/PNG/512/5295-youtube-i_102568.png" class="official-icon"> YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'],
+                '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon"> TikTok / Challenge / 多人': ['TikTok/抖音', 'Challenge', '多人'],
+                '🎤 公開演出活動與現場紀錄📸': ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'],
+                '📢 品牌商務與官方公告': ['品牌商務', '官方公告', '回歸相關'],
+                '📅 重要日程': ['演唱會', '預錄時間', '生日', '節目播出'] 
+            },
             social: {
                 '🐆 CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON'],
                 '<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'],
@@ -215,7 +216,6 @@
             schedule: ['演唱會', '預錄時間', '生日', '節目播出']
         };
 
-        // --- 模組名稱對應更新 ---
         const moduleNames = { 
             social: '社群動態', 
             event: '公開演出活動與現場紀錄', 
@@ -244,7 +244,22 @@
             setupDateFilterAndSort();
             setupSecurityModal();
             setupBackToTop();
+            setupMobileTags();
             refreshView();
+        }
+
+        function setupMobileTags() {
+            const toggleBtn = document.getElementById('mobileTagToggle');
+            if(!toggleBtn) return;
+            toggleBtn.addEventListener('click', function() {
+                const wrapper = document.getElementById('subTagsWrapper');
+                wrapper.classList.toggle('open');
+                if(wrapper.classList.contains('open')) {
+                    this.innerHTML = `🏷️ 收起標籤篩選 <span class="arrow" style="transform: rotate(180deg); display: inline-block; transition: 0.3s;">﹀</span>`;
+                } else {
+                    this.innerHTML = `🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span>`;
+                }
+            });
         }
 
         function refreshView(targetDate = null) {
@@ -424,21 +439,35 @@
                     renderSubTags();
                     updateClearTagsButton(); 
                     
+                    document.getElementById('subTagsWrapper').classList.remove('open');
+                    document.getElementById('mobileTagToggle').innerHTML = `🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span>`;
+
                     if(window.innerWidth <= 1050) document.getElementById('sidebar').classList.remove('active');
                 });
             });
         }
 
+        // --- 優化：支援 All 模組使用 Grid Accordion 渲染 ---
         function renderSubTags() {
             const container = document.getElementById('subTagsContainer');
             container.innerHTML = '';
-            if (currentModule === 'all' || !moduleSubTags[currentModule]) {
+            
+            const wrapper = document.getElementById('subTagsWrapper');
+            const toggleBtn = document.getElementById('mobileTagToggle');
+            
+            if (!moduleSubTags[currentModule]) {
                 container.className = 'sub-tags-container'; 
+                wrapper.style.display = 'none';
+                if(toggleBtn) toggleBtn.style.display = 'none';
                 return;
+            } else {
+                wrapper.style.display = ''; 
+                if(toggleBtn) toggleBtn.style.display = '';
             }
 
             const tagsData = moduleSubTags[currentModule];
             
+            // 只要是物件結構 (包含 all 和 social)，一律使用 Grid 網格佈局渲染摺疊面板
             if (typeof tagsData === 'object' && !Array.isArray(tagsData)) {
                 container.className = 'social-grid'; 
                 for (const [groupName, tagsArray] of Object.entries(tagsData)) {
