@@ -29,8 +29,8 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .brand-logo { 
     width: 68px; 
     height: 68px; 
-    min-width: 68px;  /* 絕對禁止寬度被壓縮 */
-    min-height: 68px; /* 絕對禁止高度被壓縮 */
+    min-width: 68px; 
+    min-height: 68px; 
     border-radius: 50%; 
     object-fit: cover; 
     border: 5px solid var(--mint-light); 
@@ -39,8 +39,8 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
     flex-shrink: 0; 
 }
 .mint-dot { width: 14px; height: 14px; background-color: var(--mint-green); border-radius: 50%; display: inline-block; flex-shrink: 0;}
-.desktop-logo-text h2 { font-size: 1.2rem; font-weight: 800; }
-.desktop-logo-text p { font-size: 0.8rem; color: var(--text-muted); }
+.desktop-logo-text h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0;}
+.desktop-logo-text p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;}
 
 .card { background: var(--silver-card); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); }
 .card-title { font-size: 1.05rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--mint-light); color: var(--text-main);}
@@ -91,7 +91,7 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .search-container { 
     flex: 1 1 300px; 
     min-width: 250px; 
-    height: 44px; /* 設定固定高度 */
+    height: 44px; 
     min-height: 44px; 
     position: relative; display: flex; align-items: center; background: white; border-radius: 12px; padding: 0 15px; border: 1px solid var(--silver-border); transition: 0.3s;
 }
@@ -216,6 +216,7 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 
 .content-text { font-size: 1rem; color: var(--text-main); line-height: 1.7; margin-bottom: 12px;}
 
+/* 多連結樣式 */
 .multi-links-group { display: flex; gap: 10px; flex-wrap: wrap;}
 .db-link { display: inline-block; background: white; color: var(--text-main); text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: 1px solid var(--silver-border); transition: 0.2s;}
 .db-link:before { content: '🔗 ';}
@@ -245,20 +246,17 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .btn-primary:hover { background: var(--mint-hover); }
 .btn-cancel { width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-weight: bold;}
 
-/* --- 手機/平板版優先佈局 (Mobile-First) --- */
+/* --- 手機版優先佈局 (Mobile-First) --- */
 .mobile-header { display: none; }
 
 @media (max-width: 1050px) {
     .main-layout { flex-direction: column; padding: 10px; margin-top: 10px; }
     
+    /* 完美修正手機版 Logo 與標題的對齊 */
     .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--silver-card); border-bottom: 1px solid var(--silver-border); position: sticky; top: 0; z-index: 100; font-weight: 800;}
-    .mobile-header .logo { display: flex; align-items: center; gap: 10px; }
-    .mobile-brand-logo { 
-        height: 32px; width: 32px; 
-        min-width: 32px; min-height: 32px; 
-        border-radius: 50%; object-fit: cover; border: 2px solid var(--mint-green); 
-        flex-shrink: 0; 
-    }
+    .mobile-header .logo { display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 0; }
+    .mobile-brand-logo { height: 32px; width: 32px; min-width: 32px; min-height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--mint-green); flex-shrink: 0;}
+    
     .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
     .hamburger span { width: 25px; height: 3px; background: var(--text-main); transition: 0.3s;}
 
@@ -271,20 +269,17 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
     .view-layout { flex-direction: column; }
     .calendar-sidebar { flex: auto; width: 100%; position: static;}
     
-    /* 解決擠壓：設定為 column 讓搜尋欄與過濾器換行 */
     .filter-main-row { flex-direction: column; align-items: stretch; gap: 10px;}
     
-    /* 【修復手機版搜尋列高度】強制不拉伸 */
-    .search-container { 
-        flex: none; /* 關閉彈性增長，防止高度被 stretch 撐爆 */
-        width: 100%; 
-        height: 44px; 
-    }
+    .search-container { flex: none; width: 100%; height: 44px; }
 
     .inline-date-filter { width: 100%; flex-wrap: wrap; justify-content: flex-start;}
     .date-input-group { flex: 1 1 auto; min-width: 180px;}
     .custom-dropdown { flex: 1 1 auto; min-width: 120px; max-width: none;}
     
+    /* 解決手機上「社群動態」標籤折疊面板擠壓變形問題 */
+    .social-grid { grid-template-columns: 1fr; }
+
     .timeline::before { display: none; }
     .card-date-col::after { display: none; }
     .timeline-card { flex-direction: column; gap: 5px; padding-left: 0;}
