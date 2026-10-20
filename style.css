@@ -16,7 +16,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif; }
-body { background-color: var(--silver-bg); color: var(--text-main); line-height: 1.6; scroll-behavior: smooth;}
+body { background-color: var(--silver-bg); color: var(--text-main); line-height: 1.6; scroll-behavior: smooth; overflow-x: hidden;}
 
 /* --- 佈局架構 --- */
 .main-layout { display: flex; max-width: 1400px; margin: 30px auto; padding: 0 20px; gap: 30px; align-items: flex-start;}
@@ -24,7 +24,6 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 /* --- 左側面板 Sidebar --- */
 .sidebar { flex: 0 0 280px; display: flex; flex-direction: column; gap: 20px; }
 
-/* 完美修復：強制禁止壓縮，裁切正圓形與 1cm 質感外框 */
 .desktop-logo-container { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; flex-shrink: 0;}
 .brand-logo { 
     width: 68px; 
@@ -39,8 +38,8 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
     flex-shrink: 0; 
 }
 .mint-dot { width: 14px; height: 14px; background-color: var(--mint-green); border-radius: 50%; display: inline-block; flex-shrink: 0;}
-.desktop-logo-text h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0;}
-.desktop-logo-text p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;}
+.desktop-logo-text h2 { font-size: 1.2rem; font-weight: 800; }
+.desktop-logo-text p { font-size: 0.8rem; color: var(--text-muted); }
 
 .card { background: var(--silver-card); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); }
 .card-title { font-size: 1.05rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--mint-light); color: var(--text-main);}
@@ -55,7 +54,6 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .btn-quick-add.disabled { background: var(--silver-bg); color: #BFC9CA; cursor: not-allowed; }
 .btn-quick-add.unlocked { background: var(--text-main); color: white; }
 
-/* 統計區塊 */
 .month-stat-title { font-size: 1.1rem; color: var(--text-main); margin-bottom: 5px; font-weight: bold;}
 .today-stat-title { font-size: 0.95rem; color: var(--mint-hover); margin-bottom: 15px; font-weight: bold;}
 .count-text { font-size: 1.5rem; color: var(--mint-hover); }
@@ -72,14 +70,15 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 /* 頂部工具列 */
 .top-toolbar { background: var(--silver-card); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border);}
 
-.nav-menu-container { width: 100%; background: var(--silver-bg); padding: 6px; border-radius: 30px; display: flex; margin-bottom: 20px; overflow-x: auto;}
+/* 移除 min-width 確保電腦版能流暢縮小 */
+.nav-menu-container { width: 100%; background: var(--silver-bg); padding: 6px; border-radius: 30px; display: flex; margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch;}
 .nav-links { display: flex; list-style: none; gap: 5px; width: 100%; } 
 .nav-links li { flex: 1 1 auto; text-align: center; padding: 10px 15px; border-radius: 20px; cursor: pointer; font-size: 0.95rem; font-weight: 600; color: var(--text-muted); transition: all 0.3s ease; white-space: nowrap;}
 .nav-links li:hover { color: var(--mint-hover); background: var(--mint-light);}
 .nav-links li.active { background-color: var(--mint-green); color: white; box-shadow: 0 2px 8px rgba(32, 201, 151, 0.3);}
 .nav-links::-webkit-scrollbar { display: none; }
 
-/* --- 搜尋與過濾重構 --- */
+/* --- 搜尋與過濾重構 (解決擠壓與變形) --- */
 .toolbar-controls { display: flex; flex-direction: column; gap: 12px;}
 .filter-main-row { 
     display: flex; 
@@ -88,6 +87,7 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
     flex-wrap: wrap; 
 }
 
+/* 限制搜尋欄高度，防止變形 */
 .search-container { 
     flex: 1 1 300px; 
     min-width: 250px; 
@@ -150,8 +150,8 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 
 .toolbar-divider { height: 1px; background: var(--silver-border); width: 100%; margin: 0;}
 
-/* --- 官方 Icon 設定 --- */
-.official-icon { width: 16px; height: 16px; vertical-align: middle; margin-right: 5px; }
+/* --- 手機版專屬：標籤收合按鈕 (電腦版隱藏) --- */
+.hide-on-desktop { display: none !important; }
 
 /* --- 標籤群組 --- */
 .social-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; align-items: start; }
@@ -169,10 +169,11 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .sub-tag-btn:hover { border-color: var(--mint-green); color: var(--mint-hover);}
 .sub-tag-btn.active { background: var(--text-main); color: white; border-color: var(--text-main);}
 
+.official-icon { width: 16px; height: 16px; vertical-align: middle; margin-right: 5px; }
+
 /* --- 視圖雙欄佈局 --- */
 .view-layout { display: flex; gap: 30px; align-items: flex-start;}
 
-/* --- 月曆區塊 --- */
 .calendar-sidebar { flex: 0 0 320px; background: white; padding: 20px; border-radius: var(--border-radius); border: 1px solid var(--silver-border); box-shadow: var(--shadow-sm); position: sticky; top: 20px;}
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .calendar-header button { border: none; background: var(--silver-bg); padding: 6px 12px; border-radius: 8px; cursor: pointer; color: var(--text-main); font-weight: bold;}
@@ -216,7 +217,6 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 
 .content-text { font-size: 1rem; color: var(--text-main); line-height: 1.7; margin-bottom: 12px;}
 
-/* 多連結樣式 */
 .multi-links-group { display: flex; gap: 10px; flex-wrap: wrap;}
 .db-link { display: inline-block; background: white; color: var(--text-main); text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: 1px solid var(--silver-border); transition: 0.2s;}
 .db-link:before { content: '🔗 ';}
@@ -247,12 +247,33 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .btn-cancel { width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-weight: bold;}
 
 /* --- 手機版優先佈局 (Mobile-First) --- */
-.mobile-header { display: none; }
-
 @media (max-width: 1050px) {
-    .main-layout { flex-direction: column; padding: 10px; margin-top: 10px; }
+    .hide-on-desktop { display: flex !important; }
     
-    /* 完美修正手機版 Logo 與標題的對齊 */
+    .mobile-tag-toggle {
+        width: 100%;
+        padding: 12px 15px;
+        background: var(--silver-bg);
+        border: 1px solid var(--silver-border);
+        color: var(--text-main);
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 0.95rem;
+        cursor: pointer;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        transition: 0.2s;
+    }
+    .mobile-tag-toggle:hover { border-color: var(--mint-green); color: var(--mint-hover); }
+
+    /* 手機版預設隱藏標籤，點擊才展開 */
+    .sub-tags-wrapper { display: none; }
+    .sub-tags-wrapper.open { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .main-layout { flex-direction: column; padding: 10px; margin-top: 10px; width: 100%; overflow: hidden;}
+    
     .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--silver-card); border-bottom: 1px solid var(--silver-border); position: sticky; top: 0; z-index: 100; font-weight: 800;}
     .mobile-header .logo { display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 0; }
     .mobile-brand-logo { height: 32px; width: 32px; min-width: 32px; min-height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--mint-green); flex-shrink: 0;}
@@ -260,7 +281,7 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
     .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
     .hamburger span { width: 25px; height: 3px; background: var(--text-main); transition: 0.3s;}
 
-    .content-area { order: 1; }
+    .content-area { order: 1; width: 100%; max-width: 100vw; overflow: hidden;}
     .sidebar { order: 2; display: none; } 
     
     .sidebar.active { display: flex; position: fixed; top: 64px; left: 0; width: 100%; height: calc(100vh - 64px); background: var(--silver-bg); z-index: 90; padding: 20px; overflow-y: auto;}
@@ -271,13 +292,14 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
     
     .filter-main-row { flex-direction: column; align-items: stretch; gap: 10px;}
     
+    /* 解決搜尋列高度拉伸崩壞 */
     .search-container { flex: none; width: 100%; height: 44px; }
 
     .inline-date-filter { width: 100%; flex-wrap: wrap; justify-content: flex-start;}
     .date-input-group { flex: 1 1 auto; min-width: 180px;}
     .custom-dropdown { flex: 1 1 auto; min-width: 120px; max-width: none;}
     
-    /* 解決手機上「社群動態」標籤折疊面板擠壓變形問題 */
+    /* 強制將折疊標籤列改為單一欄，防止壓縮變形 */
     .social-grid { grid-template-columns: 1fr; }
 
     .timeline::before { display: none; }
