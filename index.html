@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 1. 網站主要標題與描述 -->
+    <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
+    <meta name="description" content="專為 LE SSERAFIM KIM CHAEWON 打造的個人化多媒體足跡與動態典藏系統，統整社群、活動與重要日程。">
+    <meta name="keywords" content="KIM CHAEWON, LE SSERAFIM, 金采源, 偶像典藏系統, KPOP">
+
+    <!-- 2. 瀏覽器分頁標籤 Logo (Favicon) - 使用相對路徑 -->
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="apple-touch-icon" href="images/logo.png">
+
+    <!-- 3. Open Graph / Facebook / LINE 預覽設定 -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="CHAEWON Archive | 偶像多媒體足跡與動態典藏系統">
+    <meta property="og:description" content="專為 LE SSERAFIM KIM CHAEWON 打造的個人化多媒體足跡與動態典藏系統。">
+    
+    <!-- ⚠️【重要】請將下方網址替換為你真實的 GitHub Pages 完整網址 -->
+    <meta property="og:url" content="https://soda8-hub.github.io/CHAEWON_archive/">
+    <!-- ⚠️【重要】分享預覽圖必須是完整絕對網址！請替換你的帳號與專案名 -->
+    <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
+    <!-- 建議的社群分享圖比例為 1.91:1 (例如 1200x630 px)。若直接用 logo.png，兩側可能會留白，這是正常的 -->
+
+    <!-- 4. X (Twitter) 預覽設定 -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CHAEWON Archive | 偶像多媒體足跡與動態典藏系統">
+    <meta name="twitter:description" content="專為 LE SSERAFIM KIM CHAEWON 打造的個人化多媒體足跡與動態典藏系統。">
+    <!-- ⚠️【重要】同上，請替換為完整絕對網址 -->
+    <meta name="twitter:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
+
+    <!-- 連結外部 CSS 樣式表 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 手機版頂部導航 -->
+    <header class="mobile-header" id="topAnchor">
+        <div class="logo">
+            <img src="images/logo.png" alt="CHAEWON" class="mobile-brand-logo" onerror="this.src='https://api.iconify.design/twemoji:leopard.svg';"> 
+            CHAEWON Archive
+        </div>
+        <div class="hamburger" id="hamburgerMenu">
+            <span></span><span></span><span></span>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <!-- 左側面板 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="desktop-logo-container">
+                <img src="images/logo.png" alt="CHAEWON Logo" class="brand-logo" onerror="this.src='https://api.iconify.design/twemoji:leopard.svg';">
+                <div class="desktop-logo-text">
+                    <h2>CHAEWON Archive</h2>
+                    <p>偶像多媒體足跡與動態典藏系統</p>
+                </div>
+            </div>
+
+            <!-- 系統狀態 -->
+            <div class="card status-box">
+                <h3 class="card-title">系統狀態</h3>
+                <div class="status-content">
+                    <div id="lockStatus" class="status-indicator locked">
+                        <span class="icon">🔒</span> 訪客鎖定中 (Viewer Mode)
+                    </div>
+                    <button id="lockBtn" class="btn-lock">輸入密碼解鎖 🔓</button>
+                    <button id="quickAddBtn" class="btn-quick-add disabled">+ 快速新增 (需解鎖)</button>
+                </div>
+            </div>
+
+            <!-- 統計區塊 -->
+            <div class="card stats-box">
+                <h3 class="card-title">當前資料統計</h3>
+                <div class="stats-summary">
+                    <p id="dynamicMonthText" class="month-stat-title">
+                        YYYY年 MM月 總計：<strong id="totalCount" class="count-text">0</strong> <strong>筆</strong>
+                    </p>
+                    <p class="today-stat-title">
+                        今日新增 (<span id="dynamicTodayDate">MM/DD</span>)：<strong id="todayCount" class="count-text-small">0</strong> <strong>筆</strong>
+                    </p>
+                </div>
+                <ul id="moduleStats" class="stats-list"></ul>
+            </div>
+        </aside>
+
+        <!-- 右側主要內容 -->
+        <main class="content-area">
+            <div class="top-toolbar">
+                <nav class="nav-menu-container">
+                    <ul class="nav-links" id="navLinks">
+                        <li data-module="all" class="active">全部時間軸</li>
+                        <li data-module="social">社群動態</li>
+                        <li data-module="event">公開演出活動與現場紀錄</li>
+                        <li data-module="brand">品牌商務與官方公告</li>
+                        <li data-module="schedule">重要日程</li>
+                    </ul>
+                </nav>
+
+                <div class="toolbar-controls">
+                    <div class="filter-main-row">
+                        <!-- 搜尋列 -->
+                        <div class="search-container desktop-search">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchInput" placeholder="搜尋內文、平台或標籤 (支援方向鍵)..." autocomplete="off">
+                            <ul id="searchResults" class="search-results"></ul>
+                        </div>
+
+                        <!-- 日期篩選與排序 -->
+                        <div class="inline-date-filter">
+                            <div class="date-input-group">
+                                <input type="text" id="dateText" placeholder="yyyy/mm/dd 或 yyyy-mm-dd" autocomplete="off">
+                                <div class="date-picker-wrapper" id="datePickerTrigger">
+                                    <span class="calendar-icon">📅</span>
+                                    <input type="date" id="datePicker">
+                                </div>
+                            </div>
+                            <button id="applyDateBtn" class="btn-primary-small">篩選</button>
+                            <button id="clearDateBtn" class="btn-secondary-small">清除</button>
+                            
+                            <!-- 完美客製化：排序下拉選單 -->
+                            <div class="custom-dropdown" id="sortDropdown">
+                                <div class="dropdown-selected">
+                                    <span id="sortText">由新到舊 ↓</span> 
+                                    <span class="arrow">﹀</span>
+                                </div>
+                                <ul class="dropdown-options">
+                                    <li data-value="desc" class="active">由新到舊 ↓</li>
+                                    <li data-value="asc">由舊到新 ↑</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 標籤狀態提示與清除按鈕區 -->
+                    <div class="tags-header-row">
+                        <p id="filterMsg" class="filter-msg"></p>
+                        <div id="clearTagsContainer"></div>
+                    </div>
+
+                    <div class="toolbar-divider"></div>
+                    
+                    <!-- 次標籤區塊 -->
+                    <div id="subTagsContainer" class="sub-tags-container"></div>
+                </div>
+            </div>
+            
+            <div id="viewContainer" class="view-layout">
+                <div id="calendarContainer" class="calendar-sidebar" style="display: none;">
+                    <div class="calendar-header">
+                        <button id="prevMonthBtn">◀</button>
+                        <div class="cal-title-group">
+                            <h4 id="calendarTitle">2026年 10月</h4>
+                            <button id="todayBtn" class="btn-today">今天</button>
+                        </div>
+                        <button id="nextMonthBtn">▶</button>
+                    </div>
+                    <div class="calendar-grid-header">
+                        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+                    </div>
+                    <div id="calendarGrid" class="calendar-grid"></div>
+                </div>
+
+                <div id="timelineContainer" class="timeline"></div>
+            </div>
+        </main>
+    </div>
+
+    <button id="backToTopBtn" class="back-to-top" title="回到頂端">⬆️</button>
+
+    <!-- 安全驗證彈窗 -->
+    <div id="securityModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modalTitle">系統權限驗證</h3>
+            <div id="stepPassword">
+                <p>請輸入系統管理員密碼：</p>
+                <input type="password" id="adminPwd" class="modal-input" placeholder="Hint: admin">
+                <button id="verifyPwdBtn" class="btn-primary">下一步</button>
+                <button class="btn-cancel close-modal">取消</button>
+            </div>
+            <div id="stepCaptcha" style="display: none;">
+                <p class="warning-text">請在 <span id="timerText">30</span> 秒內輸入以下驗證碼：</p>
+                <div class="captcha-display" id="captchaDisplay">XXXXXX</div>
+                <input type="text" id="captchaInput" class="modal-input" placeholder="輸入驗證碼 (按 Enter 送出)">
+                <button id="confirmLockBtn" class="btn-primary">確認執行</button>
+                <button class="btn-cancel close-modal">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. 模擬資料庫 ---
+        const mockData = [
+            { id: 'p1', module: 'social', date: '2026-10-20', time: '14:20:00', tags: ['Instagram POST', 'Instagram--_chaechae_1', 'CHAEWON單人'], content: '今日 CRAZY 舞台結束! 感謝 FEARNOT... 今天也玩得很開心 🖤⚡️ #KIMCHAEWON', source: 'Instagram', links: [{ title: 'IG 原文', url: '#' }] },
+            { id: 'p3', module: 'event', date: '2026-10-20', time: '18:30:00', tags: ['打歌舞臺'], content: 'KBS Music Bank \'CRAZY\' 舞台播出與直拍 FanCam 更新。', source: 'YouTube', links: [{ title: '📺 舞台播出', url: '#' }, { title: '🎥 CHAEWON 直拍', url: '#' }] },
+            { id: 'p4', module: 'social', date: '2026-10-12', time: '21:00:00', tags: ['Weverse POST', 'Weverse--CHAEWON', 'CHAEWON單人'], content: '下班了！今天舞台看了嗎？', source: 'Weverse', links: [{ title: 'Weverse 原文', url: '#' }] },
+            { id: 'p2', module: 'brand', date: '2026-10-12', time: '10:00:00', tags: ['品牌商務'], content: '亞洲區代言人全新粉底液形象大片公開。', source: 'X', links: [{ title: '官方 X 貼文', url: '#' }] },
+            { id: 'p6', module: 'schedule', date: '2026-10-25', time: '19:00:00', tags: ['預錄時間'], content: '年末特別舞台 事前錄製', source: 'Official', links: [{ title: 'Weverse 公告', url: '#' }] },
+            { id: 'p7', module: 'schedule', date: '2026-10-15', time: '00:00:00', tags: ['官方公告'], content: 'MAKE UP FOR EVER 形象大片釋出日', source: 'Official', links: [{ title: '關聯品牌公告', url: '#' }] }
+        ];
+
+        // --- 核心更新：Weverse 圖示替換為 Wikimedia 連結 ---
+        const moduleSubTags = {
+            social: {
+                '🐆 CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON'],
+                '<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'],
+                '<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Weverse_logo.svg" class="official-icon" style="filter: invert(15%) sepia(18%) saturate(1469%) hue-rotate(170deg) brightness(97%) contrast(92%);"> Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'],
+                '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'],
+                '<img src="https://images.icon-icons.com/1488/PNG/512/5295-youtube-i_102568.png" class="official-icon"> YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'],
+                '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon"> TikTok / Challenge / 多人': ['TikTok/抖音', 'Challenge', '多人']
+            },
+            event: ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'],
+            brand: ['品牌商務', '官方公告', '回歸相關'],
+            schedule: ['演唱會', '預錄時間', '生日', '節目播出']
+        };
+
+        // --- 模組名稱對應更新 ---
+        const moduleNames = { 
+            social: '社群動態', 
+            event: '公開演出活動與現場紀錄', 
+            brand: '品牌商務與官方公告', 
+            schedule: '重要日程' 
+        };
+
+        let currentModule = 'all';
+        let isUnlocked = false;
+        const EDIT_PASSWORD = 'admin';
+        let currentData = [...mockData];
+        let activeSubTags = [];
+        let currentSortOrder = 'desc'; 
+        
+        const systemToday = new Date();
+        const sysYear = systemToday.getFullYear();
+        const sysMonthStr = String(systemToday.getMonth() + 1).padStart(2, '0');
+        const sysDayStr = String(systemToday.getDate()).padStart(2, '0');
+        let currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() {
+            setupNavigation();
+            setupSearch();
+            setupDateFilterAndSort();
+            setupSecurityModal();
+            setupBackToTop();
+            refreshView();
+        }
+
+        function refreshView(targetDate = null) {
+            filterData(targetDate);
+            const calendarContainer = document.getElementById('calendarContainer');
+            if (currentModule === 'schedule') {
+                calendarContainer.style.display = 'block';
+                renderCalendar();
+            } else {
+                calendarContainer.style.display = 'none';
+            }
+        }
+
+        function filterData(targetDate = null) {
+            currentData = mockData.filter(item => {
+                const matchModule = currentModule === 'all' || item.module === currentModule;
+                const matchDate = targetDate ? item.date === targetDate : true;
+                const matchTags = activeSubTags.length === 0 || activeSubTags.some(tag => item.tags.includes(tag) || item.source.includes(tag));
+                
+                let matchMonth = true;
+                if (currentModule === 'schedule' && !targetDate) {
+                    matchMonth = item.date.startsWith(currentMonthFilter);
+                }
+                return matchModule && matchDate && matchTags && matchMonth;
+            });
+
+            renderSidebarStats(currentData);
+            renderTimeline(currentData);
+        }
+
+        function renderSidebarStats(data) {
+            const todayStr = systemToday.toISOString().split('T')[0];
+            const todayCountVal = data.filter(item => item.date === todayStr).length;
+
+            document.getElementById('dynamicMonthText').innerHTML = `${sysYear}年 ${sysMonthStr}月 總計：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
+            document.getElementById('dynamicTodayDate').innerText = `${sysMonthStr}/${sysDayStr}`;
+            document.getElementById('todayCount').innerText = todayCountVal;
+
+            const statsList = document.getElementById('moduleStats');
+            statsList.innerHTML = '';
+
+            if (currentModule === 'all') {
+                const counts = { social: 0, event: 0, brand: 0, schedule: 0 };
+                data.forEach(item => { if(counts[item.module] !== undefined) counts[item.module]++; });
+                for (const [key, val] of Object.entries(counts)) {
+                    statsList.innerHTML += `<li><span class="stat-label">${moduleNames[key]}</span> <span class="stat-count">${val} 筆</span></li>`;
+                }
+            } else {
+                const tagCounts = {};
+                data.forEach(item => {
+                    item.tags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; });
+                });
+                const sortedTags = Object.keys(tagCounts).sort((a,b) => tagCounts[b] - tagCounts[a]);
+                if (sortedTags.length === 0) {
+                    statsList.innerHTML = `<li><span class="stat-label">尚無數據</span></li>`;
+                } else {
+                    sortedTags.forEach(tag => {
+                        statsList.innerHTML += `<li><span class="stat-label">${tag}</span> <span class="stat-count">${tagCounts[tag]} 筆</span></li>`;
+                    });
+                }
+            }
+        }
+
+        function renderTimeline(data) {
+            const container = document.getElementById('timelineContainer');
+            container.innerHTML = '';
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="empty-state">此條件下暫無資料。</div>';
+                return;
+            }
+
+            const groupedData = {};
+            data.forEach(item => {
+                if (!groupedData[item.date]) groupedData[item.date] = [];
+                groupedData[item.date].push(item);
+            });
+
+            const sortedDates = Object.keys(groupedData).sort((a,b) => {
+                return currentSortOrder === 'desc' ? new Date(b) - new Date(a) : new Date(a) - new Date(b);
+            });
+
+            sortedDates.forEach(date => {
+                const items = groupedData[date];
+                
+                items.sort((a,b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`));
+                items.forEach((item, index) => item.dailyOrder = index + 1);
+                if(currentSortOrder === 'desc') items.reverse();
+
+                const isToday = date === systemToday.toISOString().split('T')[0];
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'timeline-date-header';
+                dateHeader.innerHTML = `<h3>📅 ${date.replace(/-/g, '/')} <span class="daily-count">(${isToday ? '今日新增 ' : '共 '}${items.length} 筆)</span></h3>`;
+                container.appendChild(dateHeader);
+
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'timeline-card';
+                    card.id = `post-${item.id}`;
+
+                    const adminBtns = isUnlocked ? `<button class="btn-edit-small">編輯</button><button class="btn-del-small">刪除</button>` : '';
+                    
+                    let linksHtml = '';
+                    if (item.links && item.links.length > 0) {
+                        linksHtml = '<div class="multi-links-group">' + item.links.map(l => 
+                            `<a href="${l.url}" class="db-link" target="_blank" rel="noopener noreferrer">${l.title}</a>`
+                        ).join('') + '</div>';
+                    }
+
+                    card.innerHTML = `
+                        <div class="card-date-col">
+                            <div class="time">${item.time.slice(0,5)}</div>
+                        </div>
+                        <div class="card-content-col">
+                            <div class="card-header">
+                                <div class="tags">
+                                    <span class="tag tag-daily">當日 #${item.dailyOrder}</span>
+                                    <span class="tag tag-platform">${item.source}</span>
+                                    ${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                                </div>
+                                <div class="admin-actions">${adminBtns}</div>
+                            </div>
+                            <p class="content-text">${item.content.replace(/\n/g, '<br>')}</p>
+                            ${linksHtml}
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            });
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const title = document.getElementById('calendarTitle');
+            grid.innerHTML = '';
+
+            const [year, month] = currentMonthFilter.split('-').map(Number);
+            title.innerText = `${year}年 ${month}月`;
+
+            const firstDay = new Date(year, month - 1, 1).getDay();
+            const daysInMonth = new Date(year, month, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="cal-cell empty"></div>`;
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const hasEvent = mockData.some(item => item.module === 'schedule' && item.date === dateStr);
+                
+                let dotHtml = hasEvent ? `<div class="event-dots"><span class="dot"></span></div>` : '';
+                const isTodayStr = dateStr === systemToday.toISOString().split('T')[0] ? 'today' : '';
+                
+                grid.innerHTML += `
+                    <div class="cal-cell ${isTodayStr} ${hasEvent ? 'has-event' : ''}" onclick="filterBySpecificDate('${dateStr}')">
+                        <span class="day-num">${d}</span>
+                        ${dotHtml}
+                    </div>
+                `;
+            }
+        }
+
+        function filterBySpecificDate(dateStr) {
+            document.getElementById('dateText').value = dateStr.replace(/-/g, '/');
+            document.getElementById('applyDateBtn').click();
+        }
+
+        function setupNavigation() {
+            const links = document.querySelectorAll('#navLinks li');
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    links.forEach(l => l.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentModule = e.target.getAttribute('data-module');
+                    activeSubTags = []; 
+                    
+                    document.getElementById('searchInput').value = '';
+                    clearDateFilter(); 
+                    renderSubTags();
+                    updateClearTagsButton(); 
+                    
+                    if(window.innerWidth <= 1050) document.getElementById('sidebar').classList.remove('active');
+                });
+            });
+        }
+
+        function renderSubTags() {
+            const container = document.getElementById('subTagsContainer');
+            container.innerHTML = '';
+            if (currentModule === 'all' || !moduleSubTags[currentModule]) {
+                container.className = 'sub-tags-container'; 
+                return;
+            }
+
+            const tagsData = moduleSubTags[currentModule];
+            
+            if (typeof tagsData === 'object' && !Array.isArray(tagsData)) {
+                container.className = 'social-grid'; 
+                for (const [groupName, tagsArray] of Object.entries(tagsData)) {
+                    const details = document.createElement('details');
+                    details.className = 'tag-accordion';
+                    if(groupName.includes('專屬')) details.open = true;
+
+                    const summary = document.createElement('summary');
+                    summary.innerHTML = groupName;
+                    
+                    const tagContent = document.createElement('div');
+                    tagContent.className = 'tag-accordion-content';
+
+                    tagsArray.forEach(tag => {
+                        const btn = document.createElement('button');
+                        btn.className = 'sub-tag-btn' + (activeSubTags.includes(tag) ? ' active' : '');
+                        btn.innerText = tag;
+                        btn.onclick = (e) => {
+                            e.preventDefault(); 
+                            btn.classList.toggle('active');
+                            if(activeSubTags.includes(tag)) activeSubTags = activeSubTags.filter(t => t !== tag);
+                            else activeSubTags.push(tag);
+                            
+                            updateClearTagsButton();
+                            refreshView(document.getElementById('dateText').value.replace(/\//g, '-'));
+                        };
+                        tagContent.appendChild(btn);
+                    });
+
+                    details.appendChild(summary);
+                    details.appendChild(tagContent);
+                    container.appendChild(details);
+                }
+            } else {
+                container.className = 'sub-tags-flat';
+                tagsData.forEach(tag => {
+                    const btn = document.createElement('button');
+                    btn.className = 'sub-tag-btn' + (activeSubTags.includes(tag) ? ' active' : '');
+                    btn.innerText = tag;
+                    btn.onclick = () => {
+                        btn.classList.toggle('active');
+                        if(activeSubTags.includes(tag)) activeSubTags = activeSubTags.filter(t => t !== tag);
+                        else activeSubTags.push(tag);
+                        
+                        updateClearTagsButton();
+                        refreshView(document.getElementById('dateText').value.replace(/\//g, '-'));
+                    };
+                    container.appendChild(btn);
+                });
+            }
+        }
+
+        function updateClearTagsButton() {
+            const container = document.getElementById('clearTagsContainer');
+            if (activeSubTags.length > 0) {
+                container.innerHTML = `<button class="btn-clear-tags">✖ 清除所選標籤</button>`;
+                container.querySelector('.btn-clear-tags').onclick = () => {
+                    activeSubTags = [];
+                    renderSubTags(); 
+                    updateClearTagsButton();
+                    refreshView(document.getElementById('dateText').value.replace(/\//g, '-'));
+                };
+            } else {
+                container.innerHTML = '';
+            }
+        }
+
+        function setupSearch() {
+            const input = document.getElementById('searchInput');
+            const resultsList = document.getElementById('searchResults');
+            let currentFocus = -1;
+
+            input.addEventListener('input', function() {
+                const val = this.value.toLowerCase().trim();
+                resultsList.innerHTML = '';
+                currentFocus = -1;
+                if (!val) { refreshView(); return; }
+
+                const searchScope = mockData.filter(item => currentModule === 'all' || item.module === currentModule);
+                const matched = searchScope.filter(item => 
+                    item.content.toLowerCase().includes(val) || 
+                    item.tags.join('').toLowerCase().includes(val) ||
+                    item.source.toLowerCase().includes(val)
+                );
+
+                renderSidebarStats(matched);
+                renderTimeline(matched);
+
+                matched.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span class="s-date">${item.date}</span> ${item.content.substring(0, 20)}...`;
+                    li.addEventListener('click', () => {
+                        input.value = '';
+                        resultsList.innerHTML = '';
+                        const targetCard = document.getElementById(`post-${item.id}`);
+                        if(targetCard) {
+                            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            targetCard.style.boxShadow = '0 0 0 3px var(--mint-green)';
+                            setTimeout(() => targetCard.style.boxShadow = '', 2000);
+                        }
+                    });
+                    resultsList.appendChild(li);
+                });
+            });
+
+            input.addEventListener('keydown', function(e) {
+                const items = resultsList.getElementsByTagName('li');
+                if (e.key === 'ArrowDown') { currentFocus++; addActive(items); } 
+                else if (e.key === 'ArrowUp') { currentFocus--; addActive(items); } 
+                else if (e.key === 'Enter') { e.preventDefault(); if (currentFocus > -1 && items[currentFocus]) items[currentFocus].click(); }
+            });
+
+            function addActive(items) {
+                if (!items || items.length === 0) return;
+                for (let i = 0; i < items.length; i++) items[i].classList.remove('autocomplete-active');
+                if (currentFocus >= items.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (items.length - 1);
+                items[currentFocus].classList.add('autocomplete-active');
+                items[currentFocus].scrollIntoView({ block: 'nearest' });
+            }
+
+            document.addEventListener('click', (e) => { if(e.target !== input) resultsList.innerHTML = ''; });
+        }
+
+        function setupDateFilterAndSort() {
+            const dateText = document.getElementById('dateText');
+            const filterMsg = document.getElementById('filterMsg');
+            
+            const sortDropdown = document.getElementById('sortDropdown');
+            const sortSelected = sortDropdown.querySelector('.dropdown-selected');
+            const sortOptions = sortDropdown.querySelectorAll('.dropdown-options li');
+            const sortText = document.getElementById('sortText');
+
+            sortSelected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sortDropdown.classList.toggle('open');
+            });
+
+            sortOptions.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    sortOptions.forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    currentSortOrder = opt.getAttribute('data-value');
+                    sortText.innerText = opt.innerText;
+                    sortDropdown.classList.remove('open');
+                    refreshView(document.getElementById('dateText').value.replace(/\//g, '-') || null);
+                });
+            });
+
+            document.addEventListener('click', () => sortDropdown.classList.remove('open'));
+
+            document.getElementById('datePickerTrigger').addEventListener('click', () => {
+                try { document.getElementById('datePicker').showPicker(); } catch(e) {}
+            });
+
+            document.getElementById('datePicker').addEventListener('change', (e) => {
+                dateText.value = e.target.value.replace(/-/g, '/');
+                document.getElementById('applyDateBtn').click(); 
+            });
+
+            dateText.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') document.getElementById('applyDateBtn').click();
+            });
+
+            document.getElementById('applyDateBtn').addEventListener('click', () => {
+                const val = dateText.value.trim();
+                if(!val) { clearDateFilter(); return; }
+                
+                const dateRegex = /^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/;
+                const match = val.match(dateRegex);
+                
+                if (match) {
+                    const y = match[1];
+                    const m = match[2].padStart(2, '0');
+                    const d = match[3].padStart(2, '0');
+                    const formattedDate = `${y}-${m}-${d}`;
+                    filterMsg.innerText = `已篩選: ${formattedDate}`;
+                    currentMonthFilter = `${y}-${m}`;
+                    refreshView(formattedDate);
+                } else {
+                    filterMsg.innerText = '格式錯誤 (yyyy/mm/dd)';
+                }
+            });
+
+            document.getElementById('clearDateBtn').addEventListener('click', clearDateFilter);
+            document.getElementById('prevMonthBtn').addEventListener('click', () => changeMonth(-1));
+            document.getElementById('nextMonthBtn').addEventListener('click', () => changeMonth(1));
+            
+            document.getElementById('todayBtn').addEventListener('click', () => {
+                currentMonthFilter = `${sysYear}-${sysMonthStr}`;
+                dateText.value = `${sysYear}/${sysMonthStr}/${sysDayStr}`;
+                document.getElementById('applyDateBtn').click();
+            });
+        }
+
+        function clearDateFilter() {
+            document.getElementById('dateText').value = '';
+            document.getElementById('datePicker').value = '';
+            document.getElementById('filterMsg').innerText = '';
+            currentMonthFilter = `${sysYear}-${sysMonthStr}`;
+            refreshView(null);
+        }
+
+        function changeMonth(offset) {
+            let [y, m] = currentMonthFilter.split('-').map(Number);
+            m += offset;
+            if (m > 12) { m = 1; y++; }
+            if (m < 1) { m = 12; y--; }
+            currentMonthFilter = `${y}-${String(m).padStart(2,'0')}`;
+            document.getElementById('dateText').value = '';
+            document.getElementById('filterMsg').innerText = '';
+            refreshView(null);
+        }
+
+        function setupBackToTop() {
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) backToTopBtn.classList.add('show');
+                else backToTopBtn.classList.remove('show');
+            });
+            backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        }
+
+        let captchaTimer, expectedCaptcha = '', targetLockState = false; 
+
+        function setupSecurityModal() {
+            const lockBtn = document.getElementById('lockBtn');
+            const modal = document.getElementById('securityModal');
+            const adminPwdInput = document.getElementById('adminPwd');
+            const captchaInput = document.getElementById('captchaInput');
+            const verifyPwdBtn = document.getElementById('verifyPwdBtn');
+            const confirmLockBtn = document.getElementById('confirmLockBtn');
+
+            lockBtn.addEventListener('click', () => {
+                targetLockState = !isUnlocked; 
+                document.getElementById('modalTitle').innerText = targetLockState ? '系統解鎖驗證' : '系統上鎖驗證';
+                adminPwdInput.value = ''; captchaInput.value = '';
+                document.getElementById('stepPassword').style.display = 'block';
+                document.getElementById('stepCaptcha').style.display = 'none';
+                modal.style.display = 'flex';
+                setTimeout(() => adminPwdInput.focus(), 100); 
+            });
+
+            document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', closeModal));
+            adminPwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyPwdBtn.click(); });
+
+            verifyPwdBtn.addEventListener('click', () => {
+                if(adminPwdInput.value === EDIT_PASSWORD) startCaptchaStep();
+                else alert('密碼錯誤！');
+            });
+
+            captchaInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmLockBtn.click(); });
+
+            confirmLockBtn.addEventListener('click', () => {
+                const input = captchaInput.value.toUpperCase();
+                if(input === expectedCaptcha) {
+                    isUnlocked = targetLockState;
+                    updateLockUI();
+                    closeModal();
+                    alert(isUnlocked ? '解鎖成功！已開放編輯權限。' : '系統已重新上鎖。');
+                } else alert('驗證碼錯誤，請重新輸入！');
+            });
+        }
+
+        function startCaptchaStep() {
+            document.getElementById('stepPassword').style.display = 'none';
+            document.getElementById('stepCaptcha').style.display = 'block';
+            expectedCaptcha = Math.random().toString(36).substring(2, 8).toUpperCase();
+            document.getElementById('captchaDisplay').innerText = expectedCaptcha;
+            
+            let timeLeft = 30;
+            document.getElementById('timerText').innerText = timeLeft;
+            document.getElementById('captchaInput').focus();
+            
+            clearInterval(captchaTimer);
+            captchaTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerText').innerText = timeLeft;
+                if(timeLeft <= 0) { clearInterval(captchaTimer); alert("驗證超時，請重新操作！"); closeModal(); }
+            }, 1000);
+        }
+
+        function closeModal() { clearInterval(captchaTimer); document.getElementById('securityModal').style.display = 'none'; }
+
+        function updateLockUI() {
+            const lockBtn = document.getElementById('lockBtn');
+            const quickBtn = document.getElementById('quickAddBtn');
+            const statusInd = document.getElementById('lockStatus');
+            
+            if (isUnlocked) {
+                statusInd.className = 'status-indicator unlocked';
+                statusInd.innerHTML = '<span class="icon">🔓</span> 編輯模式 (Admin Mode)';
+                lockBtn.innerText = '鎖定系統 🔒';
+                quickBtn.className = 'btn-quick-add unlocked'; quickBtn.innerText = '+ 快速新增資料';
+            } else {
+                statusInd.className = 'status-indicator locked';
+                statusInd.innerHTML = '<span class="icon">🔒</span> 訪客鎖定中 (Viewer Mode)';
+                lockBtn.innerText = '輸入密碼解鎖 🔓';
+                quickBtn.className = 'btn-quick-add disabled'; quickBtn.innerText = '+ 快速新增 (需解鎖)';
+            }
+            renderTimeline(currentData);
+        }
+
+        document.getElementById('hamburgerMenu').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
