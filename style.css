@@ -38,8 +38,8 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
     flex-shrink: 0; 
 }
 .mint-dot { width: 14px; height: 14px; background-color: var(--mint-green); border-radius: 50%; display: inline-block; flex-shrink: 0;}
-.desktop-logo-text h2 { font-size: 1.2rem; font-weight: 800; }
-.desktop-logo-text p { font-size: 0.8rem; color: var(--text-muted); }
+.desktop-logo-text h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0;}
+.desktop-logo-text p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;}
 
 .card { background: var(--silver-card); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); }
 .card-title { font-size: 1.05rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--mint-light); color: var(--text-main);}
@@ -67,10 +67,8 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 /* --- 右側內容區 --- */
 .content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 
-/* 頂部工具列 */
 .top-toolbar { background: var(--silver-card); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border);}
 
-/* 移除 min-width 確保電腦版能流暢縮小 */
 .nav-menu-container { width: 100%; background: var(--silver-bg); padding: 6px; border-radius: 30px; display: flex; margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch;}
 .nav-links { display: flex; list-style: none; gap: 5px; width: 100%; } 
 .nav-links li { flex: 1 1 auto; text-align: center; padding: 10px 15px; border-radius: 20px; cursor: pointer; font-size: 0.95rem; font-weight: 600; color: var(--text-muted); transition: all 0.3s ease; white-space: nowrap;}
@@ -78,16 +76,10 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .nav-links li.active { background-color: var(--mint-green); color: white; box-shadow: 0 2px 8px rgba(32, 201, 151, 0.3);}
 .nav-links::-webkit-scrollbar { display: none; }
 
-/* --- 搜尋與過濾重構 (解決擠壓與變形) --- */
+/* --- 搜尋與過濾重構 --- */
 .toolbar-controls { display: flex; flex-direction: column; gap: 12px;}
-.filter-main-row { 
-    display: flex; 
-    gap: 15px; 
-    align-items: center; 
-    flex-wrap: wrap; 
-}
+.filter-main-row { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
 
-/* 限制搜尋欄高度，防止變形 */
 .search-container { 
     flex: 1 1 300px; 
     min-width: 250px; 
@@ -104,15 +96,7 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .search-results li:hover, .autocomplete-active { background-color: var(--mint-green) !important; color: white !important; }
 .s-date { font-size: 0.75rem; background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
 
-/* 日期篩選與排序區塊 */
-.inline-date-filter { 
-    flex: 1 1 auto; 
-    display: flex; 
-    gap: 8px; 
-    align-items: center; 
-    flex-wrap: wrap; 
-    justify-content: flex-end; 
-}
+.inline-date-filter { flex: 1 1 auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 
 .date-input-group { display: flex; border: 1px solid var(--silver-border); border-radius: 10px; background: white; overflow: hidden; height: 44px; flex: 1 1 200px; min-width: 200px;}
 .date-input-group input[type="text"] { width: 100%; padding: 0 15px; border: none; outline: none; font-size: 0.9rem;}
@@ -128,7 +112,6 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .btn-primary-small:hover { background: var(--mint-hover); }
 .btn-secondary-small { background: var(--silver-bg); color: var(--text-main); border: 1px solid var(--silver-border); }
 
-/* 下拉選單 */
 .custom-dropdown { position: relative; height: 44px; user-select: none; flex: 1 1 130px; min-width: 130px; max-width: 150px;}
 .dropdown-selected { display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 15px; border-radius: 10px; border: 1px solid var(--silver-border); background: white; color: var(--text-main); font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s;}
 .dropdown-selected:hover { border-color: var(--mint-green); }
@@ -142,7 +125,6 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .dropdown-options li:hover { background: var(--mint-light); color: var(--mint-hover);}
 .dropdown-options li.active { background: var(--mint-green); color: white;}
 
-/* 清除標籤與訊息列 */
 .tags-header-row { display: flex; justify-content: space-between; align-items: center; min-height: 20px;}
 .filter-msg { font-size: 0.85rem; color: var(--mint-hover); font-weight: bold;}
 .btn-clear-tags { background: #FFEBEE; color: #C62828; border: none; padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: 0.2s;}
@@ -150,8 +132,31 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 
 .toolbar-divider { height: 1px; background: var(--silver-border); width: 100%; margin: 0;}
 
-/* --- 手機版專屬：標籤收合按鈕 (電腦版隱藏) --- */
+/* =========================================
+   【修復核心 1】：全域定義展開/收合按鈕的外觀
+   並設定在電腦版 (全螢幕) 預設為完全隱藏
+========================================= */
 .hide-on-desktop { display: none !important; }
+
+.mobile-tag-toggle { 
+    display: none; /* 交給 .hide-on-desktop 控制隱藏 */
+    width: 100%; 
+    padding: 12px 15px; 
+    background: var(--silver-bg); 
+    border: 1px solid var(--silver-border); 
+    color: var(--text-main); 
+    border-radius: 10px; 
+    font-weight: bold; 
+    font-size: 0.95rem; 
+    cursor: pointer; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 10px; 
+    transition: 0.2s; 
+    appearance: none; 
+    -webkit-appearance: none;
+}
+.mobile-tag-toggle:hover { border-color: var(--mint-green); color: var(--mint-hover); }
 
 /* --- 標籤群組 --- */
 .social-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; align-items: start; }
@@ -228,12 +233,10 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .btn-edit-small { background: var(--silver-bg); color: var(--text-main); }
 .btn-del-small { background: #FFEBEE; color: #C62828; }
 
-/* --- 回到頂端按鈕 --- */
 .back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; border-radius: 50%; background: var(--mint-green); color: white; border: none; box-shadow: 0 4px 12px rgba(32, 201, 151, 0.4); font-size: 1.5rem; cursor: pointer; opacity: 0; visibility: hidden; transition: 0.3s ease; z-index: 1000; display: flex; justify-content: center; align-items: center;}
 .back-to-top.show { opacity: 1; visibility: visible; transform: translateY(0);}
 .back-to-top:hover { background: var(--mint-hover); transform: translateY(-5px);}
 
-/* --- 自製彈窗 (Modal) --- */
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(2px);}
 .modal-box { background: white; padding: 30px; border-radius: var(--border-radius); width: 90%; max-width: 380px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: popIn 0.3s ease; border: 1px solid var(--silver-border);}
 @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -246,41 +249,47 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .btn-primary:hover { background: var(--mint-hover); }
 .btn-cancel { width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-weight: bold;}
 
-/* --- 手機版優先佈局 (Mobile-First) --- */
+.mobile-header { 
+    display: none; 
+}
+
+/* --- 手機版 / 平板版優先佈局 (Mobile-First) --- */
 @media (max-width: 1050px) {
+    
+    /* 【修復核心 2】：螢幕縮小時強制喚醒按鈕 */
     .hide-on-desktop { display: flex !important; }
     
-    .mobile-tag-toggle {
-        width: 100%;
-        padding: 12px 15px;
-        background: var(--silver-bg);
-        border: 1px solid var(--silver-border);
-        color: var(--text-main);
-        border-radius: 10px;
-        font-weight: bold;
-        font-size: 0.95rem;
-        cursor: pointer;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-        transition: 0.2s;
-    }
-    .mobile-tag-toggle:hover { border-color: var(--mint-green); color: var(--mint-hover); }
-
-    /* 手機版預設隱藏標籤，點擊才展開 */
+    /* 【修復核心 3】：螢幕縮小時，強制隱藏標籤群組，必須點擊才加上 .open 展開 */
     .sub-tags-wrapper { display: none; }
     .sub-tags-wrapper.open { display: block; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-    .main-layout { flex-direction: column; padding: 10px; margin-top: 10px; width: 100%; overflow: hidden;}
-    
-    .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--silver-card); border-bottom: 1px solid var(--silver-border); position: sticky; top: 0; z-index: 100; font-weight: 800;}
+    .mobile-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        padding: 15px 20px; 
+        background: var(--silver-card); 
+        border-bottom: 1px solid var(--silver-border); 
+        position: sticky; 
+        top: 0; 
+        z-index: 100; 
+        font-weight: 800;
+    }
+
     .mobile-header .logo { display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 0; }
-    .mobile-brand-logo { height: 32px; width: 32px; min-width: 32px; min-height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--mint-green); flex-shrink: 0;}
     
+    .mobile-brand-logo { 
+        height: 32px; width: 32px; 
+        min-width: 32px; min-height: 32px; 
+        border-radius: 50%; object-fit: cover; border: 2px solid var(--mint-green); 
+        flex-shrink: 0; 
+    }
+
     .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
     .hamburger span { width: 25px; height: 3px; background: var(--text-main); transition: 0.3s;}
 
+    .main-layout { flex-direction: column; padding: 10px; margin-top: 10px; width: 100%; overflow: hidden;}
     .content-area { order: 1; width: 100%; max-width: 100vw; overflow: hidden;}
     .sidebar { order: 2; display: none; } 
     
@@ -292,14 +301,12 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
     
     .filter-main-row { flex-direction: column; align-items: stretch; gap: 10px;}
     
-    /* 解決搜尋列高度拉伸崩壞 */
     .search-container { flex: none; width: 100%; height: 44px; }
 
     .inline-date-filter { width: 100%; flex-wrap: wrap; justify-content: flex-start;}
     .date-input-group { flex: 1 1 auto; min-width: 180px;}
     .custom-dropdown { flex: 1 1 auto; min-width: 120px; max-width: none;}
     
-    /* 強制將折疊標籤列改為單一欄，防止壓縮變形 */
     .social-grid { grid-template-columns: 1fr; }
 
     .timeline::before { display: none; }
