@@ -193,7 +193,7 @@
             { id: 'p4', module: 'social', date: '2026-10-12', time: '21:00:00', tags: ['Weverse POST', 'Weverse--CHAEWON', 'CHAEWON單人'], content: '下班了！今天舞台看了嗎？', source: 'Weverse', links: [{ title: 'Weverse 原文', url: '#' }] },
             { id: 'p2', module: 'brand', date: '2026-10-12', time: '10:00:00', tags: ['品牌商務'], content: '亞洲區代言人全新粉底液形象大片公開。', source: 'X', links: [{ title: '官方 X 貼文', url: '#' }] },
             { id: 'p6', module: 'schedule', date: '2026-10-18', time: '19:00:00', tags: ['預錄時間'], content: '年末特別舞台 事前錄製', source: 'Official', links: [{ title: 'Weverse 公告', url: '#' }] },
-            { id: 'p7', module: 'schedule', date: '2026-10-15', time: '00:00:00', tags: ['官方公告'], content: 'MAKE UP FOR EVER 形象大片釋出日', source: 'Official', links: [{ title: '關聯品牌公告', url: '#' }] }
+            { id: 'p7', module: 'brand', date: '2026-10-15', time: '00:00:00', tags: ['品牌商務'], content: 'MAKE UP FOR EVER 形象大片釋出日', source: 'X', links: [{ title: '官方 X 貼文', url: '#' }] }
         ];
 
         const weverseSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="official-icon" viewBox="0 0 24 24" fill="#00DACA"><path d="M14.65 17.65l-2.45-7.75h-1.8l-2.4 7.75h-2.1l3.45-9.85h2.2l1.85 6.3 1.8-6.3h2.2l3.45 9.85h-2.15l-2.4-7.75-2.45 7.75z"/></svg>`;
@@ -251,12 +251,10 @@
             refreshView();
         }
 
-        // --- 核心優化：手機版專屬標籤收合邏輯 ---
         function setupMobileTags() {
             const toggleBtn = document.getElementById('mobileTagToggle');
             if(!toggleBtn) return;
             
-            // 移除舊的監聽器，避免重複綁定
             const newToggleBtn = toggleBtn.cloneNode(true);
             toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
 
@@ -446,11 +444,9 @@
                     document.getElementById('searchInput').value = '';
                     clearDateFilter(); 
                     
-                    // 重新渲染標籤
                     renderSubTags();
                     updateClearTagsButton(); 
                     
-                    // 【切換模組時，強制手機版標籤回到收合狀態】
                     const wrapper = document.getElementById('subTagsWrapper');
                     if (wrapper) {
                         wrapper.classList.remove('open');
@@ -491,8 +487,11 @@
                     const details = document.createElement('details');
                     details.className = 'tag-accordion';
                     
-                    // 全部時間軸不預設展開，僅社群動態展開專屬區塊
-                    if(groupName.includes('專屬') && currentModule !== 'all') details.open = true;
+                    if (currentModule === 'social' && groupName.includes('專屬')) {
+                        details.open = true;
+                    } else {
+                        details.open = false; 
+                    }
 
                     const summary = document.createElement('summary');
                     summary.innerHTML = groupName;
