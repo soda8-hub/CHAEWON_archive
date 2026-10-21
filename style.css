@@ -16,7 +16,21 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif; }
-body { background-color: var(--silver-bg); color: var(--text-main); line-height: 1.6; scroll-behavior: smooth; overflow-x: hidden;}
+
+/* =========================================
+   【視覺傳達升級】：薄荷綠與銀白色的交叉漸層背景
+========================================= */
+body { 
+    background-color: var(--silver-bg); 
+    background-image: 
+        linear-gradient(135deg, rgba(245, 247, 250, 0.9) 0%, rgba(32, 201, 151, 0.12) 100%),
+        linear-gradient(225deg, rgba(245, 247, 250, 0.9) 0%, rgba(32, 201, 151, 0.08) 100%);
+    background-attachment: fixed; /* 確保漸層固定，不會因為往下捲動而拉伸破圖 */
+    color: var(--text-main); 
+    line-height: 1.6; 
+    scroll-behavior: smooth; 
+    overflow-x: hidden;
+}
 
 /* --- 佈局架構 --- */
 .main-layout { display: flex; max-width: 1400px; margin: 30px auto; padding: 0 20px; gap: 30px; align-items: flex-start;}
@@ -41,7 +55,8 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .desktop-logo-text h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0;}
 .desktop-logo-text p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;}
 
-.card { background: var(--silver-card); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); }
+/* 白底卡片加上微透明，讓漸層更有層次感 */
+.card { background: rgba(255, 255, 255, 0.95); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); backdrop-filter: blur(5px); }
 .card-title { font-size: 1.05rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--mint-light); color: var(--text-main);}
 
 .status-indicator { padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 15px; font-size: 0.95rem;}
@@ -67,7 +82,7 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 /* --- 右側內容區 --- */
 .content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 
-.top-toolbar { background: var(--silver-card); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border);}
+.top-toolbar { background: rgba(255, 255, 255, 0.95); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); backdrop-filter: blur(5px);}
 
 .nav-menu-container { width: 100%; background: var(--silver-bg); padding: 6px; border-radius: 30px; display: flex; margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch;}
 .nav-links { display: flex; list-style: none; gap: 5px; width: 100%; } 
@@ -154,37 +169,57 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 }
 .mobile-tag-toggle:hover { border-color: var(--mint-green); color: var(--mint-hover); }
 
-/* =========================================
-   【最新修改】：強制全螢幕模式下社群動態呈現 3 等分
-========================================= */
-.social-grid { 
-    display: grid; 
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 12px; 
-    align-items: start; 
-}
-
-/* 其他模組維持原樣 (不變) */
+/* --- 標籤群組 --- */
+.social-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: start; }
 .sub-tags-flat { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
 
 .tag-accordion { background: white; border: 1px solid var(--silver-border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
-.tag-accordion summary { padding: 8px 15px; font-weight: bold; font-size: 0.9rem; color: var(--text-main); background: var(--silver-bg); cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;}
+
+.tag-accordion summary { 
+    position: relative;
+    padding: 8px 45px; 
+    font-weight: bold; 
+    font-size: 0.9rem; 
+    color: var(--text-main); 
+    background: var(--silver-bg); 
+    cursor: pointer; 
+    user-select: none; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    transition: background 0.2s;
+    min-height: 42px; 
+}
+
 .tag-accordion summary:hover { background: var(--mint-light); color: var(--mint-hover); }
 .tag-accordion summary::-webkit-details-marker { display: none; }
-.tag-accordion summary::after { content: ''; width: 12px; height: 12px; background: url('data:image/svg+xml;utf8,<svg stroke="%237F8C8D" stroke-width="2" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6"></path></svg>') no-repeat center; transition: transform 0.3s ease;}
+
+.tag-accordion summary::after { 
+    content: ''; 
+    position: absolute;
+    right: 15px;
+    width: 12px; height: 12px; 
+    background: url('data:image/svg+xml;utf8,<svg stroke="%237F8C8D" stroke-width="2" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6"></path></svg>') no-repeat center; 
+    transition: transform 0.3s ease;
+}
 .tag-accordion[open] summary::after { transform: rotate(180deg); }
+
+.summary-icon-left { position: absolute; left: 15px; display: flex; align-items: center; }
+.summary-icon-right { position: absolute; right: 35px; display: flex; align-items: center; }
+.summary-text { text-align: center; line-height: 1.3; word-break: break-word; }
+
 .tag-accordion-content { padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px solid var(--silver-border); background: white;}
 
 .sub-tag-btn { background: white; border: 1px solid var(--silver-border); padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; cursor: pointer; color: var(--text-muted); transition: 0.2s; white-space: nowrap;}
 .sub-tag-btn:hover { border-color: var(--mint-green); color: var(--mint-hover);}
 .sub-tag-btn.active { background: var(--text-main); color: white; border-color: var(--text-main);}
 
-.official-icon { width: 16px; height: 16px; vertical-align: middle; margin-right: 5px; }
+.official-icon { width: 16px; height: 16px; vertical-align: middle; }
 
 /* --- 視圖雙欄佈局 --- */
 .view-layout { display: flex; gap: 30px; align-items: flex-start;}
 
-.calendar-sidebar { flex: 0 0 320px; background: white; padding: 20px; border-radius: var(--border-radius); border: 1px solid var(--silver-border); box-shadow: var(--shadow-sm); position: sticky; top: 20px;}
+.calendar-sidebar { flex: 0 0 320px; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: var(--border-radius); border: 1px solid var(--silver-border); box-shadow: var(--shadow-sm); position: sticky; top: 20px; backdrop-filter: blur(5px);}
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .calendar-header button { border: none; background: var(--silver-bg); padding: 6px 12px; border-radius: 8px; cursor: pointer; color: var(--text-main); font-weight: bold;}
 .cal-title-group { display: flex; flex-direction: column; align-items: center; gap: 5px;}
@@ -254,7 +289,7 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .card-date-col .time { font-size: 0.85rem; color: var(--text-muted); font-weight: bold;}
 .card-date-col::after { content: ''; position: absolute; left: 55px; top: 10px; width: 12px; height: 12px; background: var(--silver-card); border: 3px solid var(--mint-green); border-radius: 50%; }
 
-.card-content-col { flex: 1; background: var(--silver-card); padding: 20px; border-radius: var(--border-radius); box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); }
+.card-content-col { flex: 1; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: var(--border-radius); box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); backdrop-filter: blur(5px);}
 .card-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; }
 .tags { display: flex; gap: 8px; flex-wrap: wrap; }
 .tag { background: var(--mint-light); color: var(--mint-hover); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
@@ -268,7 +303,7 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
 .db-link:before { content: '🔗 ';}
 .db-link:hover { background: var(--mint-light); border-color: var(--mint-green); color: var(--mint-hover);}
 
-.empty-state { text-align: center; padding: 50px; color: var(--text-muted); background: var(--silver-card); border-radius: var(--border-radius); border: 1px dashed var(--silver-border);}
+.empty-state { text-align: center; padding: 50px; color: var(--text-muted); background: rgba(255, 255, 255, 0.95); border-radius: var(--border-radius); border: 1px dashed var(--silver-border);}
 
 .admin-actions button { border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: 5px; }
 .btn-edit-small { background: var(--silver-bg); color: var(--text-main); }
@@ -308,12 +343,13 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
         justify-content: space-between; 
         align-items: center; 
         padding: 15px 20px; 
-        background: var(--silver-card); 
+        background: rgba(255, 255, 255, 0.95); 
         border-bottom: 1px solid var(--silver-border); 
         position: sticky; 
         top: 0; 
         z-index: 100; 
         font-weight: 800;
+        backdrop-filter: blur(5px);
     }
 
     .mobile-header .logo { display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 0; }
@@ -332,7 +368,7 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
     .content-area { order: 1; width: 100%; max-width: 100vw; overflow: hidden;}
     .sidebar { order: 2; display: none; } 
     
-    .sidebar.active { display: flex; position: fixed; top: 64px; left: 0; width: 100%; height: calc(100vh - 64px); background: var(--silver-bg); z-index: 90; padding: 20px; overflow-y: auto;}
+    .sidebar.active { display: flex; position: fixed; top: 64px; left: 0; width: 100%; height: calc(100vh - 64px); background: rgba(245, 247, 250, 0.95); z-index: 90; padding: 20px; overflow-y: auto; backdrop-filter: blur(10px);}
     .desktop-logo-container { display: none; }
 
     .view-layout { flex-direction: column; }
@@ -367,7 +403,6 @@ body { background-color: var(--silver-bg); color: var(--text-main); line-height:
     .date-input-group { flex: 1 1 auto; min-width: 180px;}
     .custom-dropdown { flex: 1 1 auto; min-width: 120px; max-width: none;}
     
-    /* 保持手機版的社群動態呈現單欄折疊 */
     .social-grid { grid-template-columns: 1fr; }
 
     .timeline::before { display: none; }
