@@ -193,35 +193,52 @@
             { id: 'p4', module: 'social', date: '2026-10-12', time: '21:00:00', tags: ['Weverse POST', 'Weverse--CHAEWON', 'CHAEWON單人'], content: '下班了！今天舞台看了嗎？', source: 'Weverse', links: [{ title: 'Weverse 原文', url: '#' }] },
             { id: 'p2', module: 'brand', date: '2026-10-12', time: '10:00:00', tags: ['品牌商務'], content: '亞洲區代言人全新粉底液形象大片公開。', source: 'X', links: [{ title: '官方 X 貼文', url: '#' }] },
             { id: 'p6', module: 'schedule', date: '2026-10-18', time: '19:00:00', tags: ['預錄時間'], content: '年末特別舞台 事前錄製', source: 'Official', links: [{ title: 'Weverse 公告', url: '#' }] },
-            { id: 'p7', module: 'brand', date: '2026-10-15', time: '00:00:00', tags: ['品牌商務'], content: 'MAKE UP FOR EVER 形象大片釋出日', source: 'X', links: [{ title: '官方 X 貼文', url: '#' }] }
+            { id: 'p7', module: 'brand', date: '2026-10-15', time: '00:00:00', tags: ['官方公告'], content: 'MAKE UP FOR EVER 形象大片釋出日', source: 'Official', links: [{ title: '關聯品牌公告', url: '#' }] }
         ];
 
         const weverseSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="official-icon" viewBox="0 0 24 24" fill="#00DACA"><path d="M14.65 17.65l-2.45-7.75h-1.8l-2.4 7.75h-2.1l3.45-9.85h2.2l1.85 6.3 1.8-6.3h2.2l3.45 9.85h-2.15l-2.4-7.75-2.45 7.75z"/></svg>`;
 
+        // --- 核心優化：將標籤 Key 改為純文字，以便後續獨立渲染 Icon 與文字 ---
         const moduleSubTags = {
             all: {
-                '🐆 CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'],
-                '<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'],
-                '<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Weverse_logo.svg" class="official-icon" style="filter: invert(15%) sepia(18%) saturate(1469%) hue-rotate(170deg) brightness(97%) contrast(92%);"> Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'],
-                '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'],
-                '<img src="https://images.icon-icons.com/1488/PNG/512/5295-youtube-i_102568.png" class="official-icon"> YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'],
-                '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon"> TikTok / Challenge': ['TikTok/抖音', 'Challenge'],
-                '🎤 公開演出活動與現場紀錄📸': ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'],
-                '📢 品牌商務與官方公告': ['品牌商務', '官方公告', '回歸相關'],
-                '📅 重要日程': ['演唱會', '預錄時間', '生日', '節目播出'] 
+                'CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'],
+                'Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'],
+                'Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'],
+                'X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'],
+                'YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'],
+                'TikTok / Challenge': ['TikTok/抖音', 'Challenge'],
+                '公開演出活動與現場紀錄': ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'],
+                '品牌商務與官方公告': ['品牌商務', '官方公告', '回歸相關'],
+                '重要日程': ['演唱會', '預錄時間', '生日', '節目播出'] 
             },
             social: {
-                '🐆 CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'],
-                '<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'],
-                '<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Weverse_logo.svg" class="official-icon" style="filter: invert(15%) sepia(18%) saturate(1469%) hue-rotate(170deg) brightness(97%) contrast(92%);"> Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'],
-                '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'],
-                '<img src="https://images.icon-icons.com/1488/PNG/512/5295-youtube-i_102568.png" class="official-icon"> YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'],
-                '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon"> TikTok / Challenge': ['TikTok/抖音', 'Challenge']
+                'CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'],
+                'Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'],
+                'Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'],
+                'X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'],
+                'YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'],
+                'TikTok / Challenge': ['TikTok/抖音', 'Challenge']
             },
             event: ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'],
             brand: ['品牌商務', '官方公告', '回歸相關'],
             schedule: ['演唱會', '預錄時間', '生日', '節目播出']
         };
+
+        // --- 動態獲取 Icon 的對應表 ---
+        function getGroupStyles(name) {
+            const styles = {
+                'CHAEWON 專屬': { left: '🐆', right: '' },
+                'Instagram': { left: '<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon">', right: '' },
+                'Weverse': { left:'<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Weverse_logo.svg" class="official-icon">', right: '' },
+                'X (Twitter)': { left: '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon">', right: '' },
+                'YouTube': { left: '<img src="https://images.icon-icons.com/1488/PNG/512/5295-youtube-i_102568.png" class="official-icon">', right: '' },
+                'TikTok / Challenge': { left: '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon">', right: '' },
+                '公開演出活動與現場紀錄': { left: '🎤', right: '📸' },
+                '品牌商務與官方公告': { left: '📢', right: '' },
+                '重要日程': { left: '📅', right: '' }
+            };
+            return styles[name] || { left: '', right: '' };
+        }
 
         const moduleNames = { 
             social: '社群動態', 
@@ -487,14 +504,20 @@
                     const details = document.createElement('details');
                     details.className = 'tag-accordion';
                     
-                    if (currentModule === 'social' && groupName.includes('專屬')) {
+                    if (currentModule === 'social' && groupName === 'CHAEWON 專屬') {
                         details.open = true;
                     } else {
                         details.open = false; 
                     }
 
+                    // --- 建立包含絕對定位圖示與置中文字的結構 ---
+                    const sInfo = getGroupStyles(groupName);
                     const summary = document.createElement('summary');
-                    summary.innerHTML = groupName;
+                    summary.innerHTML = `
+                        <span class="summary-icon-left">${sInfo.left}</span>
+                        <span class="summary-text">${groupName}</span>
+                        <span class="summary-icon-right">${sInfo.right}</span>
+                    `;
                     
                     const tagContent = document.createElement('div');
                     tagContent.className = 'tag-accordion-content';
