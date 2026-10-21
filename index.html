@@ -179,37 +179,44 @@
     </div>
 
     <script>
+        const systemToday = new Date();
+        const sysYear = systemToday.getFullYear();
+        const sysMonthStr = String(systemToday.getMonth() + 1).padStart(2, '0');
+        const sysDayStr = String(systemToday.getDate()).padStart(2, '0');
+        const trueTodayStr = `${sysYear}-${sysMonthStr}-${sysDayStr}`; 
+        
+        let currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
+
         const mockData = [
-            { id: 'p1', module: 'social', date: '2026-10-20', time: '14:20:00', tags: ['Instagram POST', 'Instagram--_chaechae_1', 'CHAEWON單人'], content: '今日 CRAZY 舞台結束! 感謝 FEARNOT... 今天也玩得很開心 🖤⚡️ #KIMCHAEWON', source: 'Instagram', links: [{ title: 'IG 原文', url: '#' }] },
+            { id: 'p1', module: 'social', date: trueTodayStr, time: '14:20:00', tags: ['Instagram POST', 'Instagram--_chaechae_1', 'CHAEWON單人'], content: '今日 CRAZY 舞台結束! 感謝 FEARNOT... 今天也玩得很開心 🖤⚡️ #KIMCHAEWON', source: 'Instagram', links: [{ title: 'IG 原文', url: '#' }] },
             { id: 'p3', module: 'event', date: '2026-10-20', time: '18:30:00', tags: ['打歌舞臺'], content: 'KBS Music Bank \'CRAZY\' 舞台播出與直拍 FanCam 更新。', source: 'YouTube', links: [{ title: '📺 舞台播出', url: '#' }, { title: '🎥 CHAEWON 直拍', url: '#' }] },
             { id: 'p4', module: 'social', date: '2026-10-12', time: '21:00:00', tags: ['Weverse POST', 'Weverse--CHAEWON', 'CHAEWON單人'], content: '下班了！今天舞台看了嗎？', source: 'Weverse', links: [{ title: 'Weverse 原文', url: '#' }] },
             { id: 'p2', module: 'brand', date: '2026-10-12', time: '10:00:00', tags: ['品牌商務'], content: '亞洲區代言人全新粉底液形象大片公開。', source: 'X', links: [{ title: '官方 X 貼文', url: '#' }] },
-            { id: 'p6', module: 'schedule', date: '2026-10-25', time: '19:00:00', tags: ['預錄時間'], content: '年末特別舞台 事前錄製', source: 'Official', links: [{ title: 'Weverse 公告', url: '#' }] },
+            { id: 'p6', module: 'schedule', date: '2026-10-18', time: '19:00:00', tags: ['預錄時間'], content: '年末特別舞台 事前錄製', source: 'Official', links: [{ title: 'Weverse 公告', url: '#' }] },
             { id: 'p7', module: 'schedule', date: '2026-10-15', time: '00:00:00', tags: ['官方公告'], content: 'MAKE UP FOR EVER 形象大片釋出日', source: 'Official', links: [{ title: '關聯品牌公告', url: '#' }] }
         ];
 
         const weverseSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="official-icon" viewBox="0 0 24 24" fill="#00DACA"><path d="M14.65 17.65l-2.45-7.75h-1.8l-2.4 7.75h-2.1l3.45-9.85h2.2l1.85 6.3 1.8-6.3h2.2l3.45 9.85h-2.15l-2.4-7.75-2.45 7.75z"/></svg>`;
 
-        // --- 核心優化：全域標籤命名對齊與圖示加入 ---
         const moduleSubTags = {
             all: {
-                '🐆 CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON'],
+                '🐆 CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'],
                 '<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'],
                 '<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Weverse_logo.svg" class="official-icon" style="filter: invert(15%) sepia(18%) saturate(1469%) hue-rotate(170deg) brightness(97%) contrast(92%);"> Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'],
                 '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'],
                 '<img src="https://images.icon-icons.com/1488/PNG/512/5295-youtube-i_102568.png" class="official-icon"> YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'],
-                '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon"> TikTok / Challenge / 多人': ['TikTok/抖音', 'Challenge', '多人'],
+                '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon"> TikTok / Challenge': ['TikTok/抖音', 'Challenge'],
                 '🎤 公開演出活動與現場紀錄📸': ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'],
                 '📢 品牌商務與官方公告': ['品牌商務', '官方公告', '回歸相關'],
                 '📅 重要日程': ['演唱會', '預錄時間', '生日', '節目播出'] 
             },
             social: {
-                '🐆 CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON'],
+                '🐆 CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'],
                 '<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'],
                 '<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Weverse_logo.svg" class="official-icon" style="filter: invert(15%) sepia(18%) saturate(1469%) hue-rotate(170deg) brightness(97%) contrast(92%);"> Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'],
                 '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon"> X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'],
                 '<img src="https://images.icon-icons.com/1488/PNG/512/5295-youtube-i_102568.png" class="official-icon"> YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'],
-                '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon"> TikTok / Challenge / 多人': ['TikTok/抖音', 'Challenge', '多人']
+                '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon"> TikTok / Challenge': ['TikTok/抖音', 'Challenge']
             },
             event: ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'],
             brand: ['品牌商務', '官方公告', '回歸相關'],
@@ -229,12 +236,6 @@
         let currentData = [...mockData];
         let activeSubTags = [];
         let currentSortOrder = 'desc'; 
-        
-        const systemToday = new Date();
-        const sysYear = systemToday.getFullYear();
-        const sysMonthStr = String(systemToday.getMonth() + 1).padStart(2, '0');
-        const sysDayStr = String(systemToday.getDate()).padStart(2, '0');
-        let currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
 
         document.addEventListener('DOMContentLoaded', init);
 
@@ -245,15 +246,24 @@
             setupSecurityModal();
             setupBackToTop();
             setupMobileTags();
+            renderSubTags(); 
+            updateClearTagsButton();
             refreshView();
         }
 
+        // --- 核心優化：手機版專屬標籤收合邏輯 ---
         function setupMobileTags() {
             const toggleBtn = document.getElementById('mobileTagToggle');
             if(!toggleBtn) return;
-            toggleBtn.addEventListener('click', function() {
+            
+            // 移除舊的監聽器，避免重複綁定
+            const newToggleBtn = toggleBtn.cloneNode(true);
+            toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+
+            newToggleBtn.addEventListener('click', function() {
                 const wrapper = document.getElementById('subTagsWrapper');
                 wrapper.classList.toggle('open');
+                
                 if(wrapper.classList.contains('open')) {
                     this.innerHTML = `🏷️ 收起標籤篩選 <span class="arrow" style="transform: rotate(180deg); display: inline-block; transition: 0.3s;">﹀</span>`;
                 } else {
@@ -291,8 +301,7 @@
         }
 
         function renderSidebarStats(data) {
-            const todayStr = systemToday.toISOString().split('T')[0];
-            const todayCountVal = data.filter(item => item.date === todayStr).length;
+            const todayCountVal = data.filter(item => item.date === trueTodayStr).length;
 
             document.getElementById('dynamicMonthText').innerHTML = `${sysYear}年 ${sysMonthStr}月 總計：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
             document.getElementById('dynamicTodayDate').innerText = `${sysMonthStr}/${sysDayStr}`;
@@ -349,7 +358,7 @@
                 items.forEach((item, index) => item.dailyOrder = index + 1);
                 if(currentSortOrder === 'desc') items.reverse();
 
-                const isToday = date === systemToday.toISOString().split('T')[0];
+                const isToday = date === trueTodayStr;
                 const dateHeader = document.createElement('div');
                 dateHeader.className = 'timeline-date-header';
                 dateHeader.innerHTML = `<h3>📅 ${date.replace(/-/g, '/')} <span class="daily-count">(${isToday ? '今日新增 ' : '共 '}${items.length} 筆)</span></h3>`;
@@ -409,7 +418,7 @@
                 const hasEvent = mockData.some(item => item.module === 'schedule' && item.date === dateStr);
                 
                 let dotHtml = hasEvent ? `<div class="event-dots"><span class="dot"></span></div>` : '';
-                const isTodayStr = dateStr === systemToday.toISOString().split('T')[0] ? 'today' : '';
+                const isTodayStr = dateStr === trueTodayStr ? 'today' : '';
                 
                 grid.innerHTML += `
                     <div class="cal-cell ${isTodayStr} ${hasEvent ? 'has-event' : ''}" onclick="filterBySpecificDate('${dateStr}')">
@@ -436,18 +445,27 @@
                     
                     document.getElementById('searchInput').value = '';
                     clearDateFilter(); 
+                    
+                    // 重新渲染標籤
                     renderSubTags();
                     updateClearTagsButton(); 
                     
-                    document.getElementById('subTagsWrapper').classList.remove('open');
-                    document.getElementById('mobileTagToggle').innerHTML = `🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span>`;
+                    // 【切換模組時，強制手機版標籤回到收合狀態】
+                    const wrapper = document.getElementById('subTagsWrapper');
+                    if (wrapper) {
+                        wrapper.classList.remove('open');
+                    }
+                    
+                    const toggleBtn = document.getElementById('mobileTagToggle');
+                    if (toggleBtn) {
+                        toggleBtn.innerHTML = `🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span>`;
+                    }
 
                     if(window.innerWidth <= 1050) document.getElementById('sidebar').classList.remove('active');
                 });
             });
         }
 
-        // --- 優化：支援 All 模組使用 Grid Accordion 渲染 ---
         function renderSubTags() {
             const container = document.getElementById('subTagsContainer');
             container.innerHTML = '';
@@ -457,23 +475,24 @@
             
             if (!moduleSubTags[currentModule]) {
                 container.className = 'sub-tags-container'; 
-                wrapper.style.display = 'none';
+                if(wrapper) wrapper.style.display = 'none';
                 if(toggleBtn) toggleBtn.style.display = 'none';
                 return;
             } else {
-                wrapper.style.display = ''; 
+                if(wrapper) wrapper.style.display = ''; 
                 if(toggleBtn) toggleBtn.style.display = '';
             }
 
             const tagsData = moduleSubTags[currentModule];
             
-            // 只要是物件結構 (包含 all 和 social)，一律使用 Grid 網格佈局渲染摺疊面板
             if (typeof tagsData === 'object' && !Array.isArray(tagsData)) {
                 container.className = 'social-grid'; 
                 for (const [groupName, tagsArray] of Object.entries(tagsData)) {
                     const details = document.createElement('details');
                     details.className = 'tag-accordion';
-                    if(groupName.includes('專屬')) details.open = true;
+                    
+                    // 全部時間軸不預設展開，僅社群動態展開專屬區塊
+                    if(groupName.includes('專屬') && currentModule !== 'all') details.open = true;
 
                     const summary = document.createElement('summary');
                     summary.innerHTML = groupName;
