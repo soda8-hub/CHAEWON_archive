@@ -227,6 +227,7 @@ body {
 .btn-today { background: var(--mint-light) !important; color: var(--mint-hover) !important; font-size: 0.75rem; padding: 2px 10px !important; border-radius: 12px !important;}
 .btn-today:hover { background: var(--mint-green) !important; color: white !important; }
 
+/* 日曆網格 */
 .calendar-grid-header, .calendar-grid { 
     display: grid; 
     grid-template-columns: repeat(7, 1fr); 
@@ -255,9 +256,21 @@ body {
 .cal-cell.today { background: var(--mint-light); border: 2px solid var(--mint-green); font-weight: bold; color: var(--mint-hover);}
 .cal-cell.has-event { border-color: var(--mint-green); }
 
+/* 樣式定義：「被使用者選取的那一天」 */
+.cal-cell.selected-date {
+    background: var(--mint-green);
+    color: white;
+    border-color: var(--mint-green);
+}
+
 .day-num { 
     font-size: 0.9rem; 
     z-index: 1; 
+}
+
+/* 確保選取日期的字體也是白色 */
+.cal-cell.selected-date .day-num {
+    color: white;
 }
 
 .event-dots { 
@@ -274,22 +287,55 @@ body {
     border-radius: 50%; 
 }
 
+/* 如果被選取，圓點變成白色，以免在薄荷綠背景上看不清楚 */
+.cal-cell.selected-date .dot {
+    background: white;
+}
+
 /* --- 時間軸卡片 --- */
-.timeline { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; position: relative;}
+.timeline { 
+    flex: 1; 
+    min-width: 0; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+    position: relative;
+    box-sizing: border-box; /* 確保 padding 不會影響整體寬度 */
+}
 .timeline::before { content: ''; position: absolute; left: 60px; top: 0; bottom: 0; width: 2px; background: var(--silver-border); z-index: 0; }
 
 .timeline-date-header { display: flex; align-items: center; gap: 10px; margin: 10px 0 5px 0; z-index: 1;}
 .timeline-date-header h3 { font-size: 1rem; color: var(--text-main); background: var(--silver-bg); padding: 6px 16px; border-radius: 20px; border: 1px solid var(--silver-border); display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
 .daily-count { color: var(--mint-hover); font-size: 0.9rem; font-weight: bold;}
 
-.timeline-card { display: flex; gap: 20px; position: relative; z-index: 1; transition: transform 0.2s; }
+.timeline-card { 
+    display: flex; 
+    gap: 20px; 
+    position: relative; 
+    z-index: 1; 
+    transition: transform 0.2s;
+    width: 100%; /* 確保卡片與上方工具列寬度一致 */
+}
 .timeline-card:hover { transform: translateX(3px); }
 
 .card-date-col { flex: 0 0 50px; text-align: right; padding-top: 5px; }
 .card-date-col .time { font-size: 0.85rem; color: var(--text-muted); font-weight: bold;}
 .card-date-col::after { content: ''; position: absolute; left: 55px; top: 10px; width: 12px; height: 12px; background: var(--silver-card); border: 3px solid var(--mint-green); border-radius: 50%; }
 
-.card-content-col { flex: 1; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: var(--border-radius); box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); backdrop-filter: blur(5px);}
+/* =========================================
+   【UX/UI 優化】：增加卡片與時間軸的間距 (Margin-Left)
+========================================= */
+.card-content-col { 
+    flex: 1; 
+    background: rgba(255, 255, 255, 0.95); 
+    padding: 20px; 
+    border-radius: var(--border-radius); 
+    box-shadow: var(--shadow-sm); 
+    border: 1px solid var(--silver-border); 
+    backdrop-filter: blur(5px);
+    margin-left: 20px; /* 拉開與左側圓圈的距離，增加呼吸感 */
+}
+
 .card-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; }
 .tags { display: flex; gap: 8px; flex-wrap: wrap; }
 .tag { background: var(--mint-light); color: var(--mint-hover); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
@@ -407,7 +453,11 @@ body {
 
     .timeline::before { display: none; }
     .card-date-col::after { display: none; }
+    
+    /* 手機版因為空間小，不需強制左邊距 */
     .timeline-card { flex-direction: column; gap: 5px; padding-left: 0;}
+    .card-content-col { margin-left: 0; }
+    
     .card-date-col { text-align: left; display: flex; gap: 10px; align-items: center; }
     
     .back-to-top { bottom: 20px; right: 20px; width: 40px; height: 40px; font-size: 1.2rem;}
