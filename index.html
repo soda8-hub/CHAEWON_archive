@@ -186,6 +186,7 @@
         const trueTodayStr = `${sysYear}-${sysMonthStr}-${sysDayStr}`; 
         
         let currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
+        let selectedDate = null; 
 
         const mockData = [
             { id: 'p1', module: 'social', date: '2026-10-08' , time: '14:20:00', tags: ['Instagram POST', 'Instagram--_chaechae_1', 'CHAEWON單人'], content: '今日 CRAZY 舞台結束! 感謝 FEARNOT... 今天也玩得很開心 🖤⚡️ #KIMCHAEWON', source: 'Instagram', links: [{ title: 'IG 原文', url: '#' }] },
@@ -198,7 +199,6 @@
 
         const weverseSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="official-icon" viewBox="0 0 24 24" fill="#00DACA"><path d="M14.65 17.65l-2.45-7.75h-1.8l-2.4 7.75h-2.1l3.45-9.85h2.2l1.85 6.3 1.8-6.3h2.2l3.45 9.85h-2.15l-2.4-7.75-2.45 7.75z"/></svg>`;
 
-        // --- 核心優化：將標籤 Key 改為純文字，以便後續獨立渲染 Icon 與文字 ---
         const moduleSubTags = {
             all: {
                 'CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'],
@@ -224,12 +224,11 @@
             schedule: ['演唱會', '預錄時間', '生日', '節目播出']
         };
 
-        // --- 動態獲取 Icon 的對應表 ---
         function getGroupStyles(name) {
             const styles = {
                 'CHAEWON 專屬': { left: '🐆', right: '' },
                 'Instagram': { left: '<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon">', right: '' },
-                'Weverse': { left:'<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Weverse_logo.svg" class="official-icon">', right: '' },
+                'Weverse': { left: '<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Weverse_logo.svg" class="official-icon" style="filter: invert(15%) sepia(18%) saturate(1469%) hue-rotate(170deg) brightness(97%) contrast(92%);">', right: '' },
                 'X (Twitter)': { left: '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon">', right: '' },
                 'YouTube': { left: '<img src="https://images.icon-icons.com/1488/PNG/512/5295-youtube-i_102568.png" class="official-icon">', right: '' },
                 'TikTok / Challenge': { left: '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon">', right: '' },
@@ -435,8 +434,10 @@
                 let dotHtml = hasEvent ? `<div class="event-dots"><span class="dot"></span></div>` : '';
                 const isTodayStr = dateStr === trueTodayStr ? 'today' : '';
                 
+                const isSelected = dateStr === selectedDate ? 'selected-date' : '';
+                
                 grid.innerHTML += `
-                    <div class="cal-cell ${isTodayStr} ${hasEvent ? 'has-event' : ''}" onclick="filterBySpecificDate('${dateStr}')">
+                    <div class="cal-cell ${isTodayStr} ${hasEvent ? 'has-event' : ''} ${isSelected}" onclick="filterBySpecificDate('${dateStr}')">
                         <span class="day-num">${d}</span>
                         ${dotHtml}
                     </div>
@@ -444,9 +445,18 @@
             }
         }
 
+        // =========================================
+        // 【修復核心】：加入點擊切換 (Toggle) 取消功能
+        // =========================================
         function filterBySpecificDate(dateStr) {
-            document.getElementById('dateText').value = dateStr.replace(/-/g, '/');
-            document.getElementById('applyDateBtn').click();
+            // 如果點擊的是已經選取的日期，則執行清除邏輯
+            if (selectedDate === dateStr) {
+                clearDateFilter();
+            } else {
+                // 如果是新的日期，則套用篩選
+                document.getElementById('dateText').value = dateStr.replace(/-/g, '/');
+                document.getElementById('applyDateBtn').click(); 
+            }
         }
 
         function setupNavigation() {
@@ -504,13 +514,12 @@
                     const details = document.createElement('details');
                     details.className = 'tag-accordion';
                     
-                    if (currentModule === 'social' && groupName === 'CHAEWON 專屬') {
+                    if (currentModule === 'social' && groupName.includes('專屬')) {
                         details.open = true;
                     } else {
                         details.open = false; 
                     }
 
-                    // --- 建立包含絕對定位圖示與置中文字的結構 ---
                     const sInfo = getGroupStyles(groupName);
                     const summary = document.createElement('summary');
                     summary.innerHTML = `
@@ -687,6 +696,9 @@
                     const formattedDate = `${y}-${m}-${d}`;
                     filterMsg.innerText = `已篩選: ${formattedDate}`;
                     currentMonthFilter = `${y}-${m}`;
+                    
+                    selectedDate = formattedDate; // 更新為最新選取日期
+                    
                     refreshView(formattedDate);
                 } else {
                     filterMsg.innerText = '格式錯誤 (yyyy/mm/dd)';
@@ -709,6 +721,7 @@
             document.getElementById('datePicker').value = '';
             document.getElementById('filterMsg').innerText = '';
             currentMonthFilter = `${sysYear}-${sysMonthStr}`;
+            selectedDate = null; // 清除選取狀態
             refreshView(null);
         }
 
