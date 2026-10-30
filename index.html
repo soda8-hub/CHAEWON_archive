@@ -11,7 +11,6 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="CHAEWON Archive | 偶像多媒體足跡與動態典藏系統">
     <meta property="og:description" content="專為 LE SSERAFIM KIM CHAEWON 打造的多媒體足跡與動態典藏系統。">
-    <!-- GitHub Pages 的真實網址 -->
     <meta property="og:url" content="https://soda8-hub.github.io/CHAEWON_archive/">
     <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
     
@@ -49,6 +48,7 @@
                         <span class="icon">🔒</span> 訪客鎖定中 (Viewer Mode)
                     </div>
                     <button id="lockBtn" class="btn-lock">輸入密碼解鎖 🔓</button>
+                    <!-- 新增資料按鈕 -->
                     <button id="quickAddBtn" class="btn-quick-add disabled">+ 快速新增 (需解鎖)</button>
                 </div>
             </div>
@@ -178,6 +178,46 @@
         </div>
     </div>
 
+    <!-- ==========================================
+         【新增】CRUD 資料編輯與新增專用彈窗
+    =========================================== -->
+    <div id="dataModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 450px; text-align: left;">
+            <h3 id="dataModalTitle" style="text-align: center; margin-bottom: 15px;">新增資料</h3>
+            
+            <!-- 隱藏欄位紀錄資料 ID -->
+            <input type="hidden" id="dataId">
+            
+            <label class="form-label">模組分類：</label>
+            <select id="dataModule" class="modal-input" style="margin-top: 5px;">
+                <option value="social">社群動態</option>
+                <option value="event">公開演出活動與現場紀錄</option>
+                <option value="brand">品牌商務與官方公告</option>
+                <option value="schedule">重要日程</option>
+            </select>
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label class="form-label">日期：</label>
+                    <input type="date" id="dataDate" class="modal-input" style="margin-top: 5px;">
+                </div>
+                <div style="flex: 1;">
+                    <label class="form-label">時間：</label>
+                    <input type="time" id="dataTime" class="modal-input" style="margin-top: 5px;">
+                </div>
+            </div>
+
+            <label class="form-label">資料來源 (例如: Instagram, X, Weverse)：</label>
+            <input type="text" id="dataSource" class="modal-input" placeholder="輸入平台來源" style="margin-top: 5px;">
+
+            <label class="form-label">發布內容：</label>
+            <textarea id="dataContent" class="modal-input" placeholder="輸入內容..." rows="3" style="margin-top: 5px; resize: vertical;"></textarea>
+
+            <button id="saveDataBtn" class="btn-primary" style="margin-top: 10px;">儲存資料</button>
+            <button class="btn-cancel close-data-modal" style="width: 100%;">取消</button>
+        </div>
+    </div>
+
     <script>
         const systemToday = new Date();
         const sysYear = systemToday.getFullYear();
@@ -188,6 +228,7 @@
         let currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
         let selectedDate = null; 
 
+        // 預設示範用假資料
         const mockData = [
             { id: 'p1', module: 'social', date: '2026-10-08' , time: '14:20:00', tags: ['Instagram POST', 'Instagram--_chaechae_1', 'CHAEWON單人'], content: '今日 CRAZY 舞台結束! 感謝 FEARNOT... 今天也玩得很開心 🖤⚡️ #KIMCHAEWON', source: 'Instagram', links: [{ title: 'IG 原文', url: '#' }] },
             { id: 'p3', module: 'event', date: '2026-10-20', time: '18:30:00', tags: ['打歌舞臺'], content: 'KBS Music Bank \'CRAZY\' 舞台播出與直拍 FanCam 更新。', source: 'YouTube', links: [{ title: '📺 舞台播出', url: '#' }, { title: '🎥 CHAEWON 直拍', url: '#' }] },
@@ -249,22 +290,46 @@
         let currentModule = 'all';
         let isUnlocked = false;
         const EDIT_PASSWORD = 'admin';
-        let currentData = [...mockData];
+        
+        // ==========================================
+        // 【核心優化】: 升級為 localStorage 動態資料庫
+        // ==========================================
+        const STORAGE_KEY = 'chaewon_archive_data';
+        let masterData = []; // 系統內唯真資料來源
+        let currentData = []; // 當前畫面上篩選後的呈現資料
         let activeSubTags = [];
         let currentSortOrder = 'desc'; 
 
         document.addEventListener('DOMContentLoaded', init);
 
         function init() {
+            initDataStorage(); // 初始化資料庫
             setupNavigation();
             setupSearch();
             setupDateFilterAndSort();
             setupSecurityModal();
+            setupDataModal(); // 初始化編輯/新增彈窗
             setupBackToTop();
             setupMobileTags();
             renderSubTags(); 
             updateClearTagsButton();
             refreshView();
+        }
+
+        // --- 從本地儲存讀取資料 (Read) ---
+        function initDataStorage() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                masterData = JSON.parse(stored);
+            } else {
+                masterData = [...mockData]; // 初次載入，寫入預設示範資料
+                saveToStorage();
+            }
+        }
+
+        // --- 寫入本地儲存 (Save) ---
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(masterData));
         }
 
         function setupMobileTags() {
@@ -297,8 +362,9 @@
             }
         }
 
+        // 【修正】: 所有篩選現在針對 masterData 而非 mockData
         function filterData(targetDate = null) {
-            currentData = mockData.filter(item => {
+            currentData = masterData.filter(item => {
                 const matchModule = currentModule === 'all' || item.module === currentModule;
                 const matchDate = targetDate ? item.date === targetDate : true;
                 const matchTags = activeSubTags.length === 0 || activeSubTags.some(tag => item.tags.includes(tag) || item.source.includes(tag));
@@ -383,7 +449,8 @@
                     card.className = 'timeline-card';
                     card.id = `post-${item.id}`;
 
-                    const adminBtns = isUnlocked ? `<button class="btn-edit-small">編輯</button><button class="btn-del-small">刪除</button>` : '';
+                    // 【動態綁定事件】：加入編輯與刪除的 onclick
+                    const adminBtns = isUnlocked ? `<button class="btn-edit-small" onclick="openDataModal('${item.id}')">編輯</button><button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>` : '';
                     
                     let linksHtml = '';
                     if (item.links && item.links.length > 0) {
@@ -414,6 +481,7 @@
             });
         }
 
+        // 【修正】: 月曆渲染判斷改為針對 masterData
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const title = document.getElementById('calendarTitle');
@@ -429,11 +497,12 @@
 
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                const hasEvent = mockData.some(item => item.module === 'schedule' && item.date === dateStr);
+                
+                // 改為檢查 masterData 中是否有事件
+                const hasEvent = masterData.some(item => item.module === 'schedule' && item.date === dateStr);
                 
                 let dotHtml = hasEvent ? `<div class="event-dots"><span class="dot"></span></div>` : '';
                 const isTodayStr = dateStr === trueTodayStr ? 'today' : '';
-                
                 const isSelected = dateStr === selectedDate ? 'selected-date' : '';
                 
                 grid.innerHTML += `
@@ -445,15 +514,10 @@
             }
         }
 
-        // =========================================
-        // 【修復核心】：加入點擊切換 (Toggle) 取消功能
-        // =========================================
         function filterBySpecificDate(dateStr) {
-            // 如果點擊的是已經選取的日期，則執行清除邏輯
             if (selectedDate === dateStr) {
                 clearDateFilter();
             } else {
-                // 如果是新的日期，則套用篩選
                 document.getElementById('dateText').value = dateStr.replace(/-/g, '/');
                 document.getElementById('applyDateBtn').click(); 
             }
@@ -596,7 +660,8 @@
                 currentFocus = -1;
                 if (!val) { refreshView(); return; }
 
-                const searchScope = mockData.filter(item => currentModule === 'all' || item.module === currentModule);
+                // 搜尋也必須針對 masterData 進行過濾
+                const searchScope = masterData.filter(item => currentModule === 'all' || item.module === currentModule);
                 const matched = searchScope.filter(item => 
                     item.content.toLowerCase().includes(val) || 
                     item.tags.join('').toLowerCase().includes(val) ||
@@ -697,8 +762,7 @@
                     filterMsg.innerText = `已篩選: ${formattedDate}`;
                     currentMonthFilter = `${y}-${m}`;
                     
-                    selectedDate = formattedDate; // 更新為最新選取日期
-                    
+                    selectedDate = formattedDate; 
                     refreshView(formattedDate);
                 } else {
                     filterMsg.innerText = '格式錯誤 (yyyy/mm/dd)';
@@ -721,7 +785,7 @@
             document.getElementById('datePicker').value = '';
             document.getElementById('filterMsg').innerText = '';
             currentMonthFilter = `${sysYear}-${sysMonthStr}`;
-            selectedDate = null; // 清除選取狀態
+            selectedDate = null; 
             refreshView(null);
         }
 
@@ -824,6 +888,105 @@
             }
             renderTimeline(currentData);
         }
+
+        // ==========================================
+        // 【核心機制】：localStorage 資料新增、編輯與刪除 
+        // ==========================================
+        function setupDataModal() {
+            // 綁定「+快速新增資料」按鈕
+            document.getElementById('quickAddBtn').addEventListener('click', () => {
+                if (!isUnlocked) return;
+                openDataModal(null); // null 參數代表這是「新增模式」
+            });
+
+            // 綁定彈窗的關閉按鈕
+            document.querySelectorAll('.close-data-modal').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('dataModal').style.display = 'none';
+                });
+            });
+
+            // 綁定「儲存資料」按鈕
+            document.getElementById('saveDataBtn').addEventListener('click', () => {
+                const id = document.getElementById('dataId').value;
+                const module = document.getElementById('dataModule').value;
+                const date = document.getElementById('dataDate').value;
+                const time = document.getElementById('dataTime').value;
+                const source = document.getElementById('dataSource').value || 'System';
+                const content = document.getElementById('dataContent').value;
+
+                if(!date || !time || !content) {
+                    alert('請填寫完整 日期、時間 與 內容！');
+                    return;
+                }
+
+                // 準備要寫入資料庫的物件
+                const itemData = {
+                    id: id || 'p' + Date.now(), // 如果是新增，用時間戳記產生唯一 ID
+                    module: module,
+                    date: date,
+                    time: time.length === 5 ? time + ':00' : time, // 補齊秒數格式
+                    source: source,
+                    content: content,
+                    tags: ['手動新增紀錄'], // 為了示範簡化，這裡統一上一個標籤
+                    links: [] 
+                };
+
+                if (id) {
+                    // 【Update 更新資料】
+                    const index = masterData.findIndex(d => d.id === id);
+                    if(index > -1) {
+                        itemData.tags = masterData[index].tags; // 保留原有的 tags
+                        itemData.links = masterData[index].links; // 保留原有的 links
+                        masterData[index] = itemData; // 覆蓋
+                    }
+                } else {
+                    // 【Create 新增資料】
+                    masterData.push(itemData);
+                }
+
+                saveToStorage(); // 寫入 localStorage
+                document.getElementById('dataModal').style.display = 'none'; // 關閉彈窗
+                refreshView(selectedDate); // 重新渲染畫面
+                alert(id ? '資料已成功更新！' : '資料已成功新增！');
+            });
+        }
+
+        // 開啟編輯彈窗 (並把資料填入)
+        window.openDataModal = function(id) {
+            document.getElementById('dataModal').style.display = 'flex';
+            
+            if (id) {
+                // 編輯模式：抓取舊資料塞進輸入框
+                document.getElementById('dataModalTitle').innerText = '編輯資料';
+                const item = masterData.find(d => d.id === id);
+                document.getElementById('dataId').value = item.id;
+                document.getElementById('dataModule').value = item.module;
+                document.getElementById('dataDate').value = item.date;
+                document.getElementById('dataTime').value = item.time.slice(0, 5); // 取出 HH:MM
+                document.getElementById('dataSource').value = item.source;
+                document.getElementById('dataContent').value = item.content;
+            } else {
+                // 新增模式：清空輸入框，設定預設時間
+                document.getElementById('dataModalTitle').innerText = '新增資料';
+                document.getElementById('dataId').value = '';
+                document.getElementById('dataModule').value = currentModule === 'all' ? 'social' : currentModule;
+                document.getElementById('dataDate').value = trueTodayStr;
+                document.getElementById('dataTime').value = '12:00';
+                document.getElementById('dataSource').value = '';
+                document.getElementById('dataContent').value = '';
+            }
+        };
+
+        // 刪除資料機制 (Delete)
+        window.deleteItem = function(id) {
+            if(confirm('確定要刪除這筆資料嗎？此動作無法復原！')) {
+                // 利用 filter 排除掉該筆 ID，達成刪除效果
+                masterData = masterData.filter(d => d.id !== id);
+                saveToStorage(); // 寫入 localStorage
+                refreshView(selectedDate); // 重新渲染
+            }
+        };
 
         document.getElementById('hamburgerMenu').addEventListener('click', function() {
             this.classList.toggle('active');
