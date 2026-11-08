@@ -270,13 +270,13 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_tpHN-Vos2cXlVNHokyiWxg_4HxdB8gR';
         
         // 【關鍵】：在這裡填入您作為「最高管理員」的信箱
-        // 只有用這組信箱登入，畫面才會出現「刪除」按鈕
         const ADMIN_EMAIL = 'oncesoda6@gmail.com';
         
-        let supabase = null;
+        // 【修復】：變數改名為 supabaseClient 以避免與官方 SDK 名稱衝突
+        let supabaseClient = null; 
         try {
             if (SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             } else {
                 console.warn("注意：請將程式碼中的 Supabase URL 與 Key 替換為您的真實資料。");
             }
@@ -368,8 +368,8 @@
             updateClearTagsButton();
             refreshView();
             
-            if(supabase) {
-                supabase.auth.onAuthStateChange((event, session) => {
+            if(supabaseClient) {
+                supabaseClient.auth.onAuthStateChange((event, session) => {
                     isUnlocked = !!session;
                     currentLoggedEmail = session ? session.user.email : null; 
                     updateLockUI();
@@ -381,8 +381,8 @@
         // Auth: 權限檢查與 UI 更新
         // ==========================================
         async function checkAuthStatus() {
-            if (!supabase) return;
-            const { data: { session } } = await supabase.auth.getSession();
+            if (!supabaseClient) return;
+            const { data: { session } } = await supabaseClient.auth.getSession();
             isUnlocked = !!session;
             currentLoggedEmail = session ? session.user.email : null;
             updateLockUI();
@@ -397,12 +397,12 @@
 
             lockBtn.addEventListener('click', async () => {
                 if (isUnlocked) {
-                    if(supabase) {
-                        const { error } = await supabase.auth.signOut();
+                    if(supabaseClient) {
+                        const { error } = await supabaseClient.auth.signOut();
                         if (error) alert('登出失敗：' + error.message);
                         else {
                             alert('系統已重新上鎖。您現在為訪客身分。');
-                            masterData = []; // 登出後清空敏感資料視需求而定，這裡保留訪客讀取權限即可
+                            masterData = []; 
                             await fetchDataFromSupabase();
                             refreshView();
                         }
@@ -421,7 +421,7 @@
             }));
 
             const triggerLogin = async () => {
-                if (!supabase) {
+                if (!supabaseClient) {
                     alert('未連線至 Supabase，無法驗證！');
                     return;
                 }
@@ -435,7 +435,7 @@
                 verifyPwdBtn.innerText = '驗證中...';
                 verifyPwdBtn.disabled = true;
 
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 
                 verifyPwdBtn.innerText = '登入解鎖';
                 verifyPwdBtn.disabled = false;
@@ -460,9 +460,14 @@
         // 【CRUD 操作：動態抓取與更新】
         // ==========================================
         async function fetchDataFromSupabase() {
-            if (!supabase) return;
+            if (!supabaseClient) {
+                console.warn("未連線 Supabase，載入空資料等待手動新增。");
+                masterData = [];
+                return;
+            }
+
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('archives')
                     .select('*')
                     .order('date', { ascending: false })
@@ -488,7 +493,11 @@
         }
 
         async function saveToSupabase(itemData) {
-            if (!supabase) return false;
+            if (!supabaseClient) {
+                alert("未連線 Supabase，無法儲存。");
+                return false;
+            }
+
             const payload = {
                 module: itemData.module,
                 date: itemData.date,
@@ -502,10 +511,10 @@
 
             try {
                 if (itemData.id && String(itemData.id).includes('-')) {
-                    const { error } = await supabase.from('archives').update(payload).eq('id', itemData.id);
+                    const { error } = await supabaseClient.from('archives').update(payload).eq('id', itemData.id);
                     if (error) throw error;
                 } else {
-                    const { error } = await supabase.from('archives').insert([payload]);
+                    const { error } = await supabaseClient.from('archives').insert([payload]);
                     if (error) throw error;
                 }
                 await fetchDataFromSupabase();
@@ -518,9 +527,9 @@
         }
 
         async function deleteFromSupabase(id) {
-            if (!supabase) return false;
+            if (!supabaseClient) return false;
             try {
-                const { error } = await supabase.from('archives').delete().eq('id', id);
+                const { error } = await supabaseClient.from('archives').delete().eq('id', id);
                 if (error) throw error;
                 await fetchDataFromSupabase();
                 return true;
