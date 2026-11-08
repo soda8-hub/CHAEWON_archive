@@ -26,7 +26,6 @@
         .internal-link-btn:hover { background: var(--mint-light); color: var(--mint-hover); }
         .bgm-tag { display: inline-flex; align-items: center; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; gap: 5px; }
 
-        /* 全局月份導覽器與回到當月按鈕 */
         .month-navigator { display: flex; justify-content: space-between; align-items: center; background: var(--silver-bg); padding: 6px 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--silver-border); }
         .month-navigator button { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--mint-hover); padding: 0 8px; transition: 0.2s; }
         .month-navigator button:hover { transform: scale(1.15); }
@@ -34,7 +33,6 @@
         .btn-current-month { width: 100%; background: var(--mint-light); color: var(--mint-hover); border: 1px solid var(--mint-green); border-radius: 6px; padding: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
         .btn-current-month:hover { background: var(--mint-green); color: white; }
 
-        /* 多圖左右輪播系統 (Carousel) */
         .carousel-container { position: relative; width: 100%; border-radius: 8px; overflow: hidden; background: #111; margin-top: 15px; border: 1px solid var(--silver-border); }
         .carousel-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; }
         .carousel-track::-webkit-scrollbar { display: none; }
@@ -72,7 +70,6 @@
             <div class="card stats-box">
                 <h3 class="card-title">當前資料統計</h3>
                 <div class="stats-summary">
-                    <!-- 全局月份切換器與回到當月按鈕 -->
                     <div class="month-navigator">
                         <button id="globalPrevMonth">◀</button>
                         <span id="globalMonthDisplay" title="點擊直接回到當月">2026年 11月</span>
@@ -100,8 +97,11 @@
                 </nav>
                 <div class="toolbar-controls">
                     <div class="filter-main-row">
+                        <!-- 【修復】搜尋引擎 -->
                         <div class="search-container desktop-search">
-                            <span class="search-icon">🔍</span><input type="text" id="searchInput" placeholder="搜尋內文、平台或標籤 (支援方向鍵)..." autocomplete="off"><ul id="searchResults" class="search-results"></ul>
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchInput" placeholder="搜尋內文、平台或標籤 (支援方向鍵)..." autocomplete="off">
+                            <ul id="searchResults" class="search-results"></ul>
                         </div>
                         <div class="inline-date-filter">
                             <div class="date-input-group">
@@ -124,10 +124,12 @@
             </div>
             
             <div id="viewContainer" class="view-layout">
-                <!-- 重要日程專屬日曆 -->
+                <!-- 【修復】重要日程的專屬月曆補回左右按鈕 -->
                 <div id="calendarContainer" class="calendar-sidebar" style="display: none;">
                     <div class="calendar-header">
-                        <div class="cal-title-group"><h4 id="calendarTitle">2026年 11月</h4><button id="todayBtn" class="btn-today">今天</button></div>
+                        <button id="calPrevMonthBtn">◀</button>
+                        <div class="cal-title-group"><h4 id="calendarTitle">2026年 11月</h4><button id="todayBtn" class="btn-today">回到今天</button></div>
+                        <button id="calNextMonthBtn">▶</button>
                     </div>
                     <div class="calendar-grid-header"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
                     <div id="calendarGrid" class="calendar-grid"></div>
@@ -221,9 +223,11 @@
         // ==========================================
         // 【設定區】Supabase 連線與權限資訊
         // ==========================================
-        const SUPABASE_URL = 'https://kxywdxavuakxajpbbpbp.supabase.co';
+        const SUPABASE_URL = 'https://kxywdxavuakxajpbbpbp.supabase.co'; 
         const SUPABASE_ANON_KEY = 'sb_publishable_tpHN-Vos2cXlVNHokyiWxg_4HxdB8gR';
-        const ADMIN_EMAIL = 'oncesoad6@gmail.com';
+        
+        // 【修復 2】：強制綁定您的專屬管理員信箱
+        const ADMIN_EMAIL = 'oncesoda6@gmail.com';
         
         let supabaseClient = null; 
         try {
@@ -272,7 +276,9 @@
             setupNavigation(); setupSearch(); setupDateFilterAndSort(); setupSecurityModal(); setupDataModal(); setupBackToTop(); setupMobileTags(); renderSubTags(); updateClearTagsButton(); refreshView();
             if(supabaseClient) {
                 supabaseClient.auth.onAuthStateChange((event, session) => {
-                    isUnlocked = !!session; currentLoggedEmail = session ? session.user.email : null; updateLockUI();
+                    isUnlocked = !!session; 
+                    currentLoggedEmail = session ? session.user.email.toLowerCase() : null; 
+                    updateLockUI();
                 });
             }
         }
@@ -290,7 +296,9 @@
         async function checkAuthStatus() {
             if (!supabaseClient) return;
             const { data: { session } } = await supabaseClient.auth.getSession();
-            isUnlocked = !!session; currentLoggedEmail = session ? session.user.email : null; updateLockUI();
+            isUnlocked = !!session; 
+            currentLoggedEmail = session ? session.user.email.toLowerCase() : null; 
+            updateLockUI();
         }
 
         function setupSecurityModal() {
@@ -319,14 +327,17 @@
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 verifyPwdBtn.innerText = '登入解鎖'; verifyPwdBtn.disabled = false;
                 if (error) alert('登入失敗，請檢查帳號密碼。');
-                else { alert(data.user.email === ADMIN_EMAIL ? '最高管理員登入成功！' : '協作人員登入成功！'); modal.style.display = 'none'; }
+                else { 
+                    alert(data.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? '最高管理員登入成功！' : '協作人員登入成功！'); 
+                    modal.style.display = 'none'; 
+                }
             };
             verifyPwdBtn.addEventListener('click', triggerLogin);
             adminPwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') triggerLogin(); });
         }
 
         // ==========================================
-        // 【CRUD 操作與虛擬生日注入】
+        // 【CRUD：包含圖片上傳、關聯查詢、外部連結與 Storage 刪除】
         // ==========================================
         async function fetchDataFromSupabase() {
             if (!supabaseClient) { masterData = []; return; }
@@ -348,16 +359,10 @@
                 const virtualEvents = [];
                 for (let y = 2000; y <= sysYear + 2; y++) {
                     virtualEvents.push({
-                        id: 'virtual-bday-' + y,
-                        module: 'schedule',
-                        date: `${y}-08-01`,
-                        time: '00:00:00',
-                        dailyOrder: -999,
-                        source: 'System',
-                        mainTitle: y === 2000 ? '⭐ KIM CHAEWON 出生' : `🎂 KIM CHAEWON ${y - 2000}歲 生日`,
+                        id: 'virtual-bday-' + y, module: 'schedule', date: `${y}-08-01`, time: '00:00:00', dailyOrder: -999,
+                        source: 'System', mainTitle: y === 2000 ? '⭐ KIM CHAEWON 出生' : `🎂 KIM CHAEWON ${y - 2000}歲 生日`,
                         content: y === 2000 ? '2000年8月1日，KIM CHAEWON (金采源) 出生於韓國首爾特別市江南區。' : `今天是 CHAEWON 的 ${y - 2000} 歲生日！Happy Chaewon Day 🎉`,
-                        bgm: '', tags: ['生日', 'CHAEWON 專屬'], links: [], media: [], relatedArchiveId: null,
-                        isVirtual: true
+                        bgm: '', tags: ['生日', 'CHAEWON 專屬'], links: [], media: [], relatedArchiveId: null, isVirtual: true
                     });
                 }
                 masterData = [...masterData, ...virtualEvents];
@@ -474,7 +479,10 @@
                 const matchModule = currentModule === 'all' || item.module === currentModule;
                 const matchDate = targetDate ? item.date === targetDate : true;
                 const matchTags = activeSubTags.length === 0 || activeSubTags.some(tag => item.tags.includes(tag) || item.source.includes(tag));
-                const matchMonth = targetDate ? true : item.date.startsWith(currentMonthFilter);
+                
+                // 【修復 1】：只有在重要日程(日曆)模組，且沒有指定單日時，才用 currentMonthFilter 過濾。
+                // 這樣「全部時間軸」或「社群動態」就能毫無保留顯示所有歷史資料！
+                const matchMonth = (currentModule === 'schedule' && !targetDate) ? item.date.startsWith(currentMonthFilter) : true;
                 
                 return matchModule && matchDate && matchTags && matchMonth;
             });
@@ -482,19 +490,27 @@
             renderTimeline(currentData);
         }
 
-        // 【修復】補回總計元素的 innerHTML 寫入，確保統計數據正常顯示
+        // 【修復 3】：統計資料必須精準只算「當前選擇月份(currentMonthFilter)」，不受時間軸展開影響
         function renderSidebarStats(data) {
             document.getElementById('dynamicTodayDate').innerText = `${sysMonthStr}/${sysDayStr}`;
             
             const [year, month] = currentMonthFilter.split('-');
             document.getElementById('globalMonthDisplay').innerText = `${year}年 ${month}月`;
             
+            // 先過濾出純粹屬於「當前選擇月份」或「選擇單日」的資料來做統計
+            let statData = masterData;
+            if (selectedDate) { statData = masterData.filter(item => item.date === selectedDate); } 
+            else { statData = masterData.filter(item => item.date.startsWith(currentMonthFilter)); }
+            
+            if (currentModule !== 'all') { statData = statData.filter(item => item.module === currentModule); }
+            if (activeSubTags.length > 0) { statData = statData.filter(item => activeSubTags.some(tag => item.tags.includes(tag) || item.source.includes(tag))); }
+
             let labelText = `${year}年 ${month}月`;
             if (selectedDate) labelText = selectedDate.replace(/-/g, '/');
             
             const monthTextElem = document.getElementById('dynamicMonthText');
             if(monthTextElem) {
-                monthTextElem.innerHTML = `${labelText} 總計：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
+                monthTextElem.innerHTML = `${labelText} 總計：<strong id="totalCount" class="count-text">${statData.length}</strong> <strong>筆</strong>`;
             }
             
             const todayCountVal = masterData.filter(item => item.date === trueTodayStr && !item.isVirtual).length;
@@ -506,10 +522,10 @@
                 statsList.innerHTML = '';
                 if (currentModule === 'all') {
                     const counts = { social: 0, event: 0, brand: 0, schedule: 0 };
-                    data.forEach(item => { if(counts[item.module] !== undefined) counts[item.module]++; });
+                    statData.forEach(item => { if(counts[item.module] !== undefined) counts[item.module]++; });
                     for (const [key, val] of Object.entries(counts)) { statsList.innerHTML += `<li><span class="stat-label">${moduleNames[key]}</span> <span class="stat-count">${val} 筆</span></li>`; }
                 } else {
-                    const tagCounts = {}; data.forEach(item => { item.tags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; }); });
+                    const tagCounts = {}; statData.forEach(item => { item.tags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; }); });
                     const sortedTags = Object.keys(tagCounts).sort((a,b) => tagCounts[b] - tagCounts[a]);
                     if (sortedTags.length === 0) statsList.innerHTML = `<li><span class="stat-label">尚無數據</span></li>`;
                     else sortedTags.forEach(tag => { statsList.innerHTML += `<li><span class="stat-label">${tag}</span> <span class="stat-count">${tagCounts[tag]} 筆</span></li>`; });
@@ -576,7 +592,7 @@
                     let adminBtns = '';
                     if (isUnlocked && !item.isVirtual) {
                         adminBtns += `<button class="btn-edit-small" onclick="openDataModal('${item.id}')">編輯</button>`;
-                        if (currentLoggedEmail === ADMIN_EMAIL) adminBtns += `<button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>`;
+                        if (currentLoggedEmail === ADMIN_EMAIL.toLowerCase()) adminBtns += `<button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>`;
                     }
                     
                     let linksHtml = '';
@@ -589,7 +605,7 @@
                         const rItem = masterData.find(d => d.id === item.relatedArchiveId);
                         if (rItem) {
                             const rTitle = rItem.mainTitle || (rItem.content ? rItem.content.substring(0, 15) + '...' : '未命名貼文');
-                            relatedHtml = `<div style="margin-bottom: 10px;"><button class="internal-link-btn" onclick="scrollToPost('${item.relatedArchiveId}')">🔗 相關內容：${rTitle}</button></div>`;
+                            relatedHtml = `<div style="margin-bottom: 10px;"><button class="internal-link-btn" onclick="scrollToPost('${item.relatedArchiveId}')">🔗 關聯紀錄：${rTitle}</button></div>`;
                         }
                     }
                     
@@ -693,7 +709,65 @@
             const container = document.getElementById('clearTagsContainer');
             if (activeSubTags.length > 0) { container.innerHTML = `<button class="btn-clear-tags">✖ 清除所選標籤</button>`; container.querySelector('.btn-clear-tags').onclick = () => { activeSubTags = []; renderSubTags(); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); }; } else { container.innerHTML = ''; }
         }
-        function setupSearch() { document.getElementById('searchInput').addEventListener('input', function() { refreshView(); }); }
+        
+        // 【修復 4】：完整復活自動完成搜尋引擎 (Search)
+        function setupSearch() {
+            const input = document.getElementById('searchInput');
+            const resultsList = document.getElementById('searchResults');
+            let currentFocus = -1;
+
+            input.addEventListener('input', function() {
+                const val = this.value.toLowerCase().trim();
+                resultsList.innerHTML = '';
+                currentFocus = -1;
+                if (!val) { refreshView(); return; }
+
+                const searchScope = masterData.filter(item => currentModule === 'all' || item.module === currentModule);
+                const matched = searchScope.filter(item => 
+                    item.content.toLowerCase().includes(val) || 
+                    item.tags.join('').toLowerCase().includes(val) ||
+                    item.source.toLowerCase().includes(val) ||
+                    (item.mainTitle && item.mainTitle.toLowerCase().includes(val))
+                );
+
+                renderSidebarStats(matched);
+                renderTimeline(matched);
+
+                matched.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span class="s-date">${item.date}</span> ${item.content.substring(0, 20)}...`;
+                    li.addEventListener('click', () => {
+                        input.value = '';
+                        resultsList.innerHTML = '';
+                        const targetCard = document.getElementById(`post-${item.id}`);
+                        if(targetCard) {
+                            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            targetCard.style.boxShadow = '0 0 0 3px var(--mint-green)';
+                            setTimeout(() => targetCard.style.boxShadow = '', 2000);
+                        }
+                    });
+                    resultsList.appendChild(li);
+                });
+            });
+
+            input.addEventListener('keydown', function(e) {
+                const items = resultsList.getElementsByTagName('li');
+                if (e.key === 'ArrowDown') { currentFocus++; addActive(items); } 
+                else if (e.key === 'ArrowUp') { currentFocus--; addActive(items); } 
+                else if (e.key === 'Enter') { e.preventDefault(); if (currentFocus > -1 && items[currentFocus]) items[currentFocus].click(); }
+            });
+
+            function addActive(items) {
+                if (!items || items.length === 0) return;
+                for (let i = 0; i < items.length; i++) items[i].classList.remove('autocomplete-active');
+                if (currentFocus >= items.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (items.length - 1);
+                items[currentFocus].classList.add('autocomplete-active');
+                items[currentFocus].scrollIntoView({ block: 'nearest' });
+            }
+
+            document.addEventListener('click', (e) => { if(e.target !== input) resultsList.innerHTML = ''; });
+        }
         
         function setupDateFilterAndSort() {
             document.getElementById('applyDateBtn').addEventListener('click', () => {
@@ -728,7 +802,10 @@
             document.getElementById('globalPrevMonth').addEventListener('click', () => changeMonth(-1));
             document.getElementById('globalNextMonth').addEventListener('click', () => changeMonth(1));
             
-            // 【新增】：點擊月份文字或「回到當月」按鈕，快速跳回系統當前月份
+            // 重要日程的日曆專屬左右按鈕
+            document.getElementById('calPrevMonthBtn')?.addEventListener('click', () => changeMonth(-1));
+            document.getElementById('calNextMonthBtn')?.addEventListener('click', () => changeMonth(1));
+            
             const resetToCurrentMonth = () => {
                 currentMonthFilter = `${sysYear}-${sysMonthStr}`;
                 selectedDate = null;
@@ -762,7 +839,7 @@
             const lockBtn = document.getElementById('lockBtn'); const statusInd = document.getElementById('lockStatus'); const quickBtn = document.getElementById('quickAddBtn');
             if (isUnlocked) {
                 statusInd.className = 'status-indicator unlocked';
-                statusInd.innerHTML = `<span class="icon">🔓</span> ${currentLoggedEmail === ADMIN_EMAIL ? '編輯模式 (Admin)' : '協作模式 (Editor)'}`;
+                statusInd.innerHTML = `<span class="icon">🔓</span> ${currentLoggedEmail === ADMIN_EMAIL.toLowerCase() ? '編輯模式 (Admin)' : '協作模式 (Editor)'}`;
                 lockBtn.innerText = '鎖定系統 (登出) 🔒';
                 quickBtn.className = 'btn-quick-add unlocked'; quickBtn.innerText = '+ 快速新增資料';
             } else {
