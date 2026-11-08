@@ -22,15 +22,28 @@
         .media-block-header, .link-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .remove-block-btn { background: #FFEBEE; color: #C62828; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; font-weight: bold;}
         
-        .media-gallery { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
-        .media-item-display { background: var(--silver-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--silver-border); }
-        .media-item-display img { width: 100%; max-height: 500px; object-fit: cover; display: block; }
-        .media-item-display iframe { width: 100%; aspect-ratio: 16/9; border: none; display: block; }
-        .media-caption { padding: 10px 15px; font-size: 0.9rem; color: var(--text-muted); background: white; margin: 0; font-weight: 500; border-top: 1px dashed var(--silver-border); }
-        
         .internal-link-btn { background: var(--silver-bg); color: var(--text-main); border: 1px solid var(--mint-green); padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px;}
         .internal-link-btn:hover { background: var(--mint-light); color: var(--mint-hover); }
         .bgm-tag { display: inline-flex; align-items: center; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; gap: 5px; }
+
+        /* 全局月份導覽器 */
+        .month-navigator { display: flex; justify-content: space-between; align-items: center; background: var(--silver-bg); padding: 8px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--silver-border); }
+        .month-navigator button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--mint-hover); padding: 0 10px; transition: 0.2s; }
+        .month-navigator button:hover { transform: scale(1.2); }
+        #globalMonthDisplay { font-weight: 800; color: var(--text-main); font-size: 1.1rem; }
+
+        /* 多圖左右輪播系統 (Carousel) */
+        .carousel-container { position: relative; width: 100%; border-radius: 8px; overflow: hidden; background: #111; margin-top: 15px; border: 1px solid var(--silver-border); }
+        .carousel-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; }
+        .carousel-track::-webkit-scrollbar { display: none; }
+        .carousel-slide { flex: 0 0 100%; scroll-snap-align: center; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .carousel-slide img, .carousel-slide iframe { width: 100%; max-height: 60vh; object-fit: contain; display: block; }
+        .carousel-counter { position: absolute; top: 12px; right: 12px; background: rgba(0, 0, 0, 0.65); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; z-index: 10; backdrop-filter: blur(4px); }
+        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.8); border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #333; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: 0.2s;}
+        .carousel-btn:hover { background: white; transform: translateY(-50%) scale(1.1); }
+        .carousel-btn.prev { left: 10px; }
+        .carousel-btn.next { right: 10px; }
+        .media-caption { padding: 10px 15px; font-size: 0.9rem; color: #eee; background: #222; margin: 0; font-weight: 500; width: 100%; text-align: left; }
     </style>
 </head>
 <body>
@@ -57,7 +70,12 @@
             <div class="card stats-box">
                 <h3 class="card-title">當前資料統計</h3>
                 <div class="stats-summary">
-                    <p id="dynamicMonthText" class="month-stat-title">YYYY年 MM月 總計：<strong id="totalCount" class="count-text">0</strong> <strong>筆</strong></p>
+                    <div class="month-navigator">
+                        <button id="globalPrevMonth">◀</button>
+                        <span id="globalMonthDisplay">2026年 11月</span>
+                        <button id="globalNextMonth">▶</button>
+                    </div>
+                    <p class="month-stat-title">當月總計：<strong id="totalCount" class="count-text">0</strong> <strong>筆</strong></p>
                     <p class="today-stat-title">今日發生 (<span id="dynamicTodayDate">MM/DD</span>)：<strong id="todayCount" class="count-text-small">0</strong> <strong>筆</strong></p>
                 </div>
                 <ul id="moduleStats" class="stats-list"></ul>
@@ -85,7 +103,7 @@
                                 <input type="text" id="dateText" placeholder="yyyy/mm/dd 或 yyyy-mm-dd" autocomplete="off">
                                 <div class="date-picker-wrapper" id="datePickerTrigger"><span class="calendar-icon">📅</span><input type="date" id="datePicker"></div>
                             </div>
-                            <button id="applyDateBtn" class="btn-primary-small">篩選</button>
+                            <button id="applyDateBtn" class="btn-primary-small">指定單日</button>
                             <button id="clearDateBtn" class="btn-secondary-small">清除</button>
                             <div class="custom-dropdown" id="sortDropdown">
                                 <div class="dropdown-selected"><span id="sortText">由新到舊 ↓</span> <span class="arrow">﹀</span></div>
@@ -103,9 +121,7 @@
             <div id="viewContainer" class="view-layout">
                 <div id="calendarContainer" class="calendar-sidebar" style="display: none;">
                     <div class="calendar-header">
-                        <button id="prevMonthBtn">◀</button>
-                        <div class="cal-title-group"><h4 id="calendarTitle">2026年</h4><button id="todayBtn" class="btn-today">今天</button></div>
-                        <button id="nextMonthBtn">▶</button>
+                        <div class="cal-title-group"><h4 id="calendarTitle">2026年</h4><button id="todayBtn" class="btn-today">回到今天</button></div>
                     </div>
                     <div class="calendar-grid-header"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
                     <div id="calendarGrid" class="calendar-grid"></div>
@@ -162,7 +178,8 @@
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <div style="flex: 2;"><label class="form-label">日期：</label><input type="date" id="dataDate" class="modal-input" style="margin-top: 5px;" required></div>
                 <div style="flex: 2;"><label class="form-label">時間 (統一以 臺灣時間 TST 為準)：</label><input type="time" id="dataTime" class="modal-input" style="margin-top: 5px;" required></div>
-                <div style="flex: 1;"><label class="form-label">當日順序：</label><input type="number" id="dataDailyOrder" class="modal-input" value="1" min="1" style="margin-top: 5px;" title="微調同一天內貼文的顯示順序 (數字越小越上面)"></div>
+                <!-- 修改為「排序權重」，只有時間相同時才發揮作用 -->
+                <div style="flex: 1;"><label class="form-label">排序權重：</label><input type="number" id="dataDailyOrder" class="modal-input" value="1" min="1" style="margin-top: 5px;" title="當時間相同或未知時，數字越小越排在前面"></div>
             </div>
 
             <label class="form-label">來源平台 (例如: Instagram, X, 站姐名稱)：</label>
@@ -199,9 +216,9 @@
         // ==========================================
         // 【設定區】Supabase 連線與權限資訊
         // ==========================================
-        const SUPABASE_URL = 'https://kxywdxavuakxajpbbpbp.supabase.co'; 
+        const SUPABASE_URL = 'https://kxywdxavuakxajpbbpbp.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_tpHN-Vos2cXlVNHokyiWxg_4HxdB8gR';
-        const ADMIN_EMAIL = 'oncesoda6@gmail.com';
+        const ADMIN_EMAIL = 'oncesoad6@gmail.com';
         
         let supabaseClient = null; 
         try {
@@ -304,7 +321,7 @@
         }
 
         // ==========================================
-        // 【CRUD：包含圖片上傳、關聯查詢、外部連結與 Storage 刪除】
+        // 【CRUD 與 虛擬生日資料注入】
         // ==========================================
         async function fetchDataFromSupabase() {
             if (!supabaseClient) { masterData = []; return; }
@@ -314,13 +331,33 @@
                     .select('*, archive_media(media_url, media_type, specific_caption, sort_order)')
                     .order('date', { ascending: false }).order('time', { ascending: false });
                 if (error) throw error;
+                
                 masterData = data.map(item => ({
                     id: item.id, module: item.module, date: item.date, time: item.time, dailyOrder: item.daily_order,
                     source: item.source_platform || 'System', mainTitle: item.main_title || '', 
                     content: item.content_kr || item.content_tw || '', bgm: item.bgm || '',
                     tags: item.tags || [], links: item.links || [], media: item.archive_media || [],
-                    relatedArchiveId: item.related_archive_id || null
+                    relatedArchiveId: item.related_archive_id || null, isVirtual: false
                 }));
+                
+                // 【新增功能】：自動注入 KIM CHAEWON 歷年專屬生日卡片 (2000 年至今+2年)
+                const virtualEvents = [];
+                for (let y = 2000; y <= sysYear + 2; y++) {
+                    virtualEvents.push({
+                        id: 'virtual-bday-' + y,
+                        module: 'schedule',
+                        date: `${y}-08-01`,
+                        time: '00:00:00',
+                        dailyOrder: -999, // 生日卡片永遠置頂於當天
+                        source: 'System',
+                        mainTitle: y === 2000 ? '⭐ KIM CHAEWON 出生' : `🎂 KIM CHAEWON ${y - 2000}歲 生日`,
+                        content: y === 2000 ? '2000年8月1日，KIM CHAEWON (金采源) 出生於韓國首爾特別市江南區。' : `今天是 CHAEWON 的 ${y - 2000} 歲生日！Happy Chaewon Day 🎉`,
+                        bgm: '', tags: ['生日', 'CHAEWON 專屬'], links: [], media: [], relatedArchiveId: null,
+                        isVirtual: true // 保護標記，隱藏編輯與刪除按鈕
+                    });
+                }
+                masterData = [...masterData, ...virtualEvents];
+                
             } catch (error) { console.error("載入失敗:", error); }
         }
 
@@ -359,12 +396,10 @@
                 }
 
                 if (currentArchiveId) {
-                    // 若是編輯模式，先刪除資料庫中的舊媒體紀錄
                     if (itemData.id) { await supabaseClient.from('archive_media').delete().eq('archive_id', currentArchiveId); }
                     let mediaPayloads = [];
                     for (let i = 0; i < mediaArray.length; i++) {
                         let m = mediaArray[i]; let finalUrl = m.url;
-                        // 若是新檔案則壓縮上傳
                         if (m.type === 'image' && m.file) {
                             const compressedFile = await compressImage(m.file);
                             const filePath = `post_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
@@ -384,19 +419,14 @@
             } catch (error) { console.error(error); alert("儲存失敗：" + error.message); return false; }
         }
 
-        // 【修復 1】：完整綁定的全域刪除按鈕功能 (包含資料庫與 Storage 實體檔案連動刪除)
         window.deleteItem = async function(id) {
             if(confirm('確定要從雲端刪除這筆資料嗎？(包含 Storage 內的圖片將一併永久清除) 此動作無法復原！')) {
                 if (!supabaseClient) return;
                 try {
-                    // 1. 先抓出關聯的圖片
                     const { data: mediaData } = await supabaseClient.from('archive_media').select('media_url').eq('archive_id', id);
-
-                    // 2. 刪除資料庫紀錄
                     const { error } = await supabaseClient.from('archives').delete().eq('id', id);
                     if (error) throw error;
 
-                    // 3. 清理 Storage 實體檔案
                     if (mediaData && mediaData.length > 0) {
                         const filePaths = mediaData.map(m => {
                             if (m.media_url && m.media_url.includes('/storage/v1/object/public/media/')) {
@@ -408,15 +438,11 @@
 
                         if (filePaths.length > 0) {
                             const { error: storageError } = await supabaseClient.storage.from('media').remove(filePaths);
-                            if (storageError) console.error("Storage 實體檔案刪除失敗:", storageError);
+                            if (storageError) console.error("Storage 刪除失敗:", storageError);
                         }
                     }
-
-                    await fetchDataFromSupabase(); 
-                    refreshView(selectedDate);
-                } catch (error) { 
-                    alert("刪除失敗：" + error.message); 
-                }
+                    await fetchDataFromSupabase(); refreshView(selectedDate);
+                } catch (error) { alert("刪除失敗：" + error.message); }
             }
         };
 
@@ -438,13 +464,11 @@
             if(currentModule === 'schedule') renderCalendar();
         }
         
-        // 【修復 3】：全域啟動月份過濾器 (讓「11月」的標題與資料精準對齊)
         function filterData(targetDate = null) {
             currentData = masterData.filter(item => {
                 const matchModule = currentModule === 'all' || item.module === currentModule;
                 const matchDate = targetDate ? item.date === targetDate : true;
                 const matchTags = activeSubTags.length === 0 || activeSubTags.some(tag => item.tags.includes(tag) || item.source.includes(tag));
-                // 如果沒有指定單日，則必須嚴格符合左側選擇的「月份」
                 const matchMonth = targetDate ? true : item.date.startsWith(currentMonthFilter);
                 
                 return matchModule && matchDate && matchTags && matchMonth;
@@ -454,18 +478,16 @@
 
         function renderSidebarStats(data) {
             document.getElementById('dynamicTodayDate').innerText = `${sysMonthStr}/${sysDayStr}`;
-            
             const [year, month] = currentMonthFilter.split('-');
+            document.getElementById('globalMonthDisplay').innerText = `${year}年 ${month}月`;
             let labelText = `${year}年 ${month}月`;
             if (selectedDate) labelText = selectedDate.replace(/-/g, '/');
-            document.getElementById('dynamicMonthText').innerHTML = `${labelText} 總計：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
+            document.getElementById('dynamicMonthText').innerHTML = `當月總計：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
             
-            // 【修復 2】：今日發生嚴格綁定真實發生日期 (date)
-            const todayCountVal = masterData.filter(item => item.date === trueTodayStr).length;
+            const todayCountVal = masterData.filter(item => item.date === trueTodayStr && !item.isVirtual).length;
             document.getElementById('todayCount').innerText = todayCountVal;
 
             const statsList = document.getElementById('moduleStats'); statsList.innerHTML = '';
-            // 讓子模組的加總也受限於目前畫面上的月份資料 (currentData)
             if (currentModule === 'all') {
                 const counts = { social: 0, event: 0, brand: 0, schedule: 0 };
                 data.forEach(item => { if(counts[item.module] !== undefined) counts[item.module]++; });
@@ -483,7 +505,6 @@
             document.querySelectorAll('#navLinks li').forEach(l => l.classList.remove('active'));
             document.querySelector('[data-module="all"]').classList.add('active');
             
-            // 找到該筆貼文的月份，自動切換月曆
             const targetItem = masterData.find(d => d.id === id);
             if (targetItem) {
                 currentMonthFilter = targetItem.date.substring(0, 7);
@@ -502,6 +523,15 @@
             }, 300);
         };
 
+        window.scrollCarousel = function(id, direction) {
+            const track = document.getElementById(`track-${id}`);
+            if (track) {
+                const slideWidth = track.clientWidth;
+                track.scrollBy({ left: direction * slideWidth, behavior: 'smooth' });
+            }
+        };
+
+        // 【核心升級】：自動按時間排序並重新賦予 `當日 #`
         function renderTimeline(data) {
             const container = document.getElementById('timelineContainer'); container.innerHTML = '';
             if (data.length === 0) { container.innerHTML = '<div class="empty-state">此條件下暫無資料。</div>'; return; }
@@ -511,12 +541,17 @@
 
             sortedDates.forEach(date => {
                 const items = groupedData[date];
+                // 1. 根據真實時間由舊到新排序 (若時間相同，再套用使用者的排序權重)
                 items.sort((a,b) => {
                     const timeDiff = new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`);
                     if (timeDiff !== 0) return timeDiff;
                     return (a.dailyOrder || 1) - (b.dailyOrder || 1);
                 });
                 
+                // 2. 排序完成後，依序賦予真實的「當日順序編號 (1, 2, 3...)」
+                items.forEach((item, index) => item.calculatedDailyOrder = index + 1);
+                
+                // 3. 處理畫面顯示的順序
                 if(currentSortOrder === 'desc') items.reverse();
 
                 const isToday = date === trueTodayStr;
@@ -527,7 +562,8 @@
                 items.forEach(item => {
                     const card = document.createElement('div'); card.className = 'timeline-card'; card.id = `post-${item.id}`;
                     let adminBtns = '';
-                    if (isUnlocked) {
+                    // 虛擬記憶體(生日卡片)不顯示編輯與刪除按鈕
+                    if (isUnlocked && !item.isVirtual) {
                         adminBtns += `<button class="btn-edit-small" onclick="openDataModal('${item.id}')">編輯</button>`;
                         if (currentLoggedEmail === ADMIN_EMAIL) adminBtns += `<button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>`;
                     }
@@ -551,22 +587,35 @@
 
                     let mediaHtml = '';
                     if (item.media && item.media.length > 0) {
-                        mediaHtml = '<div class="media-gallery">';
-                        item.media.sort((a,b) => a.sort_order - b.sort_order).forEach(m => {
-                            mediaHtml += `<div class="media-item-display">`;
-                            if (m.media_type === 'image') mediaHtml += `<img src="${m.media_url}" loading="lazy" alt="Archive Image">`;
-                            else if (m.media_type === 'vimeo' || m.media_type === 'youtube') mediaHtml += `<iframe src="${m.media_url}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
-                            if (m.specific_caption) mediaHtml += `<p class="media-caption">${m.specific_caption.replace(/\n/g, '<br>')}</p>`;
+                        const sortedMedia = item.media.sort((a,b) => a.sort_order - b.sort_order);
+                        const isMultiple = sortedMedia.length > 1;
+                        
+                        mediaHtml = `<div class="carousel-container" id="carousel-${item.id}">`;
+                        mediaHtml += `<div class="carousel-track" id="track-${item.id}">`;
+                        
+                        sortedMedia.forEach((m, idx) => {
+                            mediaHtml += `<div class="carousel-slide">`;
+                            if (isMultiple) { mediaHtml += `<div class="carousel-counter">${idx + 1} / ${sortedMedia.length}</div>`; }
+                            if (m.media_type === 'image') { mediaHtml += `<img src="${m.media_url}" loading="lazy" alt="Archive Image">`; } 
+                            else if (m.media_type === 'vimeo' || m.media_type === 'youtube') { mediaHtml += `<iframe src="${m.media_url}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`; }
+                            if (m.specific_caption) { mediaHtml += `<p class="media-caption">${m.specific_caption.replace(/\n/g, '<br>')}</p>`; }
                             mediaHtml += `</div>`;
                         });
-                        mediaHtml += '</div>';
+                        mediaHtml += `</div>`; 
+                        
+                        if (isMultiple) {
+                            mediaHtml += `<button class="carousel-btn prev" onclick="scrollCarousel('${item.id}', -1)">❮</button>`;
+                            mediaHtml += `<button class="carousel-btn next" onclick="scrollCarousel('${item.id}', 1)">❯</button>`;
+                        }
+                        mediaHtml += `</div>`; 
                     }
 
+                    // 將剛剛計算好的 calculatedDailyOrder 顯示在標籤上
                     card.innerHTML = `
                         <div class="card-date-col"><div class="time">${item.time.slice(0,5)}</div></div>
                         <div class="card-content-col">
                             <div class="card-header">
-                                <div class="tags"><span class="tag tag-daily">當日 #${item.dailyOrder || 1}</span><span class="tag tag-platform">${item.source}</span>${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                                <div class="tags"><span class="tag tag-daily">當日 #${item.calculatedDailyOrder}</span><span class="tag tag-platform">${item.source}</span>${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
                                 <div class="admin-actions">${adminBtns}</div>
                             </div>
                             ${item.mainTitle ? `<h4 style="margin-bottom: 8px; color: var(--mint-hover);">${item.mainTitle}</h4>` : ''}
@@ -640,14 +689,35 @@
             document.getElementById('applyDateBtn').addEventListener('click', () => {
                 const val = document.getElementById('dateText').value.trim();
                 const match = val.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
-                if (match) { const formattedDate = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`; currentMonthFilter = `${match[1]}-${match[2].padStart(2, '0')}`; selectedDate = formattedDate; refreshView(formattedDate); }
+                if (match) { 
+                    const formattedDate = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`; 
+                    currentMonthFilter = `${match[1]}-${match[2].padStart(2, '0')}`; 
+                    selectedDate = formattedDate; 
+                    refreshView(formattedDate); 
+                }
             });
+            
+            document.getElementById('datePickerTrigger').addEventListener('click', () => { try { document.getElementById('datePicker').showPicker(); } catch(e) {} });
+            document.getElementById('datePicker').addEventListener('change', (e) => {
+                const val = e.target.value.replace(/-/g, '/');
+                document.getElementById('dateText').value = val;
+                document.getElementById('applyDateBtn').click(); 
+            });
+
+            document.getElementById('dateText').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); 
+                    document.getElementById('applyDateBtn').click();
+                }
+            });
+            
             document.getElementById('clearDateBtn').addEventListener('click', clearDateFilter);
             document.getElementById('sortDropdown').addEventListener('click', function(e) { this.classList.toggle('open'); e.stopPropagation(); });
             document.querySelectorAll('.dropdown-options li').forEach(opt => opt.addEventListener('click', function() { currentSortOrder = this.getAttribute('data-value'); document.getElementById('sortText').innerText = this.innerText; document.getElementById('sortDropdown').classList.remove('open'); refreshView(selectedDate); }));
             
-            document.getElementById('prevMonthBtn').addEventListener('click', () => changeMonth(-1));
-            document.getElementById('nextMonthBtn').addEventListener('click', () => changeMonth(1));
+            document.getElementById('globalPrevMonth').addEventListener('click', () => changeMonth(-1));
+            document.getElementById('globalNextMonth').addEventListener('click', () => changeMonth(1));
+            
             document.getElementById('todayBtn').addEventListener('click', () => {
                 currentMonthFilter = `${sysYear}-${sysMonthStr}`;
                 selectedDate = trueTodayStr;
@@ -662,7 +732,9 @@
             if (m > 12) { m = 1; y++; }
             if (m < 1) { m = 12; y--; }
             currentMonthFilter = `${y}-${String(m).padStart(2,'0')}`;
-            refreshView(selectedDate);
+            selectedDate = null; 
+            document.getElementById('dateText').value = '';
+            refreshView(null);
         }
         
         function setupBackToTop() { window.addEventListener('scroll', () => { document.getElementById('backToTopBtn').classList.toggle('show', window.scrollY > 300); }); document.getElementById('backToTopBtn').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' })); }
@@ -719,7 +791,8 @@
             function populateRelatedSelect() {
                 const currentVal = relatedArchiveSelect.value;
                 relatedArchiveSelect.innerHTML = '<option value="">無關聯 (獨立貼文)</option>';
-                masterData.filter(d => d.module !== 'schedule').forEach(d => {
+                // 排除虛擬事件
+                masterData.filter(d => d.module !== 'schedule' && !d.isVirtual).forEach(d => {
                     const title = d.mainTitle ? d.mainTitle : (d.content ? d.content.substring(0, 15) + '...' : '未命名貼文');
                     const selected = (d.id === currentVal) ? 'selected' : '';
                     relatedArchiveSelect.innerHTML += `<option value="${d.id}" ${selected}>[${d.date.replace(/-/g, '/')}] ${title}</option>`;
@@ -815,9 +888,10 @@
                 
                 if (success) { 
                     document.getElementById('dataModal').style.display = 'none'; 
-                    // 【體驗升級】存檔後自動將畫面的月份切換到該筆資料所屬的月份，避免新增後找不到
                     currentMonthFilter = date.substring(0, 7);
-                    refreshView(selectedDate); 
+                    selectedDate = null;
+                    document.getElementById('dateText').value = '';
+                    refreshView(null); 
                 }
             });
 
