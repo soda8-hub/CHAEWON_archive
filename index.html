@@ -45,18 +45,27 @@
         .carousel-btn.next { right: 10px; }
         .media-caption { padding: 10px 15px; font-size: 0.9rem; color: #eee; background: #222; margin: 0; font-weight: 500; width: 100%; text-align: left; }
         
+        /* 📸 飯拍群組化 CSS (全新設計) */
         .fancam-gallery { margin-top: 15px; background: #fdfdfd; border: 1px solid var(--silver-border); border-radius: 8px; padding: 12px; }
         .fancam-gallery-title { font-size: 0.9rem; color: var(--mint-hover); font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid var(--silver-border); padding-bottom: 5px;}
-        .fancam-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-        .fancam-card { background: white; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; width: 160px; text-decoration: none; color: inherit; transition: 0.2s; }
-        .fancam-card:hover { border-color: var(--mint-green); box-shadow: 0 4px 8px rgba(0,0,0,0.1); transform: translateY(-2px); }
-        .fancam-img { width: 100%; height: 110px; object-fit: cover; background: #f5f5f5; }
-        .fancam-info { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
-        .fancam-account { font-weight: bold; font-size: 0.85rem; word-break: break-all; }
-        .fancam-platform { font-size: 0.7rem; color: white; background: #555; padding: 2px 6px; border-radius: 4px; align-self: flex-start; }
-        .fancam-compact { display: inline-flex; align-items: center; background: #fff; border: 1px solid #ddd; padding: 6px 12px; border-radius: 20px; text-decoration: none; color: #333; font-size: 0.85rem; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .fancam-compact:hover { border-color: var(--mint-green); background: #f4fdfb; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
-        .fancam-compact .platform-badge { font-size: 0.7rem; background: #333; color: white; padding: 2px 6px; border-radius: 10px; margin-right: 8px; font-weight: normal; }
+        .fancam-grid { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+        
+        .fancam-group-card { background: white; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%; max-width: 280px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.2s; }
+        .fancam-group-card:hover { border-color: var(--mint-green); box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
+        
+        .fancam-group-header { background: #f9f9f9; padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; }
+        .fancam-platform { font-size: 0.7rem; color: white; background: #555; padding: 2px 6px; border-radius: 4px; }
+        .fancam-account { font-weight: bold; font-size: 0.85rem; color: #333; word-break: break-all; }
+        
+        .fancam-group-body { padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+        
+        .fancam-text-link { display: inline-flex; align-items: center; background: #f4f4f4; color: #333; font-size: 0.8rem; padding: 4px 10px; border-radius: 15px; text-decoration: none; border: 1px solid #ddd; transition: 0.2s; font-weight: bold; }
+        .fancam-text-link:hover { border-color: var(--mint-green); color: var(--mint-hover); background: #eafffa; transform: translateY(-1px); }
+        
+        .fancam-pic-link { position: relative; width: 65px; height: 65px; border-radius: 6px; overflow: hidden; border: 1px solid #eee; display: block; text-decoration: none; flex-shrink: 0;}
+        .fancam-pic-link img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; background: #f5f5f5; }
+        .fancam-pic-link:hover img { transform: scale(1.05); }
+        .pic-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); color: white; font-size: 0.65rem; text-align: center; padding: 2px 0; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -77,7 +86,6 @@
                 <div class="status-content">
                     <div id="lockStatus" class="status-indicator locked"><span class="icon">🔒</span> 訪客鎖定中</div>
                     <button id="lockBtn" class="btn-lock">註冊 / 登入 🔓</button>
-                    <!-- 【升級】專屬於已登入但無權限者的升級按鈕 -->
                     <button id="upgradeToEditorBtn" class="btn-secondary-small" style="display: none; width: 100%; margin-top: 5px; border-color: #F39C12; color: #D68910;">🔑 輸入通關密語升級權限</button>
                     <button id="quickAddBtn" class="btn-quick-add disabled">+ 快速新增 (需解鎖)</button>
                 </div>
@@ -113,7 +121,9 @@
                 <div class="toolbar-controls">
                     <div class="filter-main-row">
                         <div class="search-container desktop-search">
-                            <span class="search-icon">🔍</span><input type="text" id="searchInput" placeholder="搜尋內文、平台或標籤 (支援方向鍵)..." autocomplete="off"><ul id="searchResults" class="search-results"></ul>
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchInput" placeholder="搜尋標題、內文、標籤或站子..." autocomplete="off">
+                            <ul id="searchResults" class="search-results"></ul>
                         </div>
                         <div class="inline-date-filter">
                             <div class="date-input-group">
@@ -152,7 +162,6 @@
 
     <button id="backToTopBtn" class="back-to-top" title="回到頂端">⬆️</button>
 
-    <!-- 【一般註冊/登入彈窗】 -->
     <div id="securityModal" class="modal-overlay">
         <div class="modal-box" style="max-width: 400px;">
             <h3 id="modalTitle">系統登入/註冊</h3>
@@ -170,7 +179,6 @@
         </div>
     </div>
 
-    <!-- 【權限升級專用彈窗】 -->
     <div id="upgradeModal" class="modal-overlay" style="display: none;">
         <div class="modal-box" style="max-width: 400px;">
             <h3 style="text-align: center; color: #F39C12; margin-bottom: 10px;">解鎖編輯權限</h3>
@@ -199,7 +207,7 @@
                 <select id="relatedArchiveSelect" class="modal-input" style="margin-top: 5px; font-size: 0.9rem;">
                     <option value="">無關聯 (獨立日程)</option>
                 </select>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">(若綁定，時間軸上會出現快速跳轉按鈕，前往對應的貼文)</p>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">(若綁定，時間軸上會出現快速跳轉按鈕)</p>
             </div>
 
             <div class="tag-selection-area">
@@ -259,7 +267,7 @@
         // 【設定區】Supabase 連線與權限資訊
         // ==========================================
         const SUPABASE_URL = 'https://kxywdxavuakxajpbbpbp.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'sb_publishable_tpHN-Vos2cXlVNHokyiWxg_4HxdB8gR';
+        const SUPABASE_ANON_KEY = 'Ysb_publishable_tpHN-Vos2cXlVNHokyiWxg_4HxdB8gR';
         
         const ADMIN_EMAIL = 'oncesoda6@gmail.com';
         
@@ -286,9 +294,8 @@
         let currentSortOrder = 'desc'; 
         let tempCustomTags = [];
         
-        // 【權限狀態變數】
         let isUnlocked = false; 
-        let isEditor = false; // 是否具備寫入權限 (Admin 或 通關密語認證者)
+        let isEditor = false; 
         let currentLoggedEmail = null; 
 
         const moduleSubTags = {
@@ -331,7 +338,6 @@
             }
         }
 
-        // 【權限分級檢查】
         async function checkAuthStatus() {
             if (!supabaseClient) return;
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -344,16 +350,11 @@
             updateLockUI();
         }
 
-        // 向資料庫確認是否擁有編輯權限 (最高管理員 或 在editors名單內)
         async function checkEditorStatus() {
-            if (currentLoggedEmail === ADMIN_EMAIL.toLowerCase()) {
-                isEditor = true; return;
-            }
+            if (currentLoggedEmail === ADMIN_EMAIL.toLowerCase()) { isEditor = true; return; }
             try {
-                // 因為我們在 backend 設定了 RLS，所以若能從 editors 表 SELECT 到資料，代表他在名單內
                 const { data, error } = await supabaseClient.from('editors').select('*');
-                if (data && data.length > 0) { isEditor = true; } 
-                else { isEditor = false; }
+                if (data && data.length > 0) { isEditor = true; } else { isEditor = false; }
             } catch(e) { isEditor = false; }
         }
 
@@ -385,7 +386,6 @@
 
                 verifyPwdBtn.disabled = true; registerBtn.disabled = true;
                 const origLoginText = verifyPwdBtn.innerText; const origRegText = registerBtn.innerText;
-                
                 if (isRegister) registerBtn.innerText = '處理中...'; else verifyPwdBtn.innerText = '處理中...';
 
                 try {
@@ -410,7 +410,6 @@
             adminPwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') processAuth(false); });
         }
 
-        // 【全新】通關密語升級彈窗功能
         function setupUpgradeModal() {
             const upgradeBtn = document.getElementById('upgradeToEditorBtn');
             const modal = document.getElementById('upgradeModal');
@@ -430,30 +429,19 @@
                 
                 verifyBtn.innerText = '驗證中...'; verifyBtn.disabled = true;
                 try {
-                    // 呼叫我們剛剛在 Supabase 建立的後端 RPC 函數
                     const { data, error } = await supabaseClient.rpc('verify_collab_passcode', { passcode: passcode });
                     if (error) throw error;
                     
                     if (data === true) {
                         alert("🎉 解鎖成功！您現在已獲得完整的編輯與新增權限。");
-                        isEditor = true;
-                        updateLockUI();
-                        modal.style.display = 'none';
-                    } else {
-                        alert("通關密語錯誤！");
-                    }
-                } catch (e) {
-                    alert("驗證時發生錯誤：" + e.message);
-                } finally {
-                    verifyBtn.innerText = '驗證並解鎖'; verifyBtn.disabled = false;
-                }
+                        isEditor = true; updateLockUI(); modal.style.display = 'none';
+                    } else { alert("通關密語錯誤！"); }
+                } catch (e) { alert("驗證時發生錯誤：" + e.message); } 
+                finally { verifyBtn.innerText = '驗證並解鎖'; verifyBtn.disabled = false; }
             });
             passcodeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyBtn.click(); });
         }
 
-        // ==========================================
-        // 【CRUD 操作】
-        // ==========================================
         async function fetchDataFromSupabase() {
             if (!supabaseClient) { masterData = []; return; }
             try {
@@ -593,9 +581,6 @@
             }
         };
 
-        // ==========================================
-        // 【UI 渲染邏輯】
-        // ==========================================
         function setupMobileTags() {
             const toggleBtn = document.getElementById('mobileTagToggle'); if(!toggleBtn) return;
             const newToggleBtn = toggleBtn.cloneNode(true); toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
@@ -716,11 +701,9 @@
                 items.forEach(item => {
                     const card = document.createElement('div'); card.className = 'timeline-card'; card.id = `post-${item.id}`;
                     let adminBtns = '';
-                    
-                    // 【權限鎖定】必須是 isEditor 才能看到編輯與刪除按鈕
                     if (isEditor && !item.isVirtual) {
                         adminBtns += `<button class="btn-edit-small" onclick="openDataModal('${item.id}')">編輯</button>`;
-                        adminBtns += `<button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>`;
+                        if (currentLoggedEmail === ADMIN_EMAIL.toLowerCase()) adminBtns += `<button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>`;
                     }
                     
                     let linksHtml = '';
@@ -740,34 +723,62 @@
                     let bgmHtml = '';
                     if (item.bgm) { bgmHtml = `<div class="bgm-tag">🎵 ${item.bgm}</div>`; }
 
+                    // 【智慧群組飯拍系統】
                     let fancamHtml = '';
                     if (item.fancams && item.fancams.length > 0) {
+                        // 1. 保留原始順序標籤 (為了同帳號排序使用)
+                        item.fancams.forEach((f, idx) => f.originalIdx = idx);
+                        
+                        // 2. 進行指定排序
                         const platformOrder = { 'X': 1, 'X (Twitter)': 1, 'Instagram': 2, 'YouTube': 3, 'Threads': 4, '小紅書': 5, 'Weibo': 6 };
                         item.fancams.sort((a, b) => {
                             const orderA = platformOrder[a.platform] || 99;
                             const orderB = platformOrder[b.platform] || 99;
                             if (orderA !== orderB) return orderA - orderB;
-                            return a.fan_account.localeCompare(b.fan_account);
+                            if (a.fan_account !== b.fan_account) return a.fan_account.localeCompare(b.fan_account);
+                            return a.originalIdx - b.originalIdx;
                         });
 
-                        fancamHtml = `<div class="fancam-gallery">`;
+                        // 3. 根據 Platform 與 Account 分組
+                        const grouped = {};
+                        item.fancams.forEach(f => {
+                            let platText = f.platform;
+                            if(platText === 'X (Twitter)') platText = 'X';
+                            const key = platText + '::' + f.fan_account;
+                            if (!grouped[key]) grouped[key] = [];
+                            grouped[key].push(f);
+                        });
+
+                        fancamHtml += `<div class="fancam-gallery">`;
                         fancamHtml += `<div class="fancam-gallery-title">📸 站子飯拍 / 現場直拍紀錄 (${item.fancams.length})</div>`;
                         fancamHtml += `<div class="fancam-grid">`;
                         
-                        item.fancams.forEach(f => {
-                            const hasPic = f.description && f.description.startsWith('http');
-                            let platText = f.platform;
-                            if(platText === 'X (Twitter)') platText = 'X';
+                        // 4. 生成群組卡片
+                        for (const key in grouped) {
+                            const groupItems = grouped[key];
+                            const [platText, account] = key.split('::');
 
-                            if (hasPic) {
-                                fancamHtml += `<a href="${f.content_url}" target="_blank" rel="noopener noreferrer" class="fancam-card">`;
-                                fancamHtml += `<img src="${f.description}" class="fancam-img" loading="lazy">`;
-                                fancamHtml += `<div class="fancam-info"><span class="fancam-platform">${platText}</span><span class="fancam-account">@${f.fan_account}</span></div></a>`;
-                            } else {
-                                fancamHtml += `<a href="${f.content_url}" target="_blank" rel="noopener noreferrer" class="fancam-compact">`;
-                                fancamHtml += `<span class="platform-badge">${platText}</span> <span style="font-weight:bold;">@${f.fan_account}</span></a>`;
-                            }
-                        });
+                            fancamHtml += `<div class="fancam-group-card">`;
+                            fancamHtml += `<div class="fancam-group-header">
+                                              <span class="fancam-platform">${platText}</span>
+                                              <span class="fancam-account">@${account}</span>
+                                           </div>`;
+                            fancamHtml += `<div class="fancam-group-body">`;
+                            
+                            groupItems.forEach((f, idx) => {
+                                const hasPic = f.description && f.description.startsWith('http');
+                                const partLabel = groupItems.length > 1 ? `Part ${idx + 1}` : '🔗 觀看';
+                                
+                                if (hasPic) {
+                                    fancamHtml += `<a href="${f.content_url}" target="_blank" rel="noopener noreferrer" class="fancam-pic-link" title="前往觀看">`;
+                                    fancamHtml += `<img src="${f.description}" loading="lazy">`;
+                                    fancamHtml += `<span class="pic-label">${partLabel}</span></a>`;
+                                } else {
+                                    fancamHtml += `<a href="${f.content_url}" target="_blank" rel="noopener noreferrer" class="fancam-text-link">${partLabel}</a>`;
+                                }
+                            });
+                            fancamHtml += `</div></div>`;
+                        }
                         fancamHtml += `</div></div>`;
                     }
 
@@ -865,6 +876,8 @@
             const container = document.getElementById('clearTagsContainer');
             if (activeSubTags.length > 0) { container.innerHTML = `<button class="btn-clear-tags">✖ 清除所選標籤</button>`; container.querySelector('.btn-clear-tags').onclick = () => { activeSubTags = []; renderSubTags(); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); }; } else { container.innerHTML = ''; }
         }
+
+        // 【強化】包含標題與站子的搜尋引擎，並且強調搜尋結果
         function setupSearch() {
             const input = document.getElementById('searchInput');
             const resultsList = document.getElementById('searchResults');
@@ -873,18 +886,32 @@
                 const val = this.value.toLowerCase().trim();
                 resultsList.innerHTML = ''; currentFocus = -1;
                 if (!val) { refreshView(); return; }
+                
                 const searchScope = masterData.filter(item => currentModule === 'all' || item.module === currentModule);
-                const matched = searchScope.filter(item => 
-                    item.content.toLowerCase().includes(val) || item.tags.join('').toLowerCase().includes(val) ||
-                    item.source.toLowerCase().includes(val) || (item.mainTitle && item.mainTitle.toLowerCase().includes(val))
-                );
-                renderSidebarStats(matched); renderTimeline(matched);
+                const matched = searchScope.filter(item => {
+                    const fancamText = item.fancams ? item.fancams.map(f => f.fan_account).join(' ') : '';
+                    const searchStr = (item.content + ' ' + item.tags.join(' ') + ' ' + item.source + ' ' + (item.mainTitle || '') + ' ' + fancamText).toLowerCase();
+                    return searchStr.includes(val);
+                });
+                
+                renderSidebarStats(matched); 
+                renderTimeline(matched);
+                
                 matched.forEach(item => {
-                    const li = document.createElement('li'); li.innerHTML = `<span class="s-date">${item.date}</span> ${item.content.substring(0, 20)}...`;
+                    const li = document.createElement('li'); 
+                    // 在搜尋結果中凸顯大標題
+                    const displayTitle = item.mainTitle ? `<strong style="color:var(--mint-hover)">【${item.mainTitle}】</strong> ` : '';
+                    const displayContent = item.content ? item.content.substring(0, 20) + '...' : '無內文';
+                    
+                    li.innerHTML = `<span class="s-date">${item.date}</span> ${displayTitle}${displayContent}`;
                     li.addEventListener('click', () => {
                         input.value = ''; resultsList.innerHTML = '';
                         const targetCard = document.getElementById(`post-${item.id}`);
-                        if(targetCard) { targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); targetCard.style.boxShadow = '0 0 0 3px var(--mint-green)'; setTimeout(() => targetCard.style.boxShadow = '', 2000); }
+                        if(targetCard) { 
+                            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+                            targetCard.style.boxShadow = '0 0 0 3px var(--mint-green)'; 
+                            setTimeout(() => targetCard.style.boxShadow = '', 2000); 
+                        }
                     });
                     resultsList.appendChild(li);
                 });
@@ -956,7 +983,6 @@
         
         function setupBackToTop() { window.addEventListener('scroll', () => { document.getElementById('backToTopBtn').classList.toggle('show', window.scrollY > 300); }); document.getElementById('backToTopBtn').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' })); }
         
-        // 【UI 更新邏輯】：依照 isEditor 切換介面與按鈕
         function updateLockUI() {
             const lockBtn = document.getElementById('lockBtn'); 
             const statusInd = document.getElementById('lockStatus'); 
@@ -973,7 +999,7 @@
                     statusInd.className = 'status-indicator locked';
                     statusInd.innerHTML = '<span class="icon">👀</span> 已登入 (僅瀏覽權限)';
                     quickBtn.className = 'btn-quick-add disabled'; quickBtn.innerText = '+ 快速新增 (需解鎖)';
-                    upgradeBtn.style.display = 'block'; // 顯示升級按鈕
+                    upgradeBtn.style.display = 'block'; 
                 }
                 lockBtn.innerText = '登出系統 🔒'; 
             } else {
