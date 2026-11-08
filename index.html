@@ -45,7 +45,6 @@
         .carousel-btn.next { right: 10px; }
         .media-caption { padding: 10px 15px; font-size: 0.9rem; color: #eee; background: #222; margin: 0; font-weight: 500; width: 100%; text-align: left; }
         
-        /* 📸 飯拍群組化 CSS (全新設計) */
         .fancam-gallery { margin-top: 15px; background: #fdfdfd; border: 1px solid var(--silver-border); border-radius: 8px; padding: 12px; }
         .fancam-gallery-title { font-size: 0.9rem; color: var(--mint-hover); font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid var(--silver-border); padding-bottom: 5px;}
         .fancam-grid { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
@@ -241,7 +240,6 @@
             <div id="externalLinksContainer" style="margin-top: 10px;"></div>
             <button type="button" id="addLinkBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; background: white;">+ 新增一組外部連結</button>
 
-            <!-- 飯拍區塊 -->
             <div id="fancamGroup" style="display: none;">
                 <div class="modal-divider"></div>
                 <label class="form-label" style="color: #F39C12; font-size: 1rem; font-weight: 800;">📸 附加站子飯拍/直拍紀錄 (Event 專屬)：</label>
@@ -550,7 +548,7 @@
         }
 
         window.deleteItem = async function(id) {
-            if(confirm('確定要從雲端刪除這筆資料嗎？(包含 Storage 內的圖片將一併永久清除) 此動作無法復原！')) {
+            if(confirm('確定要從雲端刪除這筆資料嗎？(包含 Storage 內的圖片與飯拍圖將一併永久清除) 此動作無法復原！')) {
                 if (!supabaseClient) return;
                 try {
                     const { data: mediaData } = await supabaseClient.from('archive_media').select('media_url').eq('archive_id', id);
@@ -723,37 +721,43 @@
                     let bgmHtml = '';
                     if (item.bgm) { bgmHtml = `<div class="bgm-tag">🎵 ${item.bgm}</div>`; }
 
-                    // 【智慧群組飯拍系統】
+                    // 【核心修正】：取消強制字母排序，完全尊重使用者「新增時的順序」
                     let fancamHtml = '';
                     if (item.fancams && item.fancams.length > 0) {
-                        // 1. 保留原始順序標籤 (為了同帳號排序使用)
-                        item.fancams.forEach((f, idx) => f.originalIdx = idx);
                         
-                        // 2. 進行指定排序
-                        const platformOrder = { 'X': 1, 'X (Twitter)': 1, 'Instagram': 2, 'YouTube': 3, 'Threads': 4, '小紅書': 5, 'Weibo': 6 };
-                        item.fancams.sort((a, b) => {
-                            const orderA = platformOrder[a.platform] || 99;
-                            const orderB = platformOrder[b.platform] || 99;
-                            if (orderA !== orderB) return orderA - orderB;
-                            if (a.fan_account !== b.fan_account) return a.fan_account.localeCompare(b.fan_account);
-                            return a.originalIdx - b.originalIdx;
-                        });
-
-                        // 3. 根據 Platform 與 Account 分組
-                        const grouped = {};
+                        // 利用 preserveOrder 來標記同一群組第一次出現的位置，以維持群組的絕對順序
+                        let currentGroupOrder = 0;
+                        const groupOrderMap = {};
+                        
                         item.fancams.forEach(f => {
                             let platText = f.platform;
                             if(platText === 'X (Twitter)') platText = 'X';
                             const key = platText + '::' + f.fan_account;
-                            if (!grouped[key]) grouped[key] = [];
-                            grouped[key].push(f);
+                            
+                            if (groupOrderMap[key] === undefined) {
+                                groupOrderMap[key] = currentGroupOrder++;
+                            }
+                            f.groupKey = key;
                         });
 
-                        fancamHtml += `<div class="fancam-gallery">`;
+                        // 進行群組排序，完全依照原本新增資料時的先後順序
+                        item.fancams.sort((a, b) => {
+                            if (groupOrderMap[a.groupKey] !== groupOrderMap[b.groupKey]) {
+                                return groupOrderMap[a.groupKey] - groupOrderMap[b.groupKey];
+                            }
+                            return 0; // 相同群組內的元素保持穩定排序
+                        });
+
+                        const grouped = {};
+                        item.fancams.forEach(f => {
+                            if (!grouped[f.groupKey]) grouped[f.groupKey] = [];
+                            grouped[f.groupKey].push(f);
+                        });
+
+                        fancamHtml = `<div class="fancam-gallery">`;
                         fancamHtml += `<div class="fancam-gallery-title">📸 站子飯拍 / 現場直拍紀錄 (${item.fancams.length})</div>`;
                         fancamHtml += `<div class="fancam-grid">`;
                         
-                        // 4. 生成群組卡片
                         for (const key in grouped) {
                             const groupItems = grouped[key];
                             const [platText, account] = key.split('::');
@@ -877,7 +881,6 @@
             if (activeSubTags.length > 0) { container.innerHTML = `<button class="btn-clear-tags">✖ 清除所選標籤</button>`; container.querySelector('.btn-clear-tags').onclick = () => { activeSubTags = []; renderSubTags(); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); }; } else { container.innerHTML = ''; }
         }
 
-        // 【強化】包含標題與站子的搜尋引擎，並且強調搜尋結果
         function setupSearch() {
             const input = document.getElementById('searchInput');
             const resultsList = document.getElementById('searchResults');
@@ -899,7 +902,6 @@
                 
                 matched.forEach(item => {
                     const li = document.createElement('li'); 
-                    // 在搜尋結果中凸顯大標題
                     const displayTitle = item.mainTitle ? `<strong style="color:var(--mint-hover)">【${item.mainTitle}】</strong> ` : '';
                     const displayContent = item.content ? item.content.substring(0, 20) + '...' : '無內文';
                     
@@ -993,20 +995,18 @@
                 if (isEditor) {
                     statusInd.className = 'status-indicator unlocked';
                     statusInd.innerHTML = `<span class="icon">🔓</span> ${currentLoggedEmail === ADMIN_EMAIL.toLowerCase() ? '最高管理員' : '已授權協作者'}`;
-                    quickBtn.className = 'btn-quick-add unlocked'; quickBtn.innerText = '+ 快速新增資料';
+                    lockBtn.innerText = '鎖定系統 (登出) 🔒'; quickBtn.className = 'btn-quick-add unlocked'; quickBtn.innerText = '+ 快速新增資料';
                     upgradeBtn.style.display = 'none';
                 } else {
                     statusInd.className = 'status-indicator locked';
                     statusInd.innerHTML = '<span class="icon">👀</span> 已登入 (僅瀏覽權限)';
-                    quickBtn.className = 'btn-quick-add disabled'; quickBtn.innerText = '+ 快速新增 (需解鎖)';
+                    lockBtn.innerText = '登出系統 🔒'; quickBtn.className = 'btn-quick-add disabled'; quickBtn.innerText = '+ 快速新增 (需解鎖)';
                     upgradeBtn.style.display = 'block'; 
                 }
-                lockBtn.innerText = '登出系統 🔒'; 
             } else {
                 statusInd.className = 'status-indicator locked';
                 statusInd.innerHTML = '<span class="icon">🔒</span> 訪客鎖定中 (Viewer Mode)';
-                lockBtn.innerText = '註冊 / 登入 🔓'; 
-                quickBtn.className = 'btn-quick-add disabled'; quickBtn.innerText = '+ 快速新增 (需解鎖)';
+                lockBtn.innerText = '註冊 / 登入 🔓'; quickBtn.className = 'btn-quick-add disabled'; quickBtn.innerText = '+ 快速新增 (需解鎖)';
                 upgradeBtn.style.display = 'none';
             }
             renderTimeline(currentData);
