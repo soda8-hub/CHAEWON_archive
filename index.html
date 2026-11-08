@@ -170,11 +170,9 @@
             <label class="form-label">主要標題 (選項，若有)：</label>
             <input type="text" id="dataTitle" class="modal-input" placeholder="輸入標題..." style="margin-top: 5px;">
             
-            <!-- 【新增】配樂欄位 -->
             <label class="form-label">🎵 搭配配樂 (BGM, 限動/Reels 常用，選填)：</label>
             <input type="text" id="dataBgm" class="modal-input" placeholder="例如: LE SSERAFIM - CRAZY..." style="margin-top: 5px;">
             
-            <!-- 【修改】移除必填提示，內文可為空 -->
             <label class="form-label">內文主文案 (選填，韓文/中文皆可)：</label>
             <textarea id="dataContent" class="modal-input" placeholder="輸入內容 (可留白)..." rows="3" style="margin-top: 5px; resize: vertical;"></textarea>
 
@@ -247,7 +245,8 @@
 
         async function init() {
             setupMobileMenu(); 
-            await checkAuthStatus(); await fetchDataFromSupabase(); 
+            await checkAuthStatus(); 
+            await fetchDataFromSupabase(); 
             setupNavigation(); setupSearch(); setupDateFilterAndSort(); setupSecurityModal(); setupDataModal(); setupBackToTop(); setupMobileTags(); renderSubTags(); updateClearTagsButton(); refreshView();
             if(supabaseClient) {
                 supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -305,7 +304,7 @@
         }
 
         // ==========================================
-        // 【CRUD 操作】
+        // 【CRUD：包含圖片上傳、關聯查詢、外部連結與 Storage 刪除】
         // ==========================================
         async function fetchDataFromSupabase() {
             if (!supabaseClient) { masterData = []; return; }
@@ -318,7 +317,7 @@
                 masterData = data.map(item => ({
                     id: item.id, module: item.module, date: item.date, time: item.time, dailyOrder: item.daily_order,
                     source: item.source_platform || 'System', mainTitle: item.main_title || '', 
-                    content: item.content_kr || item.content_tw || '', bgm: item.bgm || '', // 【抓取 bgm 欄位】
+                    content: item.content_kr || item.content_tw || '', bgm: item.bgm || '',
                     tags: item.tags || [], links: item.links || [], media: item.archive_media || [],
                     relatedArchiveId: item.related_archive_id || null
                 }));
@@ -345,8 +344,7 @@
             const payload = { 
                 module: itemData.module, date: itemData.date, time: itemData.time, daily_order: itemData.dailyOrder,
                 source_platform: itemData.source, main_title: itemData.mainTitle, content_kr: itemData.content, 
-                bgm: itemData.bgm, // 【寫入 bgm】
-                tags: itemData.tags, links: itemData.links, related_archive_id: itemData.relatedArchiveId 
+                bgm: itemData.bgm, tags: itemData.tags, links: itemData.links, related_archive_id: itemData.relatedArchiveId 
             };
             
             try {
@@ -361,10 +359,12 @@
                 }
 
                 if (currentArchiveId) {
+                    // 若是編輯模式，先刪除資料庫中的舊媒體紀錄
                     if (itemData.id) { await supabaseClient.from('archive_media').delete().eq('archive_id', currentArchiveId); }
                     let mediaPayloads = [];
                     for (let i = 0; i < mediaArray.length; i++) {
                         let m = mediaArray[i]; let finalUrl = m.url;
+                        // 若是新檔案則壓縮上傳
                         if (m.type === 'image' && m.file) {
                             const compressedFile = await compressImage(m.file);
                             const filePath = `post_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
@@ -384,44 +384,41 @@
             } catch (error) { console.error(error); alert("儲存失敗：" + error.message); return false; }
         }
 
-        async function deleteFromSupabase(id) {
-    if (!supabaseClient) return false;
-    try {
-        // 1. 先抓出這筆貼文關聯了哪些圖片 (準備刪除實體檔案)
-        const { data: mediaData } = await supabaseClient
-            .from('archive_media')
-            .select('media_url')
-            .eq('archive_id', id);
+        // 【修復 1】：完整綁定的全域刪除按鈕功能 (包含資料庫與 Storage 實體檔案連動刪除)
+        window.deleteItem = async function(id) {
+            if(confirm('確定要從雲端刪除這筆資料嗎？(包含 Storage 內的圖片將一併永久清除) 此動作無法復原！')) {
+                if (!supabaseClient) return;
+                try {
+                    // 1. 先抓出關聯的圖片
+                    const { data: mediaData } = await supabaseClient.from('archive_media').select('media_url').eq('archive_id', id);
 
-        // 2. 從資料庫刪除紀錄 (因設定了 CASCADE，archives 主表與 archive_media 子表的文字紀錄會一併刪除)
-        const { error } = await supabaseClient.from('archives').delete().eq('id', id);
-        if (error) throw error;
+                    // 2. 刪除資料庫紀錄
+                    const { error } = await supabaseClient.from('archives').delete().eq('id', id);
+                    if (error) throw error;
 
-        // 3. 刪除 Storage 裡的實體圖片檔案
-        if (mediaData && mediaData.length > 0) {
-            // 過濾出真正存放在 Supabase Storage 的檔案路徑 (排除 YouTube/Vimeo 等外部連結)
-            const filePaths = mediaData.map(m => {
-                if (m.media_url && m.media_url.includes('/storage/v1/object/public/media/')) {
-                    const parts = m.media_url.split('/public/media/');
-                    return parts.length > 1 ? parts[1] : null; // 取得檔名 (例如 post_12345.webp)
+                    // 3. 清理 Storage 實體檔案
+                    if (mediaData && mediaData.length > 0) {
+                        const filePaths = mediaData.map(m => {
+                            if (m.media_url && m.media_url.includes('/storage/v1/object/public/media/')) {
+                                const parts = m.media_url.split('/public/media/');
+                                return parts.length > 1 ? parts[1] : null; 
+                            }
+                            return null;
+                        }).filter(path => path !== null);
+
+                        if (filePaths.length > 0) {
+                            const { error: storageError } = await supabaseClient.storage.from('media').remove(filePaths);
+                            if (storageError) console.error("Storage 實體檔案刪除失敗:", storageError);
+                        }
+                    }
+
+                    await fetchDataFromSupabase(); 
+                    refreshView(selectedDate);
+                } catch (error) { 
+                    alert("刪除失敗：" + error.message); 
                 }
-                return null;
-            }).filter(path => path !== null);
-
-            // 如果有檔案，呼叫 remove API 進行批次刪除
-            if (filePaths.length > 0) {
-                const { error: storageError } = await supabaseClient.storage.from('media').remove(filePaths);
-                if (storageError) console.error("Storage 實體檔案刪除失敗:", storageError);
             }
-        }
-
-        await fetchDataFromSupabase(); 
-        return true;
-    } catch (error) { 
-        alert("刪除失敗：" + error.message); 
-        return false; 
-    }
-}
+        };
 
         // ==========================================
         // 【UI 渲染邏輯】
@@ -440,24 +437,35 @@
             calendarContainer.style.display = currentModule === 'schedule' ? 'block' : 'none';
             if(currentModule === 'schedule') renderCalendar();
         }
+        
+        // 【修復 3】：全域啟動月份過濾器 (讓「11月」的標題與資料精準對齊)
         function filterData(targetDate = null) {
             currentData = masterData.filter(item => {
                 const matchModule = currentModule === 'all' || item.module === currentModule;
                 const matchDate = targetDate ? item.date === targetDate : true;
                 const matchTags = activeSubTags.length === 0 || activeSubTags.some(tag => item.tags.includes(tag) || item.source.includes(tag));
-                return matchModule && matchDate && matchTags && (currentModule !== 'schedule' || targetDate || item.date.startsWith(currentMonthFilter));
+                // 如果沒有指定單日，則必須嚴格符合左側選擇的「月份」
+                const matchMonth = targetDate ? true : item.date.startsWith(currentMonthFilter);
+                
+                return matchModule && matchDate && matchTags && matchMonth;
             });
             renderSidebarStats(currentData); renderTimeline(currentData);
         }
 
         function renderSidebarStats(data) {
             document.getElementById('dynamicTodayDate').innerText = `${sysMonthStr}/${sysDayStr}`;
-            document.getElementById('dynamicMonthText').innerHTML = `${sysYear}年 ${sysMonthStr}月 總計：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
             
+            const [year, month] = currentMonthFilter.split('-');
+            let labelText = `${year}年 ${month}月`;
+            if (selectedDate) labelText = selectedDate.replace(/-/g, '/');
+            document.getElementById('dynamicMonthText').innerHTML = `${labelText} 總計：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
+            
+            // 【修復 2】：今日發生嚴格綁定真實發生日期 (date)
             const todayCountVal = masterData.filter(item => item.date === trueTodayStr).length;
             document.getElementById('todayCount').innerText = todayCountVal;
 
             const statsList = document.getElementById('moduleStats'); statsList.innerHTML = '';
+            // 讓子模組的加總也受限於目前畫面上的月份資料 (currentData)
             if (currentModule === 'all') {
                 const counts = { social: 0, event: 0, brand: 0, schedule: 0 };
                 data.forEach(item => { if(counts[item.module] !== undefined) counts[item.module]++; });
@@ -474,7 +482,16 @@
             currentModule = 'all'; activeSubTags = [];
             document.querySelectorAll('#navLinks li').forEach(l => l.classList.remove('active'));
             document.querySelector('[data-module="all"]').classList.add('active');
-            clearDateFilter(); 
+            
+            // 找到該筆貼文的月份，自動切換月曆
+            const targetItem = masterData.find(d => d.id === id);
+            if (targetItem) {
+                currentMonthFilter = targetItem.date.substring(0, 7);
+                selectedDate = null; 
+                document.getElementById('dateText').value = '';
+            }
+            
+            refreshView(null); 
             setTimeout(() => {
                 const targetCard = document.getElementById(`post-${id}`);
                 if(targetCard) {
@@ -524,16 +541,13 @@
                     if (item.relatedArchiveId) {
                         const rItem = masterData.find(d => d.id === item.relatedArchiveId);
                         if (rItem) {
-                            const rTitle = rItem.mainTitle || (rItem.content.substring(0, 15) + '...');
+                            const rTitle = rItem.mainTitle || (rItem.content ? rItem.content.substring(0, 15) + '...' : '未命名貼文');
                             relatedHtml = `<div style="margin-bottom: 10px;"><button class="internal-link-btn" onclick="scrollToPost('${item.relatedArchiveId}')">🔗 關聯紀錄：${rTitle}</button></div>`;
                         }
                     }
                     
-                    // 【新增渲染】BGM 標籤
                     let bgmHtml = '';
-                    if (item.bgm) {
-                        bgmHtml = `<div class="bgm-tag">🎵 ${item.bgm}</div>`;
-                    }
+                    if (item.bgm) { bgmHtml = `<div class="bgm-tag">🎵 ${item.bgm}</div>`; }
 
                     let mediaHtml = '';
                     if (item.media && item.media.length > 0) {
@@ -756,7 +770,6 @@
                 const time = document.getElementById('dataTime').value;
                 const content = document.getElementById('dataContent').value;
                 
-                // 【修改】移除 content 必填限制
                 if(!date || !time) { alert('請填寫完整 日期 與 時間！'); return; }
 
                 const btn = document.getElementById('saveDataBtn');
@@ -778,7 +791,7 @@
                     id: id || '', module: document.getElementById('dataModule').value, date: date, time: time.length === 5 ? time + ':00' : time,
                     dailyOrder: parseInt(document.getElementById('dataDailyOrder').value) || 1,
                     source: document.getElementById('dataSource').value, mainTitle: document.getElementById('dataTitle').value, 
-                    content: content, bgm: document.getElementById('dataBgm').value.trim(), // 【寫入 BGM】
+                    content: content, bgm: document.getElementById('dataBgm').value.trim(), 
                     tags: finalTags, links: linksArray,
                     relatedArchiveId: document.getElementById('relatedArchiveSelect').value || null
                 };
@@ -799,7 +812,13 @@
 
                 const success = await saveToSupabase(itemData, mediaArray);
                 btn.innerText = '同步至 Supabase 儲存'; btn.disabled = false;
-                if (success) { document.getElementById('dataModal').style.display = 'none'; refreshView(selectedDate); }
+                
+                if (success) { 
+                    document.getElementById('dataModal').style.display = 'none'; 
+                    // 【體驗升級】存檔後自動將畫面的月份切換到該筆資料所屬的月份，避免新增後找不到
+                    currentMonthFilter = date.substring(0, 7);
+                    refreshView(selectedDate); 
+                }
             });
 
             window.openDataModal = function(id) {
@@ -818,7 +837,7 @@
                     document.getElementById('dataSource').value = item.source || '';
                     document.getElementById('dataTitle').value = item.mainTitle || '';
                     document.getElementById('dataContent').value = item.content || '';
-                    document.getElementById('dataBgm').value = item.bgm || ''; // 【讀取 BGM】
+                    document.getElementById('dataBgm').value = item.bgm || ''; 
                     if (item.module === 'schedule') document.getElementById('relatedArchiveSelect').value = item.relatedArchiveId || '';
                     
                     item.tags.forEach(t => { const cb = document.querySelector(`.modal-tag-cb[value="${t}"]`); if(cb) cb.checked = true; else tempCustomTags.push(t); });
