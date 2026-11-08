@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- 加入社群分享預設圖與 Meta 標籤 -->
     <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
     <meta name="description" content="專為 LE SSERAFIM KIM CHAEWON 打造的多媒體足跡與動態典藏系統。">
     <link rel="icon" type="image/png" href="images/logo.png">
@@ -15,10 +14,62 @@
     <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
     
     <link rel="stylesheet" href="style.css">
+
+    <!-- 載入 Supabase JS 官方 SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* 新增/編輯彈窗的進階美化 (標籤選擇區塊) */
+        .tag-selection-area {
+            background: var(--silver-bg);
+            border: 1px solid var(--silver-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .tag-checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .tag-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+        .custom-tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            min-height: 32px;
+            padding: 5px;
+            border: 1px dashed var(--mint-green);
+            border-radius: 6px;
+            background: white;
+        }
+        .custom-tag-pill {
+            background: var(--mint-green);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .custom-tag-pill span {
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- 手機版頂部導航 -->
     <header class="mobile-header" id="topAnchor">
         <div class="logo">
             <img src="images/logo.png" alt="CHAEWON" class="mobile-brand-logo" onerror="this.src='https://api.iconify.design/twemoji:leopard.svg';"> 
@@ -30,7 +81,6 @@
     </header>
 
     <div class="main-layout">
-        <!-- 左側面板 -->
         <aside class="sidebar" id="sidebar">
             <div class="desktop-logo-container">
                 <img src="images/logo.png" alt="CHAEWON Logo" class="brand-logo" onerror="this.src='https://api.iconify.design/twemoji:leopard.svg';">
@@ -40,20 +90,17 @@
                 </div>
             </div>
 
-            <!-- 系統狀態 -->
             <div class="card status-box">
                 <h3 class="card-title">系統狀態</h3>
                 <div class="status-content">
                     <div id="lockStatus" class="status-indicator locked">
                         <span class="icon">🔒</span> 訪客鎖定中 (Viewer Mode)
                     </div>
-                    <button id="lockBtn" class="btn-lock">輸入密碼解鎖 🔓</button>
-                    <!-- 新增資料按鈕 -->
+                    <button id="lockBtn" class="btn-lock">協作登入解鎖 🔓</button>
                     <button id="quickAddBtn" class="btn-quick-add disabled">+ 快速新增 (需解鎖)</button>
                 </div>
             </div>
 
-            <!-- 統計區塊 -->
             <div class="card stats-box">
                 <h3 class="card-title">當前資料統計</h3>
                 <div class="stats-summary">
@@ -68,7 +115,6 @@
             </div>
         </aside>
 
-        <!-- 右側主要內容 -->
         <main class="content-area">
             <div class="top-toolbar">
                 <nav class="nav-menu-container">
@@ -83,14 +129,12 @@
 
                 <div class="toolbar-controls">
                     <div class="filter-main-row">
-                        <!-- 搜尋列 -->
                         <div class="search-container desktop-search">
                             <span class="search-icon">🔍</span>
                             <input type="text" id="searchInput" placeholder="搜尋內文、平台或標籤 (支援方向鍵)..." autocomplete="off">
                             <ul id="searchResults" class="search-results"></ul>
                         </div>
 
-                        <!-- 日期篩選與排序 -->
                         <div class="inline-date-filter">
                             <div class="date-input-group">
                                 <input type="text" id="dateText" placeholder="yyyy/mm/dd 或 yyyy-mm-dd" autocomplete="off">
@@ -102,7 +146,6 @@
                             <button id="applyDateBtn" class="btn-primary-small">篩選</button>
                             <button id="clearDateBtn" class="btn-secondary-small">清除</button>
                             
-                            <!-- 排序下拉選單 -->
                             <div class="custom-dropdown" id="sortDropdown">
                                 <div class="dropdown-selected">
                                     <span id="sortText">由新到舊 ↓</span> 
@@ -123,12 +166,10 @@
 
                     <div class="toolbar-divider"></div>
                     
-                    <!-- 手機版專屬標籤折疊按鈕 -->
                     <button id="mobileTagToggle" class="mobile-tag-toggle hide-on-desktop">
                         🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span>
                     </button>
 
-                    <!-- 次標籤區塊 -->
                     <div id="subTagsWrapper" class="sub-tags-wrapper">
                         <div id="subTagsContainer" class="sub-tags-container"></div>
                     </div>
@@ -158,34 +199,25 @@
 
     <button id="backToTopBtn" class="back-to-top" title="回到頂端">⬆️</button>
 
-    <!-- 安全驗證彈窗 -->
+    <!-- Supabase 帳號密碼登入彈窗 -->
     <div id="securityModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modalTitle">系統權限驗證</h3>
+            <h3 id="modalTitle">系統登入解鎖</h3>
             <div id="stepPassword">
-                <p>請輸入系統管理員密碼：</p>
-                <input type="password" id="adminPwd" class="modal-input" placeholder="Hint: admin">
-                <button id="verifyPwdBtn" class="btn-primary">下一步</button>
-                <button class="btn-cancel close-modal">取消</button>
-            </div>
-            <div id="stepCaptcha" style="display: none;">
-                <p class="warning-text">請在 <span id="timerText">30</span> 秒內輸入以下驗證碼：</p>
-                <div class="captcha-display" id="captchaDisplay">XXXXXX</div>
-                <input type="text" id="captchaInput" class="modal-input" placeholder="輸入驗證碼 (按 Enter 送出)">
-                <button id="confirmLockBtn" class="btn-primary">確認執行</button>
+                <p>請輸入協作信箱與密碼：</p>
+                <input type="email" id="adminEmail" class="modal-input" placeholder="信箱 (Email)">
+                <input type="password" id="adminPwd" class="modal-input" placeholder="密碼 (Password)">
+                <button id="verifyPwdBtn" class="btn-primary">登入解鎖</button>
                 <button class="btn-cancel close-modal">取消</button>
             </div>
         </div>
     </div>
 
-    <!-- ==========================================
-         【新增】CRUD 資料編輯與新增專用彈窗
-    =========================================== -->
+    <!-- CRUD 資料編輯與新增專用彈窗 -->
     <div id="dataModal" class="modal-overlay">
-        <div class="modal-box" style="max-width: 450px; text-align: left;">
-            <h3 id="dataModalTitle" style="text-align: center; margin-bottom: 15px;">新增資料</h3>
+        <div class="modal-box" style="max-width: 500px; text-align: left; max-height: 90vh; overflow-y: auto;">
+            <h3 id="dataModalTitle" style="text-align: center; margin-bottom: 15px;">新增典藏資料</h3>
             
-            <!-- 隱藏欄位紀錄資料 ID -->
             <input type="hidden" id="dataId">
             
             <label class="form-label">模組分類：</label>
@@ -196,29 +228,62 @@
                 <option value="schedule">重要日程</option>
             </select>
 
-            <div style="display: flex; gap: 10px;">
+            <div class="tag-selection-area">
+                <label class="form-label" style="margin-bottom: 10px;">請勾選適用標籤：</label>
+                <div id="checkboxGroup" class="tag-checkbox-group"></div>
+                
+                <label class="form-label">手動新增自訂標籤 (按 Enter 建立)：</label>
+                <input type="text" id="customTagInput" class="modal-input" style="margin: 5px 0; padding: 8px; font-size: 0.9rem;" placeholder="輸入如 #EASY...">
+                <div id="customTagsDisplay" class="custom-tags-container"></div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <div style="flex: 1;">
                     <label class="form-label">日期：</label>
-                    <input type="date" id="dataDate" class="modal-input" style="margin-top: 5px;">
+                    <input type="date" id="dataDate" class="modal-input" style="margin-top: 5px;" required>
                 </div>
                 <div style="flex: 1;">
                     <label class="form-label">時間：</label>
-                    <input type="time" id="dataTime" class="modal-input" style="margin-top: 5px;">
+                    <input type="time" id="dataTime" class="modal-input" style="margin-top: 5px;" required>
                 </div>
             </div>
 
-            <label class="form-label">資料來源 (例如: Instagram, X, Weverse)：</label>
-            <input type="text" id="dataSource" class="modal-input" placeholder="輸入平台來源" style="margin-top: 5px;">
+            <label class="form-label">來源平台 (例如: Instagram, X, 站姐名稱)：</label>
+            <input type="text" id="dataSource" class="modal-input" placeholder="輸入來源..." style="margin-top: 5px;">
 
-            <label class="form-label">發布內容：</label>
+            <label class="form-label">主要標題 (選項，若有)：</label>
+            <input type="text" id="dataTitle" class="modal-input" placeholder="輸入標題..." style="margin-top: 5px;">
+
+            <label class="form-label">內文 (韓文/中文皆可)：</label>
             <textarea id="dataContent" class="modal-input" placeholder="輸入內容..." rows="3" style="margin-top: 5px; resize: vertical;"></textarea>
 
-            <button id="saveDataBtn" class="btn-primary" style="margin-top: 10px;">儲存資料</button>
-            <button class="btn-cancel close-data-modal" style="width: 100%;">取消</button>
+            <button id="saveDataBtn" class="btn-primary" style="margin-top: 15px;">同步至 Supabase 儲存</button>
+            <button class="btn-cancel close-data-modal" style="width: 100%;">取消返回</button>
         </div>
     </div>
 
     <script>
+        // ==========================================
+        // 【設定區】Supabase 連線與權限資訊
+        // ==========================================
+        const SUPABASE_URL = 'https://kxywdxavuakxajpbbpbp.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'sb_publishable_tpHN-Vos2cXlVNHokyiWxg_4HxdB8gR';
+        
+        // 【關鍵】：在這裡填入您作為「最高管理員」的信箱
+        // 只有用這組信箱登入，畫面才會出現「刪除」按鈕
+        const ADMIN_EMAIL = 'oncesoda6@gmail.com';
+        
+        let supabase = null;
+        try {
+            if (SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL') {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else {
+                console.warn("注意：請將程式碼中的 Supabase URL 與 Key 替換為您的真實資料。");
+            }
+        } catch (error) {
+            console.error("Supabase 初始化失敗:", error);
+        }
+
         const systemToday = new Date();
         const sysYear = systemToday.getFullYear();
         const sysMonthStr = String(systemToday.getMonth() + 1).padStart(2, '0');
@@ -227,16 +292,15 @@
         
         let currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
         let selectedDate = null; 
-
-        // 預設示範用假資料
-        const mockData = [
-            { id: 'p1', module: 'social', date: '2026-10-08' , time: '14:20:00', tags: ['Instagram POST', 'Instagram--_chaechae_1', 'CHAEWON單人'], content: '今日 CRAZY 舞台結束! 感謝 FEARNOT... 今天也玩得很開心 🖤⚡️ #KIMCHAEWON', source: 'Instagram', links: [{ title: 'IG 原文', url: '#' }] },
-            { id: 'p3', module: 'event', date: '2026-10-20', time: '18:30:00', tags: ['打歌舞臺'], content: 'KBS Music Bank \'CRAZY\' 舞台播出與直拍 FanCam 更新。', source: 'YouTube', links: [{ title: '📺 舞台播出', url: '#' }, { title: '🎥 CHAEWON 直拍', url: '#' }] },
-            { id: 'p4', module: 'social', date: '2026-10-12', time: '21:00:00', tags: ['Weverse POST', 'Weverse--CHAEWON', 'CHAEWON單人'], content: '下班了！今天舞台看了嗎？', source: 'Weverse', links: [{ title: 'Weverse 原文', url: '#' }] },
-            { id: 'p2', module: 'brand', date: '2026-10-12', time: '10:00:00', tags: ['品牌商務'], content: '亞洲區代言人全新粉底液形象大片公開。', source: 'X', links: [{ title: '官方 X 貼文', url: '#' }] },
-            { id: 'p6', module: 'schedule', date: '2026-10-18', time: '19:00:00', tags: ['預錄時間'], content: '年末特別舞台 事前錄製', source: 'Official', links: [{ title: 'Weverse 公告', url: '#' }] },
-            { id: 'p7', module: 'brand', date: '2026-10-15', time: '00:00:00', tags: ['官方公告'], content: 'MAKE UP FOR EVER 形象大片釋出日', source: 'Official', links: [{ title: '關聯品牌公告', url: '#' }] }
-        ];
+        
+        let masterData = []; 
+        let currentData = []; 
+        let activeSubTags = [];
+        let currentSortOrder = 'desc'; 
+        let tempCustomTags = [];
+        
+        let isUnlocked = false; 
+        let currentLoggedEmail = null; 
 
         const weverseSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="official-icon" viewBox="0 0 24 24" fill="#00DACA"><path d="M14.65 17.65l-2.45-7.75h-1.8l-2.4 7.75h-2.1l3.45-9.85h2.2l1.85 6.3 1.8-6.3h2.2l3.45 9.85h-2.15l-2.4-7.75-2.45 7.75z"/></svg>`;
 
@@ -287,62 +351,197 @@
             schedule: '重要日程' 
         };
 
-        let currentModule = 'all';
-        let isUnlocked = false;
-        const EDIT_PASSWORD = 'admin';
-        
-        // ==========================================
-        // 【核心優化】: 升級為 localStorage 動態資料庫
-        // ==========================================
-        const STORAGE_KEY = 'chaewon_archive_data';
-        let masterData = []; // 系統內唯真資料來源
-        let currentData = []; // 當前畫面上篩選後的呈現資料
-        let activeSubTags = [];
-        let currentSortOrder = 'desc'; 
-
         document.addEventListener('DOMContentLoaded', init);
 
-        function init() {
-            initDataStorage(); // 初始化資料庫
+        async function init() {
+            await checkAuthStatus();
+            await fetchDataFromSupabase(); 
+            
             setupNavigation();
             setupSearch();
             setupDateFilterAndSort();
             setupSecurityModal();
-            setupDataModal(); // 初始化編輯/新增彈窗
+            setupDataModal(); 
             setupBackToTop();
             setupMobileTags();
             renderSubTags(); 
             updateClearTagsButton();
             refreshView();
-        }
-
-        // --- 從本地儲存讀取資料 (Read) ---
-        function initDataStorage() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                masterData = JSON.parse(stored);
-            } else {
-                masterData = [...mockData]; // 初次載入，寫入預設示範資料
-                saveToStorage();
+            
+            if(supabase) {
+                supabase.auth.onAuthStateChange((event, session) => {
+                    isUnlocked = !!session;
+                    currentLoggedEmail = session ? session.user.email : null; 
+                    updateLockUI();
+                });
             }
         }
 
-        // --- 寫入本地儲存 (Save) ---
-        function saveToStorage() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(masterData));
+        // ==========================================
+        // Auth: 權限檢查與 UI 更新
+        // ==========================================
+        async function checkAuthStatus() {
+            if (!supabase) return;
+            const { data: { session } } = await supabase.auth.getSession();
+            isUnlocked = !!session;
+            currentLoggedEmail = session ? session.user.email : null;
+            updateLockUI();
         }
 
+        function setupSecurityModal() {
+            const lockBtn = document.getElementById('lockBtn');
+            const modal = document.getElementById('securityModal');
+            const adminEmailInput = document.getElementById('adminEmail');
+            const adminPwdInput = document.getElementById('adminPwd');
+            const verifyPwdBtn = document.getElementById('verifyPwdBtn');
+
+            lockBtn.addEventListener('click', async () => {
+                if (isUnlocked) {
+                    if(supabase) {
+                        const { error } = await supabase.auth.signOut();
+                        if (error) alert('登出失敗：' + error.message);
+                        else {
+                            alert('系統已重新上鎖。您現在為訪客身分。');
+                            masterData = []; // 登出後清空敏感資料視需求而定，這裡保留訪客讀取權限即可
+                            await fetchDataFromSupabase();
+                            refreshView();
+                        }
+                    }
+                } else {
+                    document.getElementById('modalTitle').innerText = '系統協作解鎖';
+                    adminEmailInput.value = ''; 
+                    adminPwdInput.value = '';
+                    modal.style.display = 'flex';
+                    setTimeout(() => adminEmailInput.focus(), 100); 
+                }
+            });
+
+            document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            }));
+
+            const triggerLogin = async () => {
+                if (!supabase) {
+                    alert('未連線至 Supabase，無法驗證！');
+                    return;
+                }
+                const email = adminEmailInput.value.trim();
+                const password = adminPwdInput.value;
+                if (!email || !password) {
+                    alert('請輸入完整的信箱與密碼！');
+                    return;
+                }
+                
+                verifyPwdBtn.innerText = '驗證中...';
+                verifyPwdBtn.disabled = true;
+
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                
+                verifyPwdBtn.innerText = '登入解鎖';
+                verifyPwdBtn.disabled = false;
+
+                if (error) {
+                    alert('登入失敗，請檢查帳號密碼。');
+                } else {
+                    if (data.user.email === ADMIN_EMAIL) {
+                        alert('最高管理員登入成功！編輯與刪除權限已開放。');
+                    } else {
+                        alert('協作人員登入成功！編輯權限已開放。');
+                    }
+                    modal.style.display = 'none';
+                }
+            };
+
+            verifyPwdBtn.addEventListener('click', triggerLogin);
+            adminPwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') triggerLogin(); });
+        }
+
+        // ==========================================
+        // 【CRUD 操作：動態抓取與更新】
+        // ==========================================
+        async function fetchDataFromSupabase() {
+            if (!supabase) return;
+            try {
+                const { data, error } = await supabase
+                    .from('archives')
+                    .select('*')
+                    .order('date', { ascending: false })
+                    .order('time', { ascending: false });
+
+                if (error) throw error;
+                
+                masterData = data.map(item => ({
+                    id: item.id,
+                    module: item.module,
+                    date: item.date,
+                    time: item.time,
+                    dailyOrder: item.daily_order,
+                    source: item.source_platform || 'System',
+                    mainTitle: item.main_title || '',
+                    content: item.content_kr || item.content_tw || '',
+                    tags: item.tags || [],
+                    links: item.links || []
+                }));
+            } catch (error) {
+                console.error("載入 Supabase 資料失敗:", error);
+            }
+        }
+
+        async function saveToSupabase(itemData) {
+            if (!supabase) return false;
+            const payload = {
+                module: itemData.module,
+                date: itemData.date,
+                time: itemData.time,
+                source_platform: itemData.source,
+                main_title: itemData.mainTitle,
+                content_kr: itemData.content, 
+                tags: itemData.tags,
+                links: itemData.links
+            };
+
+            try {
+                if (itemData.id && String(itemData.id).includes('-')) {
+                    const { error } = await supabase.from('archives').update(payload).eq('id', itemData.id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabase.from('archives').insert([payload]);
+                    if (error) throw error;
+                }
+                await fetchDataFromSupabase();
+                return true;
+            } catch (error) {
+                console.error("儲存資料至 Supabase 失敗:", error);
+                alert("儲存失敗：" + error.message);
+                return false;
+            }
+        }
+
+        async function deleteFromSupabase(id) {
+            if (!supabase) return false;
+            try {
+                const { error } = await supabase.from('archives').delete().eq('id', id);
+                if (error) throw error;
+                await fetchDataFromSupabase();
+                return true;
+            } catch (error) {
+                console.error("刪除資料失敗:", error);
+                alert("權限不足或刪除失敗：" + error.message);
+                return false;
+            }
+        }
+
+        // ==========================================
+        // 【UI 渲染邏輯】
+        // ==========================================
         function setupMobileTags() {
             const toggleBtn = document.getElementById('mobileTagToggle');
             if(!toggleBtn) return;
-            
             const newToggleBtn = toggleBtn.cloneNode(true);
             toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
-
             newToggleBtn.addEventListener('click', function() {
                 const wrapper = document.getElementById('subTagsWrapper');
                 wrapper.classList.toggle('open');
-                
                 if(wrapper.classList.contains('open')) {
                     this.innerHTML = `🏷️ 收起標籤篩選 <span class="arrow" style="transform: rotate(180deg); display: inline-block; transition: 0.3s;">﹀</span>`;
                 } else {
@@ -362,34 +561,29 @@
             }
         }
 
-        // 【修正】: 所有篩選現在針對 masterData 而非 mockData
         function filterData(targetDate = null) {
             currentData = masterData.filter(item => {
                 const matchModule = currentModule === 'all' || item.module === currentModule;
                 const matchDate = targetDate ? item.date === targetDate : true;
                 const matchTags = activeSubTags.length === 0 || activeSubTags.some(tag => item.tags.includes(tag) || item.source.includes(tag));
-                
                 let matchMonth = true;
                 if (currentModule === 'schedule' && !targetDate) {
                     matchMonth = item.date.startsWith(currentMonthFilter);
                 }
                 return matchModule && matchDate && matchTags && matchMonth;
             });
-
             renderSidebarStats(currentData);
             renderTimeline(currentData);
         }
 
         function renderSidebarStats(data) {
             const todayCountVal = data.filter(item => item.date === trueTodayStr).length;
-
             document.getElementById('dynamicMonthText').innerHTML = `${sysYear}年 ${sysMonthStr}月 總計：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
             document.getElementById('dynamicTodayDate').innerText = `${sysMonthStr}/${sysDayStr}`;
             document.getElementById('todayCount').innerText = todayCountVal;
 
             const statsList = document.getElementById('moduleStats');
             statsList.innerHTML = '';
-
             if (currentModule === 'all') {
                 const counts = { social: 0, event: 0, brand: 0, schedule: 0 };
                 data.forEach(item => { if(counts[item.module] !== undefined) counts[item.module]++; });
@@ -433,9 +627,8 @@
 
             sortedDates.forEach(date => {
                 const items = groupedData[date];
-                
                 items.sort((a,b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`));
-                items.forEach((item, index) => item.dailyOrder = index + 1);
+                items.forEach((item, index) => item.calculatedDailyOrder = index + 1);
                 if(currentSortOrder === 'desc') items.reverse();
 
                 const isToday = date === trueTodayStr;
@@ -449,14 +642,24 @@
                     card.className = 'timeline-card';
                     card.id = `post-${item.id}`;
 
-                    // 【動態綁定事件】：加入編輯與刪除的 onclick
-                    const adminBtns = isUnlocked ? `<button class="btn-edit-small" onclick="openDataModal('${item.id}')">編輯</button><button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>` : '';
+                    let adminBtns = '';
+                    if (isUnlocked) {
+                        adminBtns += `<button class="btn-edit-small" onclick="openDataModal('${item.id}')">編輯</button>`;
+                        if (currentLoggedEmail === ADMIN_EMAIL) {
+                            adminBtns += `<button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>`;
+                        }
+                    }
                     
                     let linksHtml = '';
                     if (item.links && item.links.length > 0) {
                         linksHtml = '<div class="multi-links-group">' + item.links.map(l => 
                             `<a href="${l.url}" class="db-link" target="_blank" rel="noopener noreferrer">${l.title}</a>`
                         ).join('') + '</div>';
+                    }
+                    
+                    let titleHtml = '';
+                    if (item.mainTitle) {
+                        titleHtml = `<h4 style="margin-bottom: 8px; color: var(--mint-hover);">${item.mainTitle}</h4>`;
                     }
 
                     card.innerHTML = `
@@ -466,12 +669,13 @@
                         <div class="card-content-col">
                             <div class="card-header">
                                 <div class="tags">
-                                    <span class="tag tag-daily">當日 #${item.dailyOrder}</span>
+                                    <span class="tag tag-daily">當日 #${item.calculatedDailyOrder}</span>
                                     <span class="tag tag-platform">${item.source}</span>
                                     ${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}
                                 </div>
                                 <div class="admin-actions">${adminBtns}</div>
                             </div>
+                            ${titleHtml}
                             <p class="content-text">${item.content.replace(/\n/g, '<br>')}</p>
                             ${linksHtml}
                         </div>
@@ -481,7 +685,6 @@
             });
         }
 
-        // 【修正】: 月曆渲染判斷改為針對 masterData
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const title = document.getElementById('calendarTitle');
@@ -498,7 +701,6 @@
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                 
-                // 改為檢查 masterData 中是否有事件
                 const hasEvent = masterData.some(item => item.module === 'schedule' && item.date === dateStr);
                 
                 let dotHtml = hasEvent ? `<div class="event-dots"><span class="dot"></span></div>` : '';
@@ -660,12 +862,12 @@
                 currentFocus = -1;
                 if (!val) { refreshView(); return; }
 
-                // 搜尋也必須針對 masterData 進行過濾
                 const searchScope = masterData.filter(item => currentModule === 'all' || item.module === currentModule);
                 const matched = searchScope.filter(item => 
                     item.content.toLowerCase().includes(val) || 
                     item.tags.join('').toLowerCase().includes(val) ||
-                    item.source.toLowerCase().includes(val)
+                    item.source.toLowerCase().includes(val) ||
+                    (item.mainTitle && item.mainTitle.toLowerCase().includes(val))
                 );
 
                 renderSidebarStats(matched);
@@ -809,67 +1011,6 @@
             backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         }
 
-        let captchaTimer, expectedCaptcha = '', targetLockState = false; 
-
-        function setupSecurityModal() {
-            const lockBtn = document.getElementById('lockBtn');
-            const modal = document.getElementById('securityModal');
-            const adminPwdInput = document.getElementById('adminPwd');
-            const captchaInput = document.getElementById('captchaInput');
-            const verifyPwdBtn = document.getElementById('verifyPwdBtn');
-            const confirmLockBtn = document.getElementById('confirmLockBtn');
-
-            lockBtn.addEventListener('click', () => {
-                targetLockState = !isUnlocked; 
-                document.getElementById('modalTitle').innerText = targetLockState ? '系統解鎖驗證' : '系統上鎖驗證';
-                adminPwdInput.value = ''; captchaInput.value = '';
-                document.getElementById('stepPassword').style.display = 'block';
-                document.getElementById('stepCaptcha').style.display = 'none';
-                modal.style.display = 'flex';
-                setTimeout(() => adminPwdInput.focus(), 100); 
-            });
-
-            document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', closeModal));
-            adminPwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyPwdBtn.click(); });
-
-            verifyPwdBtn.addEventListener('click', () => {
-                if(adminPwdInput.value === EDIT_PASSWORD) startCaptchaStep();
-                else alert('密碼錯誤！');
-            });
-
-            captchaInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmLockBtn.click(); });
-
-            confirmLockBtn.addEventListener('click', () => {
-                const input = captchaInput.value.toUpperCase();
-                if(input === expectedCaptcha) {
-                    isUnlocked = targetLockState;
-                    updateLockUI();
-                    closeModal();
-                    alert(isUnlocked ? '解鎖成功！已開放編輯權限。' : '系統已重新上鎖。');
-                } else alert('驗證碼錯誤，請重新輸入！');
-            });
-        }
-
-        function startCaptchaStep() {
-            document.getElementById('stepPassword').style.display = 'none';
-            document.getElementById('stepCaptcha').style.display = 'block';
-            expectedCaptcha = Math.random().toString(36).substring(2, 8).toUpperCase();
-            document.getElementById('captchaDisplay').innerText = expectedCaptcha;
-            
-            let timeLeft = 30;
-            document.getElementById('timerText').innerText = timeLeft;
-            document.getElementById('captchaInput').focus();
-            
-            clearInterval(captchaTimer);
-            captchaTimer = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timerText').innerText = timeLeft;
-                if(timeLeft <= 0) { clearInterval(captchaTimer); alert("驗證超時，請重新操作！"); closeModal(); }
-            }, 1000);
-        }
-
-        function closeModal() { clearInterval(captchaTimer); document.getElementById('securityModal').style.display = 'none'; }
-
         function updateLockUI() {
             const lockBtn = document.getElementById('lockBtn');
             const quickBtn = document.getElementById('quickAddBtn');
@@ -877,42 +1018,99 @@
             
             if (isUnlocked) {
                 statusInd.className = 'status-indicator unlocked';
-                statusInd.innerHTML = '<span class="icon">🔓</span> 編輯模式 (Admin Mode)';
-                lockBtn.innerText = '鎖定系統 🔒';
+                
+                if (currentLoggedEmail === ADMIN_EMAIL) {
+                    statusInd.innerHTML = '<span class="icon">🔓</span> 編輯模式 (Admin)';
+                } else {
+                    statusInd.innerHTML = '<span class="icon">🔓</span> 協作模式 (Editor)';
+                }
+                
+                lockBtn.innerText = '鎖定系統 (登出) 🔒';
                 quickBtn.className = 'btn-quick-add unlocked'; quickBtn.innerText = '+ 快速新增資料';
             } else {
                 statusInd.className = 'status-indicator locked';
                 statusInd.innerHTML = '<span class="icon">🔒</span> 訪客鎖定中 (Viewer Mode)';
-                lockBtn.innerText = '輸入密碼解鎖 🔓';
+                lockBtn.innerText = '管理員登入解鎖 🔓';
                 quickBtn.className = 'btn-quick-add disabled'; quickBtn.innerText = '+ 快速新增 (需解鎖)';
             }
             renderTimeline(currentData);
         }
 
-        // ==========================================
-        // 【核心機制】：localStorage 資料新增、編輯與刪除 
-        // ==========================================
         function setupDataModal() {
-            // 綁定「+快速新增資料」按鈕
-            document.getElementById('quickAddBtn').addEventListener('click', () => {
-                if (!isUnlocked) return;
-                openDataModal(null); // null 參數代表這是「新增模式」
+            const moduleSelect = document.getElementById('dataModule');
+            const checkboxGroup = document.getElementById('checkboxGroup');
+            const customTagInput = document.getElementById('customTagInput');
+            const customTagsDisplay = document.getElementById('customTagsDisplay');
+
+            function populateCheckboxes(selectedModule) {
+                checkboxGroup.innerHTML = '';
+                const targetModule = selectedModule === 'all' ? 'social' : selectedModule;
+                
+                let availableTags = [];
+                const rawTags = moduleSubTags[targetModule];
+                if (Array.isArray(rawTags)) {
+                    availableTags = rawTags;
+                } else if (typeof rawTags === 'object') {
+                    for (const key in rawTags) {
+                        availableTags = availableTags.concat(rawTags[key]);
+                    }
+                }
+
+                availableTags.forEach(tag => {
+                    const label = document.createElement('label');
+                    label.className = 'tag-checkbox-label';
+                    label.innerHTML = `<input type="checkbox" value="${tag}" class="modal-tag-cb"> ${tag}`;
+                    checkboxGroup.appendChild(label);
+                });
+            }
+
+            moduleSelect.addEventListener('change', (e) => populateCheckboxes(e.target.value));
+
+            customTagInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const val = customTagInput.value.trim();
+                    if (val && !tempCustomTags.includes(val)) {
+                        tempCustomTags.push(val);
+                        renderCustomTags();
+                    }
+                    customTagInput.value = '';
+                }
             });
 
-            // 綁定彈窗的關閉按鈕
+            function renderCustomTags() {
+                customTagsDisplay.innerHTML = '';
+                tempCustomTags.forEach((tag, index) => {
+                    const pill = document.createElement('div');
+                    pill.className = 'custom-tag-pill';
+                    pill.innerHTML = `#${tag} <span onclick="removeCustomTag(${index})">✖</span>`;
+                    customTagsDisplay.appendChild(pill);
+                });
+            }
+
+            window.removeCustomTag = function(index) {
+                tempCustomTags.splice(index, 1);
+                renderCustomTags();
+            };
+
+            document.getElementById('quickAddBtn').addEventListener('click', () => {
+                if (!isUnlocked) return;
+                openDataModal(null);
+            });
+
             document.querySelectorAll('.close-data-modal').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.getElementById('dataModal').style.display = 'none';
                 });
             });
 
-            // 綁定「儲存資料」按鈕
-            document.getElementById('saveDataBtn').addEventListener('click', () => {
+            document.getElementById('saveDataBtn').addEventListener('click', async () => {
                 const id = document.getElementById('dataId').value;
                 const module = document.getElementById('dataModule').value;
                 const date = document.getElementById('dataDate').value;
                 const time = document.getElementById('dataTime').value;
                 const source = document.getElementById('dataSource').value || 'System';
+                const mainTitle = document.getElementById('dataTitle').value;
                 const content = document.getElementById('dataContent').value;
 
                 if(!date || !time || !content) {
@@ -920,71 +1118,78 @@
                     return;
                 }
 
-                // 準備要寫入資料庫的物件
+                const checkedBoxes = document.querySelectorAll('.modal-tag-cb:checked');
+                let selectedTags = Array.from(checkedBoxes).map(cb => cb.value);
+                const finalTags = [...new Set([...selectedTags, ...tempCustomTags])];
+
                 const itemData = {
-                    id: id || 'p' + Date.now(), // 如果是新增，用時間戳記產生唯一 ID
+                    id: id || '', 
                     module: module,
                     date: date,
-                    time: time.length === 5 ? time + ':00' : time, // 補齊秒數格式
+                    time: time.length === 5 ? time + ':00' : time,
                     source: source,
+                    mainTitle: mainTitle,
                     content: content,
-                    tags: ['手動新增紀錄'], // 為了示範簡化，這裡統一上一個標籤
+                    tags: finalTags,
                     links: [] 
                 };
-
-                if (id) {
-                    // 【Update 更新資料】
-                    const index = masterData.findIndex(d => d.id === id);
-                    if(index > -1) {
-                        itemData.tags = masterData[index].tags; // 保留原有的 tags
-                        itemData.links = masterData[index].links; // 保留原有的 links
-                        masterData[index] = itemData; // 覆蓋
-                    }
-                } else {
-                    // 【Create 新增資料】
-                    masterData.push(itemData);
+                
+                const success = await saveToSupabase(itemData);
+                if (success) {
+                    document.getElementById('dataModal').style.display = 'none';
+                    refreshView(selectedDate);
+                    alert(id ? '資料已成功更新至雲端！' : '資料已成功新增至雲端！');
                 }
-
-                saveToStorage(); // 寫入 localStorage
-                document.getElementById('dataModal').style.display = 'none'; // 關閉彈窗
-                refreshView(selectedDate); // 重新渲染畫面
-                alert(id ? '資料已成功更新！' : '資料已成功新增！');
             });
+
+            window.openDataModal = function(id) {
+                document.getElementById('dataModal').style.display = 'flex';
+                tempCustomTags = []; 
+                
+                if (id) {
+                    document.getElementById('dataModalTitle').innerText = '編輯典藏資料';
+                    const item = masterData.find(d => d.id === id);
+                    
+                    document.getElementById('dataId').value = item.id;
+                    document.getElementById('dataModule').value = item.module;
+                    populateCheckboxes(item.module);
+                    
+                    const availableCheckboxes = Array.from(document.querySelectorAll('.modal-tag-cb')).map(cb => cb.value);
+                    item.tags.forEach(t => {
+                        const cb = document.querySelector(`.modal-tag-cb[value="${t}"]`);
+                        if(cb) cb.checked = true;
+                        else tempCustomTags.push(t);
+                    });
+                    renderCustomTags();
+
+                    document.getElementById('dataDate').value = item.date;
+                    document.getElementById('dataTime').value = item.time.slice(0, 5); 
+                    document.getElementById('dataSource').value = item.source || '';
+                    document.getElementById('dataTitle').value = item.mainTitle || '';
+                    document.getElementById('dataContent').value = item.content || '';
+                } else {
+                    document.getElementById('dataModalTitle').innerText = '新增典藏資料';
+                    document.getElementById('dataId').value = '';
+                    const initModule = currentModule === 'all' ? 'social' : currentModule;
+                    document.getElementById('dataModule').value = initModule;
+                    populateCheckboxes(initModule);
+                    renderCustomTags();
+
+                    document.getElementById('dataDate').value = trueTodayStr;
+                    document.getElementById('dataTime').value = '12:00';
+                    document.getElementById('dataSource').value = '';
+                    document.getElementById('dataTitle').value = '';
+                    document.getElementById('dataContent').value = '';
+                }
+            };
         }
 
-        // 開啟編輯彈窗 (並把資料填入)
-        window.openDataModal = function(id) {
-            document.getElementById('dataModal').style.display = 'flex';
-            
-            if (id) {
-                // 編輯模式：抓取舊資料塞進輸入框
-                document.getElementById('dataModalTitle').innerText = '編輯資料';
-                const item = masterData.find(d => d.id === id);
-                document.getElementById('dataId').value = item.id;
-                document.getElementById('dataModule').value = item.module;
-                document.getElementById('dataDate').value = item.date;
-                document.getElementById('dataTime').value = item.time.slice(0, 5); // 取出 HH:MM
-                document.getElementById('dataSource').value = item.source;
-                document.getElementById('dataContent').value = item.content;
-            } else {
-                // 新增模式：清空輸入框，設定預設時間
-                document.getElementById('dataModalTitle').innerText = '新增資料';
-                document.getElementById('dataId').value = '';
-                document.getElementById('dataModule').value = currentModule === 'all' ? 'social' : currentModule;
-                document.getElementById('dataDate').value = trueTodayStr;
-                document.getElementById('dataTime').value = '12:00';
-                document.getElementById('dataSource').value = '';
-                document.getElementById('dataContent').value = '';
-            }
-        };
-
-        // 刪除資料機制 (Delete)
-        window.deleteItem = function(id) {
-            if(confirm('確定要刪除這筆資料嗎？此動作無法復原！')) {
-                // 利用 filter 排除掉該筆 ID，達成刪除效果
-                masterData = masterData.filter(d => d.id !== id);
-                saveToStorage(); // 寫入 localStorage
-                refreshView(selectedDate); // 重新渲染
+        window.deleteItem = async function(id) {
+            if(confirm('確定要從雲端刪除這筆資料嗎？此動作無法復原！')) {
+                const success = await deleteFromSupabase(id);
+                if (success) {
+                    refreshView(selectedDate);
+                }
             }
         };
 
@@ -995,3 +1200,4 @@
     </script>
 </body>
 </html>
+```eof
