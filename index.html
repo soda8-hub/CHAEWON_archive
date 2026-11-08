@@ -4,117 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
-    <meta name="description" content="專為 LE SSERAFIM KIM CHAEWON 打造的多媒體足跡與動態典藏系統。">
     <link rel="icon" type="image/png" href="images/logo.png">
-    <link rel="apple-touch-icon" href="images/logo.png">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="CHAEWON Archive | 偶像多媒體足跡與動態典藏系統">
-    <meta property="og:description" content="專為 LE SSERAFIM KIM CHAEWON 打造的多媒體足跡與動態典藏系統。">
-    <meta property="og:url" content="https://soda8-hub.github.io/CHAEWON_archive/">
-    <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
-    
     <link rel="stylesheet" href="style.css">
-
+    
     <!-- 載入 Supabase JS 官方 SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* 新增/編輯彈窗的進階美化 (標籤選擇區塊) */
-        .tag-selection-area {
-            background: var(--silver-bg);
-            border: 1px solid var(--silver-border);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-        }
-        .tag-checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .tag-checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            color: var(--text-main);
-        }
-        .custom-tags-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-            min-height: 32px;
-            padding: 5px;
-            border: 1px dashed var(--mint-green);
-            border-radius: 6px;
-            background: white;
-        }
-        .custom-tag-pill {
-            background: var(--mint-green);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .custom-tag-pill span {
-            cursor: pointer;
-            font-weight: bold;
-        }
+        .tag-selection-area { background: var(--silver-bg); border: 1px solid var(--silver-border); border-radius: 8px; padding: 15px; margin-top: 10px; }
+        .tag-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
+        .tag-checkbox-label { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; cursor: pointer; color: var(--text-main); }
+        .custom-tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 32px; padding: 5px; border: 1px dashed var(--mint-green); border-radius: 6px; background: white; }
+        .custom-tag-pill { background: var(--mint-green); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 5px; }
+        .custom-tag-pill span { cursor: pointer; font-weight: bold; }
+        
+        .modal-divider { height: 1px; background: var(--silver-border); margin: 20px 0; }
+        .media-block, .link-block { background: var(--silver-bg); border: 1px dashed var(--mint-green); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
+        .media-block-header, .link-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .remove-block-btn { background: #FFEBEE; color: #C62828; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; font-weight: bold;}
+        
+        .media-gallery { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        .media-item-display { background: var(--silver-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--silver-border); }
+        .media-item-display img { width: 100%; max-height: 500px; object-fit: cover; display: block; }
+        .media-item-display iframe { width: 100%; aspect-ratio: 16/9; border: none; display: block; }
+        .media-caption { padding: 10px 15px; font-size: 0.9rem; color: var(--text-muted); background: white; margin: 0; font-weight: 500; border-top: 1px dashed var(--silver-border); }
+        
+        /* 內部關聯按鈕特效 */
+        .internal-link-btn { background: var(--silver-bg); color: var(--text-main); border: 1px solid var(--mint-green); padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px;}
+        .internal-link-btn:hover { background: var(--mint-light); color: var(--mint-hover); }
     </style>
 </head>
 <body>
 
     <header class="mobile-header" id="topAnchor">
-        <div class="logo">
-            <img src="images/logo.png" alt="CHAEWON" class="mobile-brand-logo" onerror="this.src='https://api.iconify.design/twemoji:leopard.svg';"> 
-            CHAEWON Archive
-        </div>
-        <div class="hamburger" id="hamburgerMenu">
-            <span></span><span></span><span></span>
-        </div>
+        <div class="logo"><img src="images/logo.png" alt="CHAEWON" class="mobile-brand-logo" onerror="this.src='https://api.iconify.design/twemoji:leopard.svg';"> CHAEWON Archive</div>
+        <div class="hamburger" id="hamburgerMenu"><span></span><span></span><span></span></div>
     </header>
 
     <div class="main-layout">
+        <!-- 側邊欄 -->
         <aside class="sidebar" id="sidebar">
             <div class="desktop-logo-container">
                 <img src="images/logo.png" alt="CHAEWON Logo" class="brand-logo" onerror="this.src='https://api.iconify.design/twemoji:leopard.svg';">
-                <div class="desktop-logo-text">
-                    <h2>CHAEWON Archive</h2>
-                    <p>偶像多媒體足跡與動態典藏系統</p>
-                </div>
+                <div class="desktop-logo-text"><h2>CHAEWON Archive</h2><p>偶像多媒體足跡與動態典藏系統</p></div>
             </div>
-
             <div class="card status-box">
                 <h3 class="card-title">系統狀態</h3>
                 <div class="status-content">
-                    <div id="lockStatus" class="status-indicator locked">
-                        <span class="icon">🔒</span> 訪客鎖定中 (Viewer Mode)
-                    </div>
+                    <div id="lockStatus" class="status-indicator locked"><span class="icon">🔒</span> 訪客鎖定中</div>
                     <button id="lockBtn" class="btn-lock">協作登入解鎖 🔓</button>
                     <button id="quickAddBtn" class="btn-quick-add disabled">+ 快速新增 (需解鎖)</button>
                 </div>
             </div>
-
             <div class="card stats-box">
                 <h3 class="card-title">當前資料統計</h3>
                 <div class="stats-summary">
-                    <p id="dynamicMonthText" class="month-stat-title">
-                        YYYY年 MM月 總計：<strong id="totalCount" class="count-text">0</strong> <strong>筆</strong>
-                    </p>
-                    <p class="today-stat-title">
-                        今日新增 (<span id="dynamicTodayDate">MM/DD</span>)：<strong id="todayCount" class="count-text-small">0</strong> <strong>筆</strong>
-                    </p>
+                    <p id="dynamicMonthText" class="month-stat-title">全部總計：<strong id="totalCount" class="count-text">0</strong> <strong>筆</strong></p>
+                    <p class="today-stat-title">今日發生 (<span id="dynamicTodayDate">MM/DD</span>)：<strong id="todayCount" class="count-text-small">0</strong> <strong>筆</strong></p>
                 </div>
                 <ul id="moduleStats" class="stats-list"></ul>
             </div>
         </aside>
 
+        <!-- 主要內容區 -->
         <main class="content-area">
             <div class="top-toolbar">
                 <nav class="nav-menu-container">
@@ -126,53 +78,28 @@
                         <li data-module="schedule">重要日程</li>
                     </ul>
                 </nav>
-
                 <div class="toolbar-controls">
                     <div class="filter-main-row">
                         <div class="search-container desktop-search">
-                            <span class="search-icon">🔍</span>
-                            <input type="text" id="searchInput" placeholder="搜尋內文、平台或標籤 (支援方向鍵)..." autocomplete="off">
-                            <ul id="searchResults" class="search-results"></ul>
+                            <span class="search-icon">🔍</span><input type="text" id="searchInput" placeholder="搜尋內文、平台或標籤 (支援方向鍵)..." autocomplete="off"><ul id="searchResults" class="search-results"></ul>
                         </div>
-
                         <div class="inline-date-filter">
                             <div class="date-input-group">
                                 <input type="text" id="dateText" placeholder="yyyy/mm/dd 或 yyyy-mm-dd" autocomplete="off">
-                                <div class="date-picker-wrapper" id="datePickerTrigger">
-                                    <span class="calendar-icon">📅</span>
-                                    <input type="date" id="datePicker">
-                                </div>
+                                <div class="date-picker-wrapper" id="datePickerTrigger"><span class="calendar-icon">📅</span><input type="date" id="datePicker"></div>
                             </div>
                             <button id="applyDateBtn" class="btn-primary-small">篩選</button>
                             <button id="clearDateBtn" class="btn-secondary-small">清除</button>
-                            
                             <div class="custom-dropdown" id="sortDropdown">
-                                <div class="dropdown-selected">
-                                    <span id="sortText">由新到舊 ↓</span> 
-                                    <span class="arrow">﹀</span>
-                                </div>
-                                <ul class="dropdown-options">
-                                    <li data-value="desc" class="active">由新到舊 ↓</li>
-                                    <li data-value="asc">由舊到新 ↑</li>
-                                </ul>
+                                <div class="dropdown-selected"><span id="sortText">由新到舊 ↓</span> <span class="arrow">﹀</span></div>
+                                <ul class="dropdown-options"><li data-value="desc" class="active">由新到舊 ↓</li><li data-value="asc">由舊到新 ↑</li></ul>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="tags-header-row">
-                        <p id="filterMsg" class="filter-msg"></p>
-                        <div id="clearTagsContainer"></div>
-                    </div>
-
+                    <div class="tags-header-row"><p id="filterMsg" class="filter-msg"></p><div id="clearTagsContainer"></div></div>
                     <div class="toolbar-divider"></div>
-                    
-                    <button id="mobileTagToggle" class="mobile-tag-toggle hide-on-desktop">
-                        🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span>
-                    </button>
-
-                    <div id="subTagsWrapper" class="sub-tags-wrapper">
-                        <div id="subTagsContainer" class="sub-tags-container"></div>
-                    </div>
+                    <button id="mobileTagToggle" class="mobile-tag-toggle hide-on-desktop">🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span></button>
+                    <div id="subTagsWrapper" class="sub-tags-wrapper"><div id="subTagsContainer" class="sub-tags-container"></div></div>
                 </div>
             </div>
             
@@ -180,18 +107,12 @@
                 <div id="calendarContainer" class="calendar-sidebar" style="display: none;">
                     <div class="calendar-header">
                         <button id="prevMonthBtn">◀</button>
-                        <div class="cal-title-group">
-                            <h4 id="calendarTitle">2026年 10月</h4>
-                            <button id="todayBtn" class="btn-today">今天</button>
-                        </div>
+                        <div class="cal-title-group"><h4 id="calendarTitle">2026年</h4><button id="todayBtn" class="btn-today">今天</button></div>
                         <button id="nextMonthBtn">▶</button>
                     </div>
-                    <div class="calendar-grid-header">
-                        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
-                    </div>
+                    <div class="calendar-grid-header"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
                     <div id="calendarGrid" class="calendar-grid"></div>
                 </div>
-
                 <div id="timelineContainer" class="timeline"></div>
             </div>
         </main>
@@ -213,11 +134,12 @@
         </div>
     </div>
 
-    <!-- CRUD 資料編輯與新增專用彈窗 -->
+    <!-- ==========================================
+         【功能完備】資料編輯與新增彈窗
+    =========================================== -->
     <div id="dataModal" class="modal-overlay">
-        <div class="modal-box" style="max-width: 500px; text-align: left; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-box" style="max-width: 550px; text-align: left; max-height: 90vh; overflow-y: auto;">
             <h3 id="dataModalTitle" style="text-align: center; margin-bottom: 15px;">新增典藏資料</h3>
-            
             <input type="hidden" id="dataId">
             
             <label class="form-label">模組分類：</label>
@@ -228,36 +150,52 @@
                 <option value="schedule">重要日程</option>
             </select>
 
+            <!-- 內部關聯選單 (僅在選擇"重要日程"時顯示) -->
+            <div id="relatedArchiveGroup" style="display: none; background: #F8F9F9; padding: 10px; border-left: 4px solid var(--mint-green); border-radius: 4px; margin-top: 10px;">
+                <label class="form-label" style="color: var(--mint-hover);">🔗 內部系統關聯 (選填)：</label>
+                <select id="relatedArchiveSelect" class="modal-input" style="margin-top: 5px; font-size: 0.9rem;">
+                    <option value="">無關聯 (獨立日程)</option>
+                    <!-- JS 動態生成 -->
+                </select>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">(若綁定，時間軸上會出現快速跳轉按鈕，前往對應的品牌/社群貼文)</p>
+            </div>
+
             <div class="tag-selection-area">
                 <label class="form-label" style="margin-bottom: 10px;">請勾選適用標籤：</label>
                 <div id="checkboxGroup" class="tag-checkbox-group"></div>
-                
                 <label class="form-label">手動新增自訂標籤 (按 Enter 建立)：</label>
                 <input type="text" id="customTagInput" class="modal-input" style="margin: 5px 0; padding: 8px; font-size: 0.9rem;" placeholder="輸入如 #EASY...">
                 <div id="customTagsDisplay" class="custom-tags-container"></div>
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <div style="flex: 1;">
-                    <label class="form-label">日期：</label>
-                    <input type="date" id="dataDate" class="modal-input" style="margin-top: 5px;" required>
-                </div>
-                <div style="flex: 1;">
-                    <label class="form-label">時間：</label>
-                    <input type="time" id="dataTime" class="modal-input" style="margin-top: 5px;" required>
-                </div>
+                <div style="flex: 2;"><label class="form-label">日期：</label><input type="date" id="dataDate" class="modal-input" style="margin-top: 5px;" required></div>
+                <div style="flex: 2;"><label class="form-label">時間 (未知可填 00:00)：</label><input type="time" id="dataTime" class="modal-input" style="margin-top: 5px;" required></div>
+                <div style="flex: 1;"><label class="form-label">當日順序：</label><input type="number" id="dataDailyOrder" class="modal-input" value="1" min="1" style="margin-top: 5px;" title="微調同一天內貼文的顯示順序 (數字越小越上面)"></div>
             </div>
 
             <label class="form-label">來源平台 (例如: Instagram, X, 站姐名稱)：</label>
             <input type="text" id="dataSource" class="modal-input" placeholder="輸入來源..." style="margin-top: 5px;">
-
             <label class="form-label">主要標題 (選項，若有)：</label>
             <input type="text" id="dataTitle" class="modal-input" placeholder="輸入標題..." style="margin-top: 5px;">
-
-            <label class="form-label">內文 (韓文/中文皆可)：</label>
+            <label class="form-label">內文主文案 (韓文/中文皆可)：</label>
             <textarea id="dataContent" class="modal-input" placeholder="輸入內容..." rows="3" style="margin-top: 5px; resize: vertical;"></textarea>
 
-            <button id="saveDataBtn" class="btn-primary" style="margin-top: 15px;">同步至 Supabase 儲存</button>
+            <div class="modal-divider"></div>
+            
+            <label class="form-label" style="color: var(--text-main); font-size: 1rem; font-weight: 800;">🔗 附加外部連結 (出處 / 新聞 / 原文)：</label>
+            <div id="externalLinksContainer" style="margin-top: 10px;"></div>
+            <button type="button" id="addLinkBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; background: white;">+ 新增一組外部連結</button>
+
+            <div class="modal-divider"></div>
+            
+            <label class="form-label" style="color: var(--mint-hover); font-size: 1rem; font-weight: 800;">📷 附加媒體 (圖片上傳 / 影片網址)：</label>
+            <div id="mediaListContainer" style="margin-top: 10px;"></div>
+            <button type="button" id="addMediaBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed;">+ 新增一張圖片/影片</button>
+
+            <div class="modal-divider"></div>
+            
+            <button id="saveDataBtn" class="btn-primary">同步至 Supabase 儲存</button>
             <button class="btn-cancel close-data-modal" style="width: 100%;">取消返回</button>
         </div>
     </div>
@@ -268,20 +206,14 @@
         // ==========================================
         const SUPABASE_URL = 'https://kxywdxavuakxajpbbpbp.supabase.co'; 
         const SUPABASE_ANON_KEY = 'sb_publishable_tpHN-Vos2cXlVNHokyiWxg_4HxdB8gR';
-        
-        // 【關鍵】：在這裡填入您作為「最高管理員」的信箱
         const ADMIN_EMAIL = 'oncesoda6@gmail.com';
         
         let supabaseClient = null; 
         try {
             if (SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL') {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } else {
-                console.warn("注意：請將程式碼中的 Supabase URL 與 Key 替換為您的真實資料。");
             }
-        } catch (error) {
-            console.error("Supabase 初始化失敗:", error);
-        }
+        } catch (error) { console.error("Supabase 初始化失敗:", error); }
 
         const systemToday = new Date();
         const sysYear = systemToday.getFullYear();
@@ -289,7 +221,6 @@
         const sysDayStr = String(systemToday.getDate()).padStart(2, '0');
         const trueTodayStr = `${sysYear}-${sysMonthStr}-${sysDayStr}`; 
         
-        // 【修正核心】：補回 currentModule，解決 ReferenceError 初始化失敗問題
         let currentModule = 'all'; 
         let currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
         let selectedDate = null; 
@@ -303,97 +234,40 @@
         let isUnlocked = false; 
         let currentLoggedEmail = null; 
 
-        const weverseSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="official-icon" viewBox="0 0 24 24" fill="#00DACA"><path d="M14.65 17.65l-2.45-7.75h-1.8l-2.4 7.75h-2.1l3.45-9.85h2.2l1.85 6.3 1.8-6.3h2.2l3.45 9.85h-2.15l-2.4-7.75-2.45 7.75z"/></svg>`;
-
+        // 緊湊的靜態資料宣告
         const moduleSubTags = {
-            all: {
-                'CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'],
-                'Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'],
-                'Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'],
-                'X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'],
-                'YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'],
-                'TikTok / Challenge': ['TikTok/抖音', 'Challenge'],
-                '公開演出活動與現場紀錄': ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'],
-                '品牌商務與官方公告': ['品牌商務', '官方公告', '回歸相關'],
-                '重要日程': ['演唱會', '預錄時間', '生日', '節目播出'] 
-            },
-            social: {
-                'CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'],
-                'Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'],
-                'Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'],
-                'X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'],
-                'YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'],
-                'TikTok / Challenge': ['TikTok/抖音', 'Challenge']
-            },
-            event: ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'],
-            brand: ['品牌商務', '官方公告', '回歸相關'],
-            schedule: ['演唱會', '預錄時間', '生日', '節目播出']
+            all: { 'CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'], 'Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'], 'Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'], 'X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'], 'YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'], 'TikTok / Challenge': ['TikTok/抖音', 'Challenge'], '公開演出活動與現場紀錄': ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'], '品牌商務與官方公告': ['品牌商務', '官方公告', '回歸相關'], '重要日程': ['演唱會', '預錄時間', '生日', '節目播出'] },
+            social: { 'CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'], 'Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'], 'Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'], 'X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'], 'YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'], 'TikTok / Challenge': ['TikTok/抖音', 'Challenge'] },
+            event: ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'], brand: ['品牌商務', '官方公告', '回歸相關'], schedule: ['演唱會', '預錄時間', '生日', '節目播出']
         };
 
         function getGroupStyles(name) {
-            const styles = {
-                'CHAEWON 專屬': { left: '🐆', right: '' },
-                'Instagram': { left: '<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon">', right: '' },
-                'Weverse': { left: '<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Weverse_logo.svg" class="official-icon" style="filter: invert(15%) sepia(18%) saturate(1469%) hue-rotate(170deg) brightness(97%) contrast(92%);">', right: '' },
-                'X (Twitter)': { left: '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" class="official-icon">', right: '' },
-                'YouTube': { left: '<img src="https://images.icon-icons.com/1488/PNG/512/5295-youtube-i_102568.png" class="official-icon">', right: '' },
-                'TikTok / Challenge': { left: '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon">', right: '' },
-                '公開演出活動與現場紀錄': { left: '🎤', right: '📸' },
-                '品牌商務與官方公告': { left: '📢', right: '' },
-                '重要日程': { left: '📅', right: '' }
-            };
+            const styles = { 'CHAEWON 專屬': { left: '🐆', right: '' }, 'Instagram': { left: '<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" class="official-icon">', right: '' }, 'Weverse': { left: '<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Weverse_logo.svg" class="official-icon" style="filter: invert(15%);">', right: '' }, 'X (Twitter)': { left: '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg" class="official-icon">', right: '' }, 'YouTube': { left: '<img src="https://images.icon-icons.com/1488/PNG/512/5295-youtube-i_102568.png" class="official-icon">', right: '' }, 'TikTok / Challenge': { left: '<img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-rounded-square-icon.png" class="official-icon">', right: '' }, '公開演出活動與現場紀錄': { left: '🎤', right: '📸' }, '品牌商務與官方公告': { left: '📢', right: '' }, '重要日程': { left: '📅', right: '' } };
             return styles[name] || { left: '', right: '' };
         }
-
-        const moduleNames = { 
-            social: '社群動態', 
-            event: '公開演出活動與現場紀錄', 
-            brand: '品牌商務與官方公告', 
-            schedule: '重要日程' 
-        };
+        const moduleNames = { social: '社群動態', event: '公開演出活動與現場紀錄', brand: '品牌商務與官方公告', schedule: '重要日程' };
 
         document.addEventListener('DOMContentLoaded', init);
 
         async function init() {
-            await checkAuthStatus();
-            await fetchDataFromSupabase(); 
-            
-            setupNavigation();
-            setupSearch();
-            setupDateFilterAndSort();
-            setupSecurityModal();
-            setupDataModal(); 
-            setupBackToTop();
-            setupMobileTags();
-            renderSubTags(); 
-            updateClearTagsButton();
-            refreshView();
-            
+            await checkAuthStatus(); await fetchDataFromSupabase(); 
+            setupNavigation(); setupSearch(); setupDateFilterAndSort(); setupSecurityModal(); setupDataModal(); setupBackToTop(); setupMobileTags(); renderSubTags(); updateClearTagsButton(); refreshView();
             if(supabaseClient) {
                 supabaseClient.auth.onAuthStateChange((event, session) => {
-                    isUnlocked = !!session;
-                    currentLoggedEmail = session ? session.user.email : null; 
-                    updateLockUI();
+                    isUnlocked = !!session; currentLoggedEmail = session ? session.user.email : null; updateLockUI();
                 });
             }
         }
 
-        // ==========================================
-        // Auth: 權限檢查與 UI 更新
-        // ==========================================
         async function checkAuthStatus() {
             if (!supabaseClient) return;
             const { data: { session } } = await supabaseClient.auth.getSession();
-            isUnlocked = !!session;
-            currentLoggedEmail = session ? session.user.email : null;
-            updateLockUI();
+            isUnlocked = !!session; currentLoggedEmail = session ? session.user.email : null; updateLockUI();
         }
 
         function setupSecurityModal() {
-            const lockBtn = document.getElementById('lockBtn');
-            const modal = document.getElementById('securityModal');
-            const adminEmailInput = document.getElementById('adminEmail');
-            const adminPwdInput = document.getElementById('adminPwd');
+            const lockBtn = document.getElementById('lockBtn'); const modal = document.getElementById('securityModal');
+            const adminEmailInput = document.getElementById('adminEmail'); const adminPwdInput = document.getElementById('adminPwd');
             const verifyPwdBtn = document.getElementById('verifyPwdBtn');
 
             lockBtn.addEventListener('click', async () => {
@@ -401,130 +275,104 @@
                     if(supabaseClient) {
                         const { error } = await supabaseClient.auth.signOut();
                         if (error) alert('登出失敗：' + error.message);
-                        else {
-                            alert('系統已重新上鎖。您現在為訪客身分。');
-                            masterData = []; 
-                            await fetchDataFromSupabase();
-                            refreshView();
-                        }
+                        else { alert('系統已重新上鎖。'); masterData = []; await fetchDataFromSupabase(); refreshView(); }
                     }
                 } else {
-                    document.getElementById('modalTitle').innerText = '系統協作解鎖';
-                    adminEmailInput.value = ''; 
-                    adminPwdInput.value = '';
-                    modal.style.display = 'flex';
-                    setTimeout(() => adminEmailInput.focus(), 100); 
+                    document.getElementById('modalTitle').innerText = '系統協作解鎖'; adminEmailInput.value = ''; adminPwdInput.value = ''; modal.style.display = 'flex'; setTimeout(() => adminEmailInput.focus(), 100); 
                 }
             });
-
-            document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', () => {
-                modal.style.display = 'none';
-            }));
+            document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', () => { modal.style.display = 'none'; }));
 
             const triggerLogin = async () => {
-                if (!supabaseClient) {
-                    alert('未連線至 Supabase，無法驗證！');
-                    return;
-                }
-                const email = adminEmailInput.value.trim();
-                const password = adminPwdInput.value;
-                if (!email || !password) {
-                    alert('請輸入完整的信箱與密碼！');
-                    return;
-                }
-                
-                verifyPwdBtn.innerText = '驗證中...';
-                verifyPwdBtn.disabled = true;
-
+                if (!supabaseClient) { alert('未連線至 Supabase！'); return; }
+                const email = adminEmailInput.value.trim(); const password = adminPwdInput.value;
+                if (!email || !password) { alert('請輸入完整信箱與密碼！'); return; }
+                verifyPwdBtn.innerText = '驗證中...'; verifyPwdBtn.disabled = true;
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                
-                verifyPwdBtn.innerText = '登入解鎖';
-                verifyPwdBtn.disabled = false;
-
-                if (error) {
-                    alert('登入失敗，請檢查帳號密碼。');
-                } else {
-                    if (data.user.email === ADMIN_EMAIL) {
-                        alert('最高管理員登入成功！編輯與刪除權限已開放。');
-                    } else {
-                        alert('協作人員登入成功！編輯權限已開放。');
-                    }
-                    modal.style.display = 'none';
-                }
+                verifyPwdBtn.innerText = '登入解鎖'; verifyPwdBtn.disabled = false;
+                if (error) alert('登入失敗，請檢查帳號密碼。');
+                else { alert(data.user.email === ADMIN_EMAIL ? '最高管理員登入成功！' : '協作人員登入成功！'); modal.style.display = 'none'; }
             };
-
             verifyPwdBtn.addEventListener('click', triggerLogin);
             adminPwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') triggerLogin(); });
         }
 
         // ==========================================
-        // 【CRUD 操作：動態抓取與更新】
+        // 【CRUD：包含圖片上傳、內部關聯與外部連結】
         // ==========================================
         async function fetchDataFromSupabase() {
-            if (!supabaseClient) {
-                console.warn("未連線 Supabase，載入空資料等待手動新增。");
-                masterData = [];
-                return;
-            }
-
+            if (!supabaseClient) { masterData = []; return; }
             try {
                 const { data, error } = await supabaseClient
                     .from('archives')
-                    .select('*')
-                    .order('date', { ascending: false })
-                    .order('time', { ascending: false });
-
+                    .select('*, archive_media(media_url, media_type, specific_caption, sort_order)')
+                    .order('date', { ascending: false }).order('time', { ascending: false });
                 if (error) throw error;
-                
                 masterData = data.map(item => ({
-                    id: item.id,
-                    module: item.module,
-                    date: item.date,
-                    time: item.time,
-                    dailyOrder: item.daily_order,
-                    source: item.source_platform || 'System',
-                    mainTitle: item.main_title || '',
-                    content: item.content_kr || item.content_tw || '',
-                    tags: item.tags || [],
-                    links: item.links || []
+                    id: item.id, module: item.module, date: item.date, time: item.time, dailyOrder: item.daily_order,
+                    source: item.source_platform || 'System', mainTitle: item.main_title || '', content: item.content_kr || item.content_tw || '',
+                    tags: item.tags || [], links: item.links || [], media: item.archive_media || [],
+                    relatedArchiveId: item.related_archive_id || null
                 }));
-            } catch (error) {
-                console.error("載入 Supabase 資料失敗:", error);
-            }
+            } catch (error) { console.error("載入失敗:", error); }
         }
 
-        async function saveToSupabase(itemData) {
-            if (!supabaseClient) {
-                alert("未連線 Supabase，無法儲存。");
-                return false;
-            }
+        async function compressImage(file, maxWidth = 1400) {
+            return new Promise((resolve) => {
+                const reader = new FileReader(); reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image(); img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas'); let width = img.width, height = img.height;
+                        if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
+                        canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                        canvas.toBlob((blob) => { resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", { type: 'image/webp' })); }, 'image/webp', 0.85);
+                    };
+                };
+            });
+        }
 
-            const payload = {
-                module: itemData.module,
-                date: itemData.date,
-                time: itemData.time,
-                source_platform: itemData.source,
-                main_title: itemData.mainTitle,
-                content_kr: itemData.content, 
-                tags: itemData.tags,
-                links: itemData.links
+        async function saveToSupabase(itemData, mediaArray) {
+            if (!supabaseClient) { alert("未連線 Supabase"); return false; }
+            const payload = { 
+                module: itemData.module, date: itemData.date, time: itemData.time, daily_order: itemData.dailyOrder,
+                source_platform: itemData.source, main_title: itemData.mainTitle, content_kr: itemData.content, 
+                tags: itemData.tags, links: itemData.links, related_archive_id: itemData.relatedArchiveId 
             };
-
+            
             try {
-                if (itemData.id && String(itemData.id).includes('-')) {
-                    const { error } = await supabaseClient.from('archives').update(payload).eq('id', itemData.id);
+                let currentArchiveId = itemData.id;
+                if (currentArchiveId) {
+                    const { error } = await supabaseClient.from('archives').update(payload).eq('id', currentArchiveId);
                     if (error) throw error;
                 } else {
-                    const { error } = await supabaseClient.from('archives').insert([payload]);
+                    const { data, error } = await supabaseClient.from('archives').insert([payload]).select();
                     if (error) throw error;
+                    currentArchiveId = data[0].id;
                 }
-                await fetchDataFromSupabase();
-                return true;
-            } catch (error) {
-                console.error("儲存資料至 Supabase 失敗:", error);
-                alert("儲存失敗：" + error.message);
-                return false;
-            }
+
+                if (currentArchiveId) {
+                    if (itemData.id) { await supabaseClient.from('archive_media').delete().eq('archive_id', currentArchiveId); }
+                    let mediaPayloads = [];
+                    for (let i = 0; i < mediaArray.length; i++) {
+                        let m = mediaArray[i]; let finalUrl = m.url;
+                        if (m.type === 'image' && m.file) {
+                            const compressedFile = await compressImage(m.file);
+                            const filePath = `post_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
+                            const { error: uploadError } = await supabaseClient.storage.from('media').upload(filePath, compressedFile);
+                            if (uploadError) throw uploadError;
+                            const { data: publicUrlData } = supabaseClient.storage.from('media').getPublicUrl(filePath);
+                            finalUrl = publicUrlData.publicUrl;
+                        }
+                        if (finalUrl) mediaPayloads.push({ archive_id: currentArchiveId, media_url: finalUrl, media_type: m.type, specific_caption: m.caption, sort_order: i + 1 });
+                    }
+                    if (mediaPayloads.length > 0) {
+                        const { error: mediaErr } = await supabaseClient.from('archive_media').insert(mediaPayloads);
+                        if (mediaErr) throw mediaErr;
+                    }
+                }
+                await fetchDataFromSupabase(); return true;
+            } catch (error) { console.error(error); alert("儲存失敗：" + error.message); return false; }
         }
 
         async function deleteFromSupabase(id) {
@@ -532,162 +380,151 @@
             try {
                 const { error } = await supabaseClient.from('archives').delete().eq('id', id);
                 if (error) throw error;
-                await fetchDataFromSupabase();
-                return true;
-            } catch (error) {
-                console.error("刪除資料失敗:", error);
-                alert("權限不足或刪除失敗：" + error.message);
-                return false;
-            }
+                await fetchDataFromSupabase(); return true;
+            } catch (error) { alert("刪除失敗：" + error.message); return false; }
         }
 
         // ==========================================
         // 【UI 渲染邏輯】
         // ==========================================
         function setupMobileTags() {
-            const toggleBtn = document.getElementById('mobileTagToggle');
-            if(!toggleBtn) return;
-            const newToggleBtn = toggleBtn.cloneNode(true);
-            toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+            const toggleBtn = document.getElementById('mobileTagToggle'); if(!toggleBtn) return;
+            const newToggleBtn = toggleBtn.cloneNode(true); toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
             newToggleBtn.addEventListener('click', function() {
-                const wrapper = document.getElementById('subTagsWrapper');
-                wrapper.classList.toggle('open');
-                if(wrapper.classList.contains('open')) {
-                    this.innerHTML = `🏷️ 收起標籤篩選 <span class="arrow" style="transform: rotate(180deg); display: inline-block; transition: 0.3s;">﹀</span>`;
-                } else {
-                    this.innerHTML = `🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span>`;
-                }
+                const wrapper = document.getElementById('subTagsWrapper'); wrapper.classList.toggle('open');
+                this.innerHTML = wrapper.classList.contains('open') ? `🏷️ 收起標籤篩選 <span class="arrow" style="transform: rotate(180deg); display: inline-block; transition: 0.3s;">﹀</span>` : `🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span>`;
             });
         }
-
         function refreshView(targetDate = null) {
             filterData(targetDate);
             const calendarContainer = document.getElementById('calendarContainer');
-            if (currentModule === 'schedule') {
-                calendarContainer.style.display = 'block';
-                renderCalendar();
-            } else {
-                calendarContainer.style.display = 'none';
-            }
+            calendarContainer.style.display = currentModule === 'schedule' ? 'block' : 'none';
+            if(currentModule === 'schedule') renderCalendar();
         }
-
         function filterData(targetDate = null) {
             currentData = masterData.filter(item => {
                 const matchModule = currentModule === 'all' || item.module === currentModule;
                 const matchDate = targetDate ? item.date === targetDate : true;
                 const matchTags = activeSubTags.length === 0 || activeSubTags.some(tag => item.tags.includes(tag) || item.source.includes(tag));
-                let matchMonth = true;
-                if (currentModule === 'schedule' && !targetDate) {
-                    matchMonth = item.date.startsWith(currentMonthFilter);
-                }
-                return matchModule && matchDate && matchTags && matchMonth;
+                return matchModule && matchDate && matchTags && (currentModule !== 'schedule' || targetDate || item.date.startsWith(currentMonthFilter));
             });
-            renderSidebarStats(currentData);
-            renderTimeline(currentData);
+            renderSidebarStats(currentData); renderTimeline(currentData);
         }
 
+        // 統計區塊邏輯修正：今日新增以發生日期為準
         function renderSidebarStats(data) {
-            const todayCountVal = data.filter(item => item.date === trueTodayStr).length;
-            document.getElementById('dynamicMonthText').innerHTML = `${sysYear}年 ${sysMonthStr}月 總計：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
             document.getElementById('dynamicTodayDate').innerText = `${sysMonthStr}/${sysDayStr}`;
+            let labelText = '全部總計';
+            if (selectedDate) { labelText = `${selectedDate.replace(/-/g, '/')} 總計`; }
+            else if (currentModule === 'schedule') { const [y, m] = currentMonthFilter.split('-'); labelText = `${y}年 ${m}月 總計`; }
+            else if (currentModule !== 'all') { labelText = `${moduleNames[currentModule]} 總計`; }
+            
+            document.getElementById('dynamicMonthText').innerHTML = `${labelText}：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
+            
+            // 真正回歸事件日期的今日總計 (找 date 欄位 === 今天的)
+            const todayCountVal = masterData.filter(item => item.date === trueTodayStr).length;
             document.getElementById('todayCount').innerText = todayCountVal;
 
-            const statsList = document.getElementById('moduleStats');
-            statsList.innerHTML = '';
+            const statsList = document.getElementById('moduleStats'); statsList.innerHTML = '';
             if (currentModule === 'all') {
                 const counts = { social: 0, event: 0, brand: 0, schedule: 0 };
                 data.forEach(item => { if(counts[item.module] !== undefined) counts[item.module]++; });
-                for (const [key, val] of Object.entries(counts)) {
-                    statsList.innerHTML += `<li><span class="stat-label">${moduleNames[key]}</span> <span class="stat-count">${val} 筆</span></li>`;
-                }
+                for (const [key, val] of Object.entries(counts)) { statsList.innerHTML += `<li><span class="stat-label">${moduleNames[key]}</span> <span class="stat-count">${val} 筆</span></li>`; }
             } else {
-                const tagCounts = {};
-                data.forEach(item => {
-                    item.tags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; });
-                });
+                const tagCounts = {}; data.forEach(item => { item.tags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; }); });
                 const sortedTags = Object.keys(tagCounts).sort((a,b) => tagCounts[b] - tagCounts[a]);
-                if (sortedTags.length === 0) {
-                    statsList.innerHTML = `<li><span class="stat-label">尚無數據</span></li>`;
-                } else {
-                    sortedTags.forEach(tag => {
-                        statsList.innerHTML += `<li><span class="stat-label">${tag}</span> <span class="stat-count">${tagCounts[tag]} 筆</span></li>`;
-                    });
-                }
+                if (sortedTags.length === 0) statsList.innerHTML = `<li><span class="stat-label">尚無數據</span></li>`;
+                else sortedTags.forEach(tag => { statsList.innerHTML += `<li><span class="stat-label">${tag}</span> <span class="stat-count">${tagCounts[tag]} 筆</span></li>`; });
             }
         }
 
+        // 供內部關聯跳轉使用的全域函數
+        window.scrollToPost = function(id) {
+            currentModule = 'all'; activeSubTags = [];
+            document.querySelectorAll('#navLinks li').forEach(l => l.classList.remove('active'));
+            document.querySelector('[data-module="all"]').classList.add('active');
+            clearDateFilter(); 
+            setTimeout(() => {
+                const targetCard = document.getElementById(`post-${id}`);
+                if(targetCard) {
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetCard.style.boxShadow = '0 0 0 3px var(--mint-green)';
+                    setTimeout(() => targetCard.style.boxShadow = '', 2000);
+                } else { alert("找不到原始關聯貼文，可能已被刪除。"); }
+            }, 300);
+        };
+
         function renderTimeline(data) {
-            const container = document.getElementById('timelineContainer');
-            container.innerHTML = '';
-
-            if (data.length === 0) {
-                container.innerHTML = '<div class="empty-state">此條件下暫無資料。</div>';
-                return;
-            }
-
+            const container = document.getElementById('timelineContainer'); container.innerHTML = '';
+            if (data.length === 0) { container.innerHTML = '<div class="empty-state">此條件下暫無資料。</div>'; return; }
             const groupedData = {};
-            data.forEach(item => {
-                if (!groupedData[item.date]) groupedData[item.date] = [];
-                groupedData[item.date].push(item);
-            });
-
-            const sortedDates = Object.keys(groupedData).sort((a,b) => {
-                return currentSortOrder === 'desc' ? new Date(b) - new Date(a) : new Date(a) - new Date(b);
-            });
+            data.forEach(item => { if (!groupedData[item.date]) groupedData[item.date] = []; groupedData[item.date].push(item); });
+            const sortedDates = Object.keys(groupedData).sort((a,b) => currentSortOrder === 'desc' ? new Date(b) - new Date(a) : new Date(a) - new Date(b));
 
             sortedDates.forEach(date => {
                 const items = groupedData[date];
-                items.sort((a,b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`));
-                items.forEach((item, index) => item.calculatedDailyOrder = index + 1);
+                // 優先比對時間，若時間相同，再比對手動輸入的 dailyOrder
+                items.sort((a,b) => {
+                    const timeDiff = new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`);
+                    if (timeDiff !== 0) return timeDiff;
+                    return (a.dailyOrder || 1) - (b.dailyOrder || 1);
+                });
+                
                 if(currentSortOrder === 'desc') items.reverse();
 
                 const isToday = date === trueTodayStr;
-                const dateHeader = document.createElement('div');
-                dateHeader.className = 'timeline-date-header';
-                dateHeader.innerHTML = `<h3>📅 ${date.replace(/-/g, '/')} <span class="daily-count">(${isToday ? '今日新增 ' : '共 '}${items.length} 筆)</span></h3>`;
+                const dateHeader = document.createElement('div'); dateHeader.className = 'timeline-date-header';
+                dateHeader.innerHTML = `<h3>📅 ${date.replace(/-/g, '/')} <span class="daily-count">(${isToday ? '今日發生 ' : '共 '}${items.length} 筆)</span></h3>`;
                 container.appendChild(dateHeader);
 
                 items.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'timeline-card';
-                    card.id = `post-${item.id}`;
-
+                    const card = document.createElement('div'); card.className = 'timeline-card'; card.id = `post-${item.id}`;
                     let adminBtns = '';
                     if (isUnlocked) {
                         adminBtns += `<button class="btn-edit-small" onclick="openDataModal('${item.id}')">編輯</button>`;
-                        if (currentLoggedEmail === ADMIN_EMAIL) {
-                            adminBtns += `<button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>`;
-                        }
+                        if (currentLoggedEmail === ADMIN_EMAIL) adminBtns += `<button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>`;
                     }
                     
                     let linksHtml = '';
                     if (item.links && item.links.length > 0) {
-                        linksHtml = '<div class="multi-links-group">' + item.links.map(l => 
-                            `<a href="${l.url}" class="db-link" target="_blank" rel="noopener noreferrer">${l.title}</a>`
-                        ).join('') + '</div>';
+                        linksHtml = '<div class="multi-links-group" style="margin-top: 10px;">' + item.links.map(l => `<a href="${l.url}" class="db-link" target="_blank" rel="noopener noreferrer">${l.title}</a>`).join('') + '</div>';
                     }
-                    
-                    let titleHtml = '';
-                    if (item.mainTitle) {
-                        titleHtml = `<h4 style="margin-bottom: 8px; color: var(--mint-hover);">${item.mainTitle}</h4>`;
+
+                    // 內部關聯按鈕
+                    let relatedHtml = '';
+                    if (item.relatedArchiveId) {
+                        const rItem = masterData.find(d => d.id === item.relatedArchiveId);
+                        if (rItem) {
+                            const rTitle = rItem.mainTitle || (rItem.content.substring(0, 15) + '...');
+                            relatedHtml = `<div style="margin-bottom: 10px;"><button class="internal-link-btn" onclick="scrollToPost('${item.relatedArchiveId}')">🔗 關聯系統貼文：[${moduleNames[rItem.module]}] ${rTitle}</button></div>`;
+                        }
+                    }
+
+                    let mediaHtml = '';
+                    if (item.media && item.media.length > 0) {
+                        mediaHtml = '<div class="media-gallery">';
+                        item.media.sort((a,b) => a.sort_order - b.sort_order).forEach(m => {
+                            mediaHtml += `<div class="media-item-display">`;
+                            if (m.media_type === 'image') mediaHtml += `<img src="${m.media_url}" loading="lazy" alt="Archive Image">`;
+                            else if (m.media_type === 'vimeo' || m.media_type === 'youtube') mediaHtml += `<iframe src="${m.media_url}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+                            if (m.specific_caption) mediaHtml += `<p class="media-caption">${m.specific_caption.replace(/\n/g, '<br>')}</p>`;
+                            mediaHtml += `</div>`;
+                        });
+                        mediaHtml += '</div>';
                     }
 
                     card.innerHTML = `
-                        <div class="card-date-col">
-                            <div class="time">${item.time.slice(0,5)}</div>
-                        </div>
+                        <div class="card-date-col"><div class="time">${item.time.slice(0,5)}</div></div>
                         <div class="card-content-col">
                             <div class="card-header">
-                                <div class="tags">
-                                    <span class="tag tag-daily">當日 #${item.calculatedDailyOrder}</span>
-                                    <span class="tag tag-platform">${item.source}</span>
-                                    ${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-                                </div>
+                                <div class="tags"><span class="tag tag-daily">當日 #${item.dailyOrder || 1}</span><span class="tag tag-platform">${item.source}</span>${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
                                 <div class="admin-actions">${adminBtns}</div>
                             </div>
-                            ${titleHtml}
+                            ${item.mainTitle ? `<h4 style="margin-bottom: 8px; color: var(--mint-hover);">${item.mainTitle}</h4>` : ''}
+                            ${relatedHtml}
                             <p class="content-text">${item.content.replace(/\n/g, '<br>')}</p>
                             ${linksHtml}
+                            ${mediaHtml}
                         </div>
                     `;
                     container.appendChild(card);
@@ -696,394 +533,151 @@
         }
 
         function renderCalendar() {
-            const grid = document.getElementById('calendarGrid');
-            const title = document.getElementById('calendarTitle');
-            grid.innerHTML = '';
-
-            const [year, month] = currentMonthFilter.split('-').map(Number);
-            title.innerText = `${year}年 ${month}月`;
-
-            const firstDay = new Date(year, month - 1, 1).getDay();
-            const daysInMonth = new Date(year, month, 0).getDate();
-
+            const grid = document.getElementById('calendarGrid'); const title = document.getElementById('calendarTitle'); grid.innerHTML = '';
+            const [year, month] = currentMonthFilter.split('-').map(Number); title.innerText = `${year}年 ${month}月`;
+            const firstDay = new Date(year, month - 1, 1).getDay(); const daysInMonth = new Date(year, month, 0).getDate();
             for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="cal-cell empty"></div>`;
-
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                
                 const hasEvent = masterData.some(item => item.module === 'schedule' && item.date === dateStr);
-                
-                let dotHtml = hasEvent ? `<div class="event-dots"><span class="dot"></span></div>` : '';
-                const isTodayStr = dateStr === trueTodayStr ? 'today' : '';
-                const isSelected = dateStr === selectedDate ? 'selected-date' : '';
-                
-                grid.innerHTML += `
-                    <div class="cal-cell ${isTodayStr} ${hasEvent ? 'has-event' : ''} ${isSelected}" onclick="filterBySpecificDate('${dateStr}')">
-                        <span class="day-num">${d}</span>
-                        ${dotHtml}
-                    </div>
-                `;
+                grid.innerHTML += `<div class="cal-cell ${dateStr === trueTodayStr ? 'today' : ''} ${hasEvent ? 'has-event' : ''} ${dateStr === selectedDate ? 'selected-date' : ''}" onclick="filterBySpecificDate('${dateStr}')"><span class="day-num">${d}</span>${hasEvent ? `<div class="event-dots"><span class="dot"></span></div>` : ''}</div>`;
             }
         }
-
-        function filterBySpecificDate(dateStr) {
-            if (selectedDate === dateStr) {
-                clearDateFilter();
-            } else {
-                document.getElementById('dateText').value = dateStr.replace(/-/g, '/');
-                document.getElementById('applyDateBtn').click(); 
-            }
-        }
-
+        function filterBySpecificDate(dateStr) { if (selectedDate === dateStr) { clearDateFilter(); } else { document.getElementById('dateText').value = dateStr.replace(/-/g, '/'); document.getElementById('applyDateBtn').click(); } }
         function setupNavigation() {
             const links = document.querySelectorAll('#navLinks li');
-            links.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    links.forEach(l => l.classList.remove('active'));
-                    e.target.classList.add('active');
-                    currentModule = e.target.getAttribute('data-module');
-                    activeSubTags = []; 
-                    
-                    document.getElementById('searchInput').value = '';
-                    clearDateFilter(); 
-                    
-                    renderSubTags();
-                    updateClearTagsButton(); 
-                    
-                    const wrapper = document.getElementById('subTagsWrapper');
-                    if (wrapper) {
-                        wrapper.classList.remove('open');
-                    }
-                    
-                    const toggleBtn = document.getElementById('mobileTagToggle');
-                    if (toggleBtn) {
-                        toggleBtn.innerHTML = `🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span>`;
-                    }
-
-                    if(window.innerWidth <= 1050) document.getElementById('sidebar').classList.remove('active');
-                });
-            });
+            links.forEach(link => { link.addEventListener('click', (e) => {
+                links.forEach(l => l.classList.remove('active')); e.target.classList.add('active'); currentModule = e.target.getAttribute('data-module');
+                activeSubTags = []; document.getElementById('searchInput').value = ''; clearDateFilter(); renderSubTags(); updateClearTagsButton();
+                const wrapper = document.getElementById('subTagsWrapper'); if (wrapper) wrapper.classList.remove('open');
+                if(window.innerWidth <= 1050) document.getElementById('sidebar').classList.remove('active');
+            });});
         }
-
         function renderSubTags() {
-            const container = document.getElementById('subTagsContainer');
-            container.innerHTML = '';
-            
-            const wrapper = document.getElementById('subTagsWrapper');
-            const toggleBtn = document.getElementById('mobileTagToggle');
-            
-            if (!moduleSubTags[currentModule]) {
-                container.className = 'sub-tags-container'; 
-                if(wrapper) wrapper.style.display = 'none';
-                if(toggleBtn) toggleBtn.style.display = 'none';
-                return;
-            } else {
-                if(wrapper) wrapper.style.display = ''; 
-                if(toggleBtn) toggleBtn.style.display = '';
-            }
-
+            const container = document.getElementById('subTagsContainer'); container.innerHTML = '';
+            if (!moduleSubTags[currentModule]) { container.className = 'sub-tags-container'; return; }
             const tagsData = moduleSubTags[currentModule];
-            
             if (typeof tagsData === 'object' && !Array.isArray(tagsData)) {
-                container.className = 'social-grid'; 
+                container.className = 'social-grid';
                 for (const [groupName, tagsArray] of Object.entries(tagsData)) {
-                    const details = document.createElement('details');
-                    details.className = 'tag-accordion';
-                    
-                    if (currentModule === 'social' && groupName.includes('專屬')) {
-                        details.open = true;
-                    } else {
-                        details.open = false; 
-                    }
-
+                    const details = document.createElement('details'); details.className = 'tag-accordion'; details.open = currentModule === 'social' && groupName.includes('專屬');
                     const sInfo = getGroupStyles(groupName);
-                    const summary = document.createElement('summary');
-                    summary.innerHTML = `
-                        <span class="summary-icon-left">${sInfo.left}</span>
-                        <span class="summary-text">${groupName}</span>
-                        <span class="summary-icon-right">${sInfo.right}</span>
-                    `;
-                    
-                    const tagContent = document.createElement('div');
-                    tagContent.className = 'tag-accordion-content';
-
+                    details.innerHTML = `<summary><span class="summary-icon-left">${sInfo.left}</span><span class="summary-text">${groupName}</span><span class="summary-icon-right">${sInfo.right}</span></summary>`;
+                    const tagContent = document.createElement('div'); tagContent.className = 'tag-accordion-content';
                     tagsArray.forEach(tag => {
-                        const btn = document.createElement('button');
-                        btn.className = 'sub-tag-btn' + (activeSubTags.includes(tag) ? ' active' : '');
-                        btn.innerText = tag;
-                        btn.onclick = (e) => {
-                            e.preventDefault(); 
-                            btn.classList.toggle('active');
-                            if(activeSubTags.includes(tag)) activeSubTags = activeSubTags.filter(t => t !== tag);
-                            else activeSubTags.push(tag);
-                            
-                            updateClearTagsButton();
-                            refreshView(document.getElementById('dateText').value.replace(/\//g, '-'));
-                        };
+                        const btn = document.createElement('button'); btn.className = 'sub-tag-btn' + (activeSubTags.includes(tag) ? ' active' : ''); btn.innerText = tag;
+                        btn.onclick = (e) => { e.preventDefault(); btn.classList.toggle('active'); if(activeSubTags.includes(tag)) activeSubTags = activeSubTags.filter(t => t !== tag); else activeSubTags.push(tag); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); };
                         tagContent.appendChild(btn);
                     });
-
-                    details.appendChild(summary);
-                    details.appendChild(tagContent);
-                    container.appendChild(details);
+                    details.appendChild(tagContent); container.appendChild(details);
                 }
             } else {
                 container.className = 'sub-tags-flat';
                 tagsData.forEach(tag => {
-                    const btn = document.createElement('button');
-                    btn.className = 'sub-tag-btn' + (activeSubTags.includes(tag) ? ' active' : '');
-                    btn.innerText = tag;
-                    btn.onclick = () => {
-                        btn.classList.toggle('active');
-                        if(activeSubTags.includes(tag)) activeSubTags = activeSubTags.filter(t => t !== tag);
-                        else activeSubTags.push(tag);
-                        
-                        updateClearTagsButton();
-                        refreshView(document.getElementById('dateText').value.replace(/\//g, '-'));
-                    };
+                    const btn = document.createElement('button'); btn.className = 'sub-tag-btn' + (activeSubTags.includes(tag) ? ' active' : ''); btn.innerText = tag;
+                    btn.onclick = () => { btn.classList.toggle('active'); if(activeSubTags.includes(tag)) activeSubTags = activeSubTags.filter(t => t !== tag); else activeSubTags.push(tag); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); };
                     container.appendChild(btn);
                 });
             }
         }
-
         function updateClearTagsButton() {
             const container = document.getElementById('clearTagsContainer');
-            if (activeSubTags.length > 0) {
-                container.innerHTML = `<button class="btn-clear-tags">✖ 清除所選標籤</button>`;
-                container.querySelector('.btn-clear-tags').onclick = () => {
-                    activeSubTags = [];
-                    renderSubTags(); 
-                    updateClearTagsButton();
-                    refreshView(document.getElementById('dateText').value.replace(/\//g, '-'));
-                };
-            } else {
-                container.innerHTML = '';
-            }
+            if (activeSubTags.length > 0) { container.innerHTML = `<button class="btn-clear-tags">✖ 清除所選標籤</button>`; container.querySelector('.btn-clear-tags').onclick = () => { activeSubTags = []; renderSubTags(); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); }; } else { container.innerHTML = ''; }
         }
-
-        function setupSearch() {
-            const input = document.getElementById('searchInput');
-            const resultsList = document.getElementById('searchResults');
-            let currentFocus = -1;
-
-            input.addEventListener('input', function() {
-                const val = this.value.toLowerCase().trim();
-                resultsList.innerHTML = '';
-                currentFocus = -1;
-                if (!val) { refreshView(); return; }
-
-                const searchScope = masterData.filter(item => currentModule === 'all' || item.module === currentModule);
-                const matched = searchScope.filter(item => 
-                    item.content.toLowerCase().includes(val) || 
-                    item.tags.join('').toLowerCase().includes(val) ||
-                    item.source.toLowerCase().includes(val) ||
-                    (item.mainTitle && item.mainTitle.toLowerCase().includes(val))
-                );
-
-                renderSidebarStats(matched);
-                renderTimeline(matched);
-
-                matched.forEach(item => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<span class="s-date">${item.date}</span> ${item.content.substring(0, 20)}...`;
-                    li.addEventListener('click', () => {
-                        input.value = '';
-                        resultsList.innerHTML = '';
-                        const targetCard = document.getElementById(`post-${item.id}`);
-                        if(targetCard) {
-                            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            targetCard.style.boxShadow = '0 0 0 3px var(--mint-green)';
-                            setTimeout(() => targetCard.style.boxShadow = '', 2000);
-                        }
-                    });
-                    resultsList.appendChild(li);
-                });
-            });
-
-            input.addEventListener('keydown', function(e) {
-                const items = resultsList.getElementsByTagName('li');
-                if (e.key === 'ArrowDown') { currentFocus++; addActive(items); } 
-                else if (e.key === 'ArrowUp') { currentFocus--; addActive(items); } 
-                else if (e.key === 'Enter') { e.preventDefault(); if (currentFocus > -1 && items[currentFocus]) items[currentFocus].click(); }
-            });
-
-            function addActive(items) {
-                if (!items || items.length === 0) return;
-                for (let i = 0; i < items.length; i++) items[i].classList.remove('autocomplete-active');
-                if (currentFocus >= items.length) currentFocus = 0;
-                if (currentFocus < 0) currentFocus = (items.length - 1);
-                items[currentFocus].classList.add('autocomplete-active');
-                items[currentFocus].scrollIntoView({ block: 'nearest' });
-            }
-
-            document.addEventListener('click', (e) => { if(e.target !== input) resultsList.innerHTML = ''; });
-        }
-
+        function setupSearch() { document.getElementById('searchInput').addEventListener('input', function() { refreshView(); }); }
         function setupDateFilterAndSort() {
-            const dateText = document.getElementById('dateText');
-            const filterMsg = document.getElementById('filterMsg');
-            
-            const sortDropdown = document.getElementById('sortDropdown');
-            const sortSelected = sortDropdown.querySelector('.dropdown-selected');
-            const sortOptions = sortDropdown.querySelectorAll('.dropdown-options li');
-            const sortText = document.getElementById('sortText');
-
-            sortSelected.addEventListener('click', (e) => {
-                e.stopPropagation();
-                sortDropdown.classList.toggle('open');
-            });
-
-            sortOptions.forEach(opt => {
-                opt.addEventListener('click', () => {
-                    sortOptions.forEach(o => o.classList.remove('active'));
-                    opt.classList.add('active');
-                    currentSortOrder = opt.getAttribute('data-value');
-                    sortText.innerText = opt.innerText;
-                    sortDropdown.classList.remove('open');
-                    refreshView(document.getElementById('dateText').value.replace(/\//g, '-') || null);
-                });
-            });
-
-            document.addEventListener('click', () => sortDropdown.classList.remove('open'));
-
-            document.getElementById('datePickerTrigger').addEventListener('click', () => {
-                try { document.getElementById('datePicker').showPicker(); } catch(e) {}
-            });
-
-            document.getElementById('datePicker').addEventListener('change', (e) => {
-                dateText.value = e.target.value.replace(/-/g, '/');
-                document.getElementById('applyDateBtn').click(); 
-            });
-
-            dateText.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') document.getElementById('applyDateBtn').click();
-            });
-
             document.getElementById('applyDateBtn').addEventListener('click', () => {
-                const val = dateText.value.trim();
-                if(!val) { clearDateFilter(); return; }
-                
-                const dateRegex = /^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/;
-                const match = val.match(dateRegex);
-                
-                if (match) {
-                    const y = match[1];
-                    const m = match[2].padStart(2, '0');
-                    const d = match[3].padStart(2, '0');
-                    const formattedDate = `${y}-${m}-${d}`;
-                    filterMsg.innerText = `已篩選: ${formattedDate}`;
-                    currentMonthFilter = `${y}-${m}`;
-                    
-                    selectedDate = formattedDate; 
-                    refreshView(formattedDate);
-                } else {
-                    filterMsg.innerText = '格式錯誤 (yyyy/mm/dd)';
-                }
+                const val = document.getElementById('dateText').value.trim();
+                const match = val.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+                if (match) { const formattedDate = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`; currentMonthFilter = `${match[1]}-${match[2].padStart(2, '0')}`; selectedDate = formattedDate; refreshView(formattedDate); }
             });
-
             document.getElementById('clearDateBtn').addEventListener('click', clearDateFilter);
-            document.getElementById('prevMonthBtn').addEventListener('click', () => changeMonth(-1));
-            document.getElementById('nextMonthBtn').addEventListener('click', () => changeMonth(1));
-            
-            document.getElementById('todayBtn').addEventListener('click', () => {
-                currentMonthFilter = `${sysYear}-${sysMonthStr}`;
-                dateText.value = `${sysYear}/${sysMonthStr}/${sysDayStr}`;
-                document.getElementById('applyDateBtn').click();
-            });
+            document.getElementById('sortDropdown').addEventListener('click', function(e) { this.classList.toggle('open'); e.stopPropagation(); });
+            document.querySelectorAll('.dropdown-options li').forEach(opt => opt.addEventListener('click', function() { currentSortOrder = this.getAttribute('data-value'); document.getElementById('sortText').innerText = this.innerText; document.getElementById('sortDropdown').classList.remove('open'); refreshView(selectedDate); }));
         }
-
-        function clearDateFilter() {
-            document.getElementById('dateText').value = '';
-            document.getElementById('datePicker').value = '';
-            document.getElementById('filterMsg').innerText = '';
-            currentMonthFilter = `${sysYear}-${sysMonthStr}`;
-            selectedDate = null; 
-            refreshView(null);
-        }
-
-        function changeMonth(offset) {
-            let [y, m] = currentMonthFilter.split('-').map(Number);
-            m += offset;
-            if (m > 12) { m = 1; y++; }
-            if (m < 1) { m = 12; y--; }
-            currentMonthFilter = `${y}-${String(m).padStart(2,'0')}`;
-            document.getElementById('dateText').value = '';
-            document.getElementById('filterMsg').innerText = '';
-            refreshView(null);
-        }
-
-        function setupBackToTop() {
-            const backToTopBtn = document.getElementById('backToTopBtn');
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 300) backToTopBtn.classList.add('show');
-                else backToTopBtn.classList.remove('show');
-            });
-            backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        }
-
+        function clearDateFilter() { document.getElementById('dateText').value = ''; selectedDate = null; refreshView(null); }
+        function setupBackToTop() { window.addEventListener('scroll', () => { document.getElementById('backToTopBtn').classList.toggle('show', window.scrollY > 300); }); document.getElementById('backToTopBtn').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' })); }
         function updateLockUI() {
-            const lockBtn = document.getElementById('lockBtn');
-            const quickBtn = document.getElementById('quickAddBtn');
-            const statusInd = document.getElementById('lockStatus');
-            
-            if (isUnlocked) {
-                statusInd.className = 'status-indicator unlocked';
-                
-                if (currentLoggedEmail === ADMIN_EMAIL) {
-                    statusInd.innerHTML = '<span class="icon">🔓</span> 編輯模式 (Admin)';
-                } else {
-                    statusInd.innerHTML = '<span class="icon">🔓</span> 協作模式 (Editor)';
-                }
-                
-                lockBtn.innerText = '鎖定系統 (登出) 🔒';
-                quickBtn.className = 'btn-quick-add unlocked'; quickBtn.innerText = '+ 快速新增資料';
-            } else {
-                statusInd.className = 'status-indicator locked';
-                statusInd.innerHTML = '<span class="icon">🔒</span> 訪客鎖定中 (Viewer Mode)';
-                lockBtn.innerText = '管理員登入解鎖 🔓';
-                quickBtn.className = 'btn-quick-add disabled'; quickBtn.innerText = '+ 快速新增 (需解鎖)';
-            }
+            const lockBtn = document.getElementById('lockBtn'); const statusInd = document.getElementById('lockStatus'); const quickBtn = document.getElementById('quickAddBtn');
+            if (isUnlocked) { statusInd.className = 'status-indicator unlocked'; statusInd.innerHTML = `<span class="icon">🔓</span> ${currentLoggedEmail === ADMIN_EMAIL ? '編輯模式 (Admin)' : '協作模式 (Editor)'}`; lockBtn.innerText = '鎖定系統 (登出) 🔒'; quickBtn.className = 'btn-quick-add unlocked'; quickBtn.innerText = '+ 快速新增資料'; }
+            else { statusInd.className = 'status-indicator locked'; statusInd.innerHTML = '<span class="icon">🔒</span> 訪客鎖定中 (Viewer Mode)'; lockBtn.innerText = '管理員登入解鎖 🔓'; quickBtn.className = 'btn-quick-add disabled'; quickBtn.innerText = '+ 快速新增 (需解鎖)'; }
             renderTimeline(currentData);
         }
 
+        // ==========================================
+        // 【動態表單管理】
+        // ==========================================
         function setupDataModal() {
-            const moduleSelect = document.getElementById('dataModule');
+            const mediaListContainer = document.getElementById('mediaListContainer');
+            const externalLinksContainer = document.getElementById('externalLinksContainer');
+            const relatedArchiveGroup = document.getElementById('relatedArchiveGroup');
+            const relatedArchiveSelect = document.getElementById('relatedArchiveSelect');
+            const addMediaBtn = document.getElementById('addMediaBtn');
+            const addLinkBtn = document.getElementById('addLinkBtn');
             const checkboxGroup = document.getElementById('checkboxGroup');
-            const customTagInput = document.getElementById('customTagInput');
-            const customTagsDisplay = document.getElementById('customTagsDisplay');
+            
+            function createLinkBlock(data = null) {
+                const blockId = Date.now() + Math.random().toString(36).substring(7);
+                const block = document.createElement('div'); block.className = 'link-block'; block.id = `link-block-${blockId}`;
+                const titleVal = data ? data.title : ''; const urlVal = data ? data.url : '';
+                block.innerHTML = `
+                    <div class="link-block-header"><span style="font-weight: bold; font-size: 0.85rem; color: var(--text-muted);">🔗 外部連結</span><button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button></div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;"><input type="text" class="link-title-input modal-input" placeholder="連結標題 (例：官方原文)" value="${titleVal}" style="margin: 0; padding: 8px; flex: 1; min-width: 150px;"><input type="url" class="link-url-input modal-input" placeholder="網址 (https://...)" value="${urlVal}" style="margin: 0; padding: 8px; flex: 2; min-width: 200px;"></div>
+                `;
+                externalLinksContainer.appendChild(block);
+            }
 
-            function populateCheckboxes(selectedModule) {
-                checkboxGroup.innerHTML = '';
-                const targetModule = selectedModule === 'all' ? 'social' : selectedModule;
-                
-                let availableTags = [];
-                const rawTags = moduleSubTags[targetModule];
-                if (Array.isArray(rawTags)) {
-                    availableTags = rawTags;
-                } else if (typeof rawTags === 'object') {
-                    for (const key in rawTags) {
-                        availableTags = availableTags.concat(rawTags[key]);
-                    }
-                }
+            function createMediaBlock(data = null) {
+                const blockId = Date.now() + Math.random().toString(36).substring(7);
+                const block = document.createElement('div'); block.className = 'media-block'; block.id = `media-block-${blockId}`;
+                const typeVal = data ? data.media_type : 'image'; const urlVal = data ? data.media_url : ''; const captionVal = data ? data.specific_caption : '';
+                block.innerHTML = `
+                    <div class="media-block-header">
+                        <select class="media-type-select modal-input" style="margin:0; width: 60%; padding: 8px;"><option value="image" ${typeVal==='image'?'selected':''}>圖片 (上傳)</option><option value="vimeo" ${typeVal==='vimeo'?'selected':''}>Vimeo 影片 (網址)</option><option value="youtube" ${typeVal==='youtube'?'selected':''}>YouTube 影片 (網址)</option></select>
+                        <button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button>
+                    </div>
+                    <div class="media-input-wrapper" style="margin-top: 5px;">
+                        <input type="file" class="media-file-input modal-input" accept="image/*" style="margin:0; padding:8px; ${typeVal==='image'?'':'display:none;'}">
+                        <input type="text" class="media-url-input modal-input" placeholder="${typeVal==='image'?'圖片已上傳，編輯暫不支援替換檔案':'輸入影片網址 (如 https://player.vimeo.com/...)'}" value="${typeVal!=='image'?urlVal:urlVal}" style="margin:0; padding:8px; ${typeVal==='image'?'display:none;':''}">
+                    </div>
+                    <input type="text" class="media-caption-input modal-input" placeholder="該圖/影片的專屬小文案 (選填)..." value="${captionVal || ''}" style="margin-top: 8px; padding: 8px;">
+                `;
+                const typeSelect = block.querySelector('.media-type-select'); const fileInput = block.querySelector('.media-file-input'); const urlInput = block.querySelector('.media-url-input');
+                typeSelect.addEventListener('change', (e) => { if(e.target.value === 'image') { fileInput.style.display = 'block'; urlInput.style.display = 'none'; } else { fileInput.style.display = 'none'; urlInput.style.display = 'block'; urlInput.placeholder = '輸入影片網址 (Embed URL)...'; } });
+                mediaListContainer.appendChild(block);
+            }
 
-                availableTags.forEach(tag => {
-                    const label = document.createElement('label');
-                    label.className = 'tag-checkbox-label';
-                    label.innerHTML = `<input type="checkbox" value="${tag}" class="modal-tag-cb"> ${tag}`;
-                    checkboxGroup.appendChild(label);
+            function populateRelatedSelect() {
+                const currentVal = relatedArchiveSelect.value;
+                relatedArchiveSelect.innerHTML = '<option value="">無關聯 (獨立貼文)</option>';
+                masterData.filter(d => d.module !== 'schedule').forEach(d => {
+                    const title = d.mainTitle ? d.mainTitle : d.content.substring(0, 15) + '...';
+                    const selected = (d.id === currentVal) ? 'selected' : '';
+                    relatedArchiveSelect.innerHTML += `<option value="${d.id}" ${selected}>[${d.date.replace(/-/g, '/')}] ${title}</option>`;
                 });
             }
 
-            moduleSelect.addEventListener('change', (e) => populateCheckboxes(e.target.value));
+            document.getElementById('dataModule').addEventListener('change', (e) => {
+                checkboxGroup.innerHTML = '';
+                let availableTags = [];
+                const rawTags = moduleSubTags[e.target.value === 'all' ? 'social' : e.target.value];
+                if (Array.isArray(rawTags)) availableTags = rawTags;
+                else if (typeof rawTags === 'object') for (const key in rawTags) availableTags = availableTags.concat(rawTags[key]);
+                availableTags.forEach(tag => checkboxGroup.innerHTML += `<label class="tag-checkbox-label"><input type="checkbox" value="${tag}" class="modal-tag-cb"> ${tag}</label>`);
+                
+                if (e.target.value === 'schedule') {
+                    relatedArchiveGroup.style.display = 'block';
+                    populateRelatedSelect();
+                } else {
+                    relatedArchiveGroup.style.display = 'none';
+                    relatedArchiveSelect.value = '';
+                }
+            });
 
             customTagInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    const val = customTagInput.value.trim();
-                    if (val && !tempCustomTags.includes(val)) {
-                        tempCustomTags.push(val);
-                        renderCustomTags();
-                    }
+                    e.preventDefault(); const val = customTagInput.value.trim();
+                    if (val && !tempCustomTags.includes(val)) { tempCustomTags.push(val); renderCustomTags(); }
                     customTagInput.value = '';
                 }
             });
@@ -1091,122 +685,101 @@
             function renderCustomTags() {
                 customTagsDisplay.innerHTML = '';
                 tempCustomTags.forEach((tag, index) => {
-                    const pill = document.createElement('div');
-                    pill.className = 'custom-tag-pill';
-                    pill.innerHTML = `#${tag} <span onclick="removeCustomTag(${index})">✖</span>`;
-                    customTagsDisplay.appendChild(pill);
+                    const pill = document.createElement('div'); pill.className = 'custom-tag-pill'; pill.innerHTML = `#${tag} <span onclick="removeCustomTag(${index})">✖</span>`; customTagsDisplay.appendChild(pill);
                 });
             }
+            window.removeCustomTag = function(index) { tempCustomTags.splice(index, 1); renderCustomTags(); };
 
-            window.removeCustomTag = function(index) {
-                tempCustomTags.splice(index, 1);
-                renderCustomTags();
-            };
-
-            document.getElementById('quickAddBtn').addEventListener('click', () => {
-                if (!isUnlocked) return;
-                openDataModal(null);
-            });
-
-            document.querySelectorAll('.close-data-modal').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.getElementById('dataModal').style.display = 'none';
-                });
-            });
+            addMediaBtn.addEventListener('click', () => createMediaBlock());
+            addLinkBtn.addEventListener('click', () => createLinkBlock());
+            document.getElementById('quickAddBtn').addEventListener('click', () => { if (!isUnlocked) return; openDataModal(null); });
+            document.querySelectorAll('.close-data-modal').forEach(btn => btn.addEventListener('click', () => document.getElementById('dataModal').style.display = 'none'));
 
             document.getElementById('saveDataBtn').addEventListener('click', async () => {
                 const id = document.getElementById('dataId').value;
-                const module = document.getElementById('dataModule').value;
                 const date = document.getElementById('dataDate').value;
                 const time = document.getElementById('dataTime').value;
-                const source = document.getElementById('dataSource').value || 'System';
-                const mainTitle = document.getElementById('dataTitle').value;
                 const content = document.getElementById('dataContent').value;
+                if(!date || !time || !content) { alert('請填寫完整 日期、時間 與 主文案！'); return; }
 
-                if(!date || !time || !content) {
-                    alert('請填寫完整 日期、時間 與 內容！');
-                    return;
-                }
+                const btn = document.getElementById('saveDataBtn');
+                btn.innerText = '處理與上傳中，請稍候...'; btn.disabled = true;
 
                 const checkedBoxes = document.querySelectorAll('.modal-tag-cb:checked');
-                let selectedTags = Array.from(checkedBoxes).map(cb => cb.value);
+                const selectedTags = Array.from(checkedBoxes).map(cb => cb.value);
                 const finalTags = [...new Set([...selectedTags, ...tempCustomTags])];
 
+                const linkBlocks = document.querySelectorAll('.link-block');
+                let linksArray = [];
+                linkBlocks.forEach(block => {
+                    const title = block.querySelector('.link-title-input').value.trim();
+                    const url = block.querySelector('.link-url-input').value.trim();
+                    if (title && url) linksArray.push({ title, url });
+                });
+
                 const itemData = {
-                    id: id || '', 
-                    module: module,
-                    date: date,
-                    time: time.length === 5 ? time + ':00' : time,
-                    source: source,
-                    mainTitle: mainTitle,
-                    content: content,
-                    tags: finalTags,
-                    links: [] 
+                    id: id || '', module: document.getElementById('dataModule').value, date: date, time: time.length === 5 ? time + ':00' : time,
+                    dailyOrder: parseInt(document.getElementById('dataDailyOrder').value) || 1,
+                    source: document.getElementById('dataSource').value, mainTitle: document.getElementById('dataTitle').value, content: content, tags: finalTags, links: linksArray,
+                    relatedArchiveId: document.getElementById('relatedArchiveSelect').value || null
                 };
-                
-                const success = await saveToSupabase(itemData);
-                if (success) {
-                    document.getElementById('dataModal').style.display = 'none';
-                    refreshView(selectedDate);
-                    alert(id ? '資料已成功更新至雲端！' : '資料已成功新增至雲端！');
-                }
+
+                const mediaBlocks = document.querySelectorAll('.media-block');
+                let mediaArray = [];
+                mediaBlocks.forEach(block => {
+                    const type = block.querySelector('.media-type-select').value;
+                    const caption = block.querySelector('.media-caption-input').value;
+                    let file = null, url = '';
+                    if (type === 'image') {
+                        const fileInput = block.querySelector('.media-file-input');
+                        if (fileInput.files.length > 0) file = fileInput.files[0];
+                        else url = block.querySelector('.media-url-input').value; 
+                    } else { url = block.querySelector('.media-url-input').value; }
+                    if (file || url) mediaArray.push({ type, caption, file, url });
+                });
+
+                const success = await saveToSupabase(itemData, mediaArray);
+                btn.innerText = '同步至 Supabase 儲存'; btn.disabled = false;
+                if (success) { document.getElementById('dataModal').style.display = 'none'; refreshView(selectedDate); }
             });
 
             window.openDataModal = function(id) {
                 document.getElementById('dataModal').style.display = 'flex';
-                tempCustomTags = []; 
+                mediaListContainer.innerHTML = ''; externalLinksContainer.innerHTML = ''; tempCustomTags = []; 
                 
                 if (id) {
-                    document.getElementById('dataModalTitle').innerText = '編輯典藏資料';
                     const item = masterData.find(d => d.id === id);
-                    
                     document.getElementById('dataId').value = item.id;
                     document.getElementById('dataModule').value = item.module;
-                    populateCheckboxes(item.module);
+                    document.getElementById('dataModule').dispatchEvent(new Event('change'));
                     
-                    const availableCheckboxes = Array.from(document.querySelectorAll('.modal-tag-cb')).map(cb => cb.value);
-                    item.tags.forEach(t => {
-                        const cb = document.querySelector(`.modal-tag-cb[value="${t}"]`);
-                        if(cb) cb.checked = true;
-                        else tempCustomTags.push(t);
-                    });
-                    renderCustomTags();
-
                     document.getElementById('dataDate').value = item.date;
                     document.getElementById('dataTime').value = item.time.slice(0, 5); 
+                    document.getElementById('dataDailyOrder').value = item.dailyOrder || 1;
                     document.getElementById('dataSource').value = item.source || '';
                     document.getElementById('dataTitle').value = item.mainTitle || '';
                     document.getElementById('dataContent').value = item.content || '';
-                } else {
-                    document.getElementById('dataModalTitle').innerText = '新增典藏資料';
-                    document.getElementById('dataId').value = '';
-                    const initModule = currentModule === 'all' ? 'social' : currentModule;
-                    document.getElementById('dataModule').value = initModule;
-                    populateCheckboxes(initModule);
+                    if (item.module === 'schedule') document.getElementById('relatedArchiveSelect').value = item.relatedArchiveId || '';
+                    
+                    item.tags.forEach(t => { const cb = document.querySelector(`.modal-tag-cb[value="${t}"]`); if(cb) cb.checked = true; else tempCustomTags.push(t); });
+                    if(item.links) { item.links.forEach(l => createLinkBlock(l)); }
+                    if(item.media) { item.media.sort((a,b) => a.sort_order - b.sort_order).forEach(m => createMediaBlock(m)); }
                     renderCustomTags();
-
+                } else {
+                    document.getElementById('dataId').value = '';
                     document.getElementById('dataDate').value = trueTodayStr;
                     document.getElementById('dataTime').value = '12:00';
+                    document.getElementById('dataDailyOrder').value = 1;
                     document.getElementById('dataSource').value = '';
                     document.getElementById('dataTitle').value = '';
                     document.getElementById('dataContent').value = '';
+                    const initModule = currentModule === 'all' ? 'social' : currentModule;
+                    document.getElementById('dataModule').value = initModule;
+                    document.getElementById('dataModule').dispatchEvent(new Event('change'));
+                    renderCustomTags();
                 }
             };
         }
-
-        window.deleteItem = async function(id) {
-            if(confirm('確定要從雲端刪除這筆資料嗎？此動作無法復原！')) {
-                const success = await deleteFromSupabase(id);
-                if (success) {
-                    refreshView(selectedDate);
-                }
-            }
-        };
-
-        document.getElementById('hamburgerMenu').addEventListener('click', function() {
-            this.classList.toggle('active');
-            document.getElementById('sidebar').classList.toggle('active');
-        });
     </script>
 </body>
 </html>
