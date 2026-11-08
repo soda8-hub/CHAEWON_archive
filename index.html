@@ -7,7 +7,6 @@
     <link rel="icon" type="image/png" href="images/logo.png">
     <link rel="stylesheet" href="style.css">
     
-    <!-- 載入 Supabase JS 官方 SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -29,9 +28,9 @@
         .media-item-display iframe { width: 100%; aspect-ratio: 16/9; border: none; display: block; }
         .media-caption { padding: 10px 15px; font-size: 0.9rem; color: var(--text-muted); background: white; margin: 0; font-weight: 500; border-top: 1px dashed var(--silver-border); }
         
-        /* 內部關聯按鈕特效 */
         .internal-link-btn { background: var(--silver-bg); color: var(--text-main); border: 1px solid var(--mint-green); padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px;}
         .internal-link-btn:hover { background: var(--mint-light); color: var(--mint-hover); }
+        .bgm-tag { display: inline-flex; align-items: center; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; gap: 5px; }
     </style>
 </head>
 <body>
@@ -42,7 +41,6 @@
     </header>
 
     <div class="main-layout">
-        <!-- 側邊欄 -->
         <aside class="sidebar" id="sidebar">
             <div class="desktop-logo-container">
                 <img src="images/logo.png" alt="CHAEWON Logo" class="brand-logo" onerror="this.src='https://api.iconify.design/twemoji:leopard.svg';">
@@ -59,14 +57,13 @@
             <div class="card stats-box">
                 <h3 class="card-title">當前資料統計</h3>
                 <div class="stats-summary">
-                    <p id="dynamicMonthText" class="month-stat-title">全部總計：<strong id="totalCount" class="count-text">0</strong> <strong>筆</strong></p>
+                    <p id="dynamicMonthText" class="month-stat-title">YYYY年 MM月 總計：<strong id="totalCount" class="count-text">0</strong> <strong>筆</strong></p>
                     <p class="today-stat-title">今日發生 (<span id="dynamicTodayDate">MM/DD</span>)：<strong id="todayCount" class="count-text-small">0</strong> <strong>筆</strong></p>
                 </div>
                 <ul id="moduleStats" class="stats-list"></ul>
             </div>
         </aside>
 
-        <!-- 主要內容區 -->
         <main class="content-area">
             <div class="top-toolbar">
                 <nav class="nav-menu-container">
@@ -120,7 +117,6 @@
 
     <button id="backToTopBtn" class="back-to-top" title="回到頂端">⬆️</button>
 
-    <!-- Supabase 帳號密碼登入彈窗 -->
     <div id="securityModal" class="modal-overlay">
         <div class="modal-box">
             <h3 id="modalTitle">系統登入解鎖</h3>
@@ -134,7 +130,6 @@
         </div>
     </div>
 
-    <!-- 資料編輯與新增彈窗 -->
     <div id="dataModal" class="modal-overlay">
         <div class="modal-box" style="max-width: 550px; text-align: left; max-height: 90vh; overflow-y: auto;">
             <h3 id="dataModalTitle" style="text-align: center; margin-bottom: 15px;">新增典藏資料</h3>
@@ -148,12 +143,10 @@
                 <option value="schedule">重要日程</option>
             </select>
 
-            <!-- 內部關聯選單 (僅在選擇"重要日程"時顯示) -->
             <div id="relatedArchiveGroup" style="display: none; background: #F8F9F9; padding: 10px; border-left: 4px solid var(--mint-green); border-radius: 4px; margin-top: 10px;">
                 <label class="form-label" style="color: var(--mint-hover);">🔗 內部系統關聯 (選填)：</label>
                 <select id="relatedArchiveSelect" class="modal-input" style="margin-top: 5px; font-size: 0.9rem;">
                     <option value="">無關聯 (獨立日程)</option>
-                    <!-- JS 動態生成 -->
                 </select>
                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">(若綁定，時間軸上會出現快速跳轉按鈕，前往對應的貼文)</p>
             </div>
@@ -168,7 +161,6 @@
 
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <div style="flex: 2;"><label class="form-label">日期：</label><input type="date" id="dataDate" class="modal-input" style="margin-top: 5px;" required></div>
-                <!-- 【調整】：明確提示為台灣時間 -->
                 <div style="flex: 2;"><label class="form-label">時間 (統一以 臺灣時間 TST 為準)：</label><input type="time" id="dataTime" class="modal-input" style="margin-top: 5px;" required></div>
                 <div style="flex: 1;"><label class="form-label">當日順序：</label><input type="number" id="dataDailyOrder" class="modal-input" value="1" min="1" style="margin-top: 5px;" title="微調同一天內貼文的顯示順序 (數字越小越上面)"></div>
             </div>
@@ -177,8 +169,14 @@
             <input type="text" id="dataSource" class="modal-input" placeholder="輸入來源..." style="margin-top: 5px;">
             <label class="form-label">主要標題 (選項，若有)：</label>
             <input type="text" id="dataTitle" class="modal-input" placeholder="輸入標題..." style="margin-top: 5px;">
-            <label class="form-label">內文主文案 (韓文/中文皆可)：</label>
-            <textarea id="dataContent" class="modal-input" placeholder="輸入內容..." rows="3" style="margin-top: 5px; resize: vertical;"></textarea>
+            
+            <!-- 【新增】配樂欄位 -->
+            <label class="form-label">🎵 搭配配樂 (BGM, 限動/Reels 常用，選填)：</label>
+            <input type="text" id="dataBgm" class="modal-input" placeholder="例如: LE SSERAFIM - CRAZY..." style="margin-top: 5px;">
+            
+            <!-- 【修改】移除必填提示，內文可為空 -->
+            <label class="form-label">內文主文案 (選填，韓文/中文皆可)：</label>
+            <textarea id="dataContent" class="modal-input" placeholder="輸入內容 (可留白)..." rows="3" style="margin-top: 5px; resize: vertical;"></textarea>
 
             <div class="modal-divider"></div>
             
@@ -307,7 +305,7 @@
         }
 
         // ==========================================
-        // 【CRUD：包含圖片上傳、內部關聯與外部連結】
+        // 【CRUD 操作】
         // ==========================================
         async function fetchDataFromSupabase() {
             if (!supabaseClient) { masterData = []; return; }
@@ -319,7 +317,8 @@
                 if (error) throw error;
                 masterData = data.map(item => ({
                     id: item.id, module: item.module, date: item.date, time: item.time, dailyOrder: item.daily_order,
-                    source: item.source_platform || 'System', mainTitle: item.main_title || '', content: item.content_kr || item.content_tw || '',
+                    source: item.source_platform || 'System', mainTitle: item.main_title || '', 
+                    content: item.content_kr || item.content_tw || '', bgm: item.bgm || '', // 【抓取 bgm 欄位】
                     tags: item.tags || [], links: item.links || [], media: item.archive_media || [],
                     relatedArchiveId: item.related_archive_id || null
                 }));
@@ -346,6 +345,7 @@
             const payload = { 
                 module: itemData.module, date: itemData.date, time: itemData.time, daily_order: itemData.dailyOrder,
                 source_platform: itemData.source, main_title: itemData.mainTitle, content_kr: itemData.content, 
+                bgm: itemData.bgm, // 【寫入 bgm】
                 tags: itemData.tags, links: itemData.links, related_archive_id: itemData.relatedArchiveId 
             };
             
@@ -385,13 +385,43 @@
         }
 
         async function deleteFromSupabase(id) {
-            if (!supabaseClient) return false;
-            try {
-                const { error } = await supabaseClient.from('archives').delete().eq('id', id);
-                if (error) throw error;
-                await fetchDataFromSupabase(); return true;
-            } catch (error) { alert("刪除失敗：" + error.message); return false; }
+    if (!supabaseClient) return false;
+    try {
+        // 1. 先抓出這筆貼文關聯了哪些圖片 (準備刪除實體檔案)
+        const { data: mediaData } = await supabaseClient
+            .from('archive_media')
+            .select('media_url')
+            .eq('archive_id', id);
+
+        // 2. 從資料庫刪除紀錄 (因設定了 CASCADE，archives 主表與 archive_media 子表的文字紀錄會一併刪除)
+        const { error } = await supabaseClient.from('archives').delete().eq('id', id);
+        if (error) throw error;
+
+        // 3. 刪除 Storage 裡的實體圖片檔案
+        if (mediaData && mediaData.length > 0) {
+            // 過濾出真正存放在 Supabase Storage 的檔案路徑 (排除 YouTube/Vimeo 等外部連結)
+            const filePaths = mediaData.map(m => {
+                if (m.media_url && m.media_url.includes('/storage/v1/object/public/media/')) {
+                    const parts = m.media_url.split('/public/media/');
+                    return parts.length > 1 ? parts[1] : null; // 取得檔名 (例如 post_12345.webp)
+                }
+                return null;
+            }).filter(path => path !== null);
+
+            // 如果有檔案，呼叫 remove API 進行批次刪除
+            if (filePaths.length > 0) {
+                const { error: storageError } = await supabaseClient.storage.from('media').remove(filePaths);
+                if (storageError) console.error("Storage 實體檔案刪除失敗:", storageError);
+            }
         }
+
+        await fetchDataFromSupabase(); 
+        return true;
+    } catch (error) { 
+        alert("刪除失敗：" + error.message); 
+        return false; 
+    }
+}
 
         // ==========================================
         // 【UI 渲染邏輯】
@@ -490,7 +520,6 @@
                         linksHtml = '<div class="multi-links-group" style="margin-top: 10px;">' + item.links.map(l => `<a href="${l.url}" class="db-link" target="_blank" rel="noopener noreferrer">${l.title}</a>`).join('') + '</div>';
                     }
 
-                    // 【優化】內部關聯按鈕文字簡化
                     let relatedHtml = '';
                     if (item.relatedArchiveId) {
                         const rItem = masterData.find(d => d.id === item.relatedArchiveId);
@@ -498,6 +527,12 @@
                             const rTitle = rItem.mainTitle || (rItem.content.substring(0, 15) + '...');
                             relatedHtml = `<div style="margin-bottom: 10px;"><button class="internal-link-btn" onclick="scrollToPost('${item.relatedArchiveId}')">🔗 關聯紀錄：${rTitle}</button></div>`;
                         }
+                    }
+                    
+                    // 【新增渲染】BGM 標籤
+                    let bgmHtml = '';
+                    if (item.bgm) {
+                        bgmHtml = `<div class="bgm-tag">🎵 ${item.bgm}</div>`;
                     }
 
                     let mediaHtml = '';
@@ -522,7 +557,8 @@
                             </div>
                             ${item.mainTitle ? `<h4 style="margin-bottom: 8px; color: var(--mint-hover);">${item.mainTitle}</h4>` : ''}
                             ${relatedHtml}
-                            <p class="content-text">${item.content.replace(/\n/g, '<br>')}</p>
+                            ${bgmHtml}
+                            ${item.content ? `<p class="content-text">${item.content.replace(/\n/g, '<br>')}</p>` : ''}
                             ${linksHtml}
                             ${mediaHtml}
                         </div>
@@ -585,6 +621,7 @@
             if (activeSubTags.length > 0) { container.innerHTML = `<button class="btn-clear-tags">✖ 清除所選標籤</button>`; container.querySelector('.btn-clear-tags').onclick = () => { activeSubTags = []; renderSubTags(); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); }; } else { container.innerHTML = ''; }
         }
         function setupSearch() { document.getElementById('searchInput').addEventListener('input', function() { refreshView(); }); }
+        
         function setupDateFilterAndSort() {
             document.getElementById('applyDateBtn').addEventListener('click', () => {
                 const val = document.getElementById('dateText').value.trim();
@@ -594,8 +631,26 @@
             document.getElementById('clearDateBtn').addEventListener('click', clearDateFilter);
             document.getElementById('sortDropdown').addEventListener('click', function(e) { this.classList.toggle('open'); e.stopPropagation(); });
             document.querySelectorAll('.dropdown-options li').forEach(opt => opt.addEventListener('click', function() { currentSortOrder = this.getAttribute('data-value'); document.getElementById('sortText').innerText = this.innerText; document.getElementById('sortDropdown').classList.remove('open'); refreshView(selectedDate); }));
+            
+            document.getElementById('prevMonthBtn').addEventListener('click', () => changeMonth(-1));
+            document.getElementById('nextMonthBtn').addEventListener('click', () => changeMonth(1));
+            document.getElementById('todayBtn').addEventListener('click', () => {
+                currentMonthFilter = `${sysYear}-${sysMonthStr}`;
+                selectedDate = trueTodayStr;
+                refreshView(trueTodayStr);
+            });
         }
+        
         function clearDateFilter() { document.getElementById('dateText').value = ''; selectedDate = null; refreshView(null); }
+        function changeMonth(offset) {
+            let [y, m] = currentMonthFilter.split('-').map(Number);
+            m += offset;
+            if (m > 12) { m = 1; y++; }
+            if (m < 1) { m = 12; y--; }
+            currentMonthFilter = `${y}-${String(m).padStart(2,'0')}`;
+            refreshView(selectedDate);
+        }
+        
         function setupBackToTop() { window.addEventListener('scroll', () => { document.getElementById('backToTopBtn').classList.toggle('show', window.scrollY > 300); }); document.getElementById('backToTopBtn').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' })); }
         function updateLockUI() {
             const lockBtn = document.getElementById('lockBtn'); const statusInd = document.getElementById('lockStatus'); const quickBtn = document.getElementById('quickAddBtn');
@@ -649,9 +704,9 @@
 
             function populateRelatedSelect() {
                 const currentVal = relatedArchiveSelect.value;
-                relatedArchiveSelect.innerHTML = '<option value="">無關聯 (獨立日程)</option>';
+                relatedArchiveSelect.innerHTML = '<option value="">無關聯 (獨立貼文)</option>';
                 masterData.filter(d => d.module !== 'schedule').forEach(d => {
-                    const title = d.mainTitle ? d.mainTitle : d.content.substring(0, 15) + '...';
+                    const title = d.mainTitle ? d.mainTitle : (d.content ? d.content.substring(0, 15) + '...' : '未命名貼文');
                     const selected = (d.id === currentVal) ? 'selected' : '';
                     relatedArchiveSelect.innerHTML += `<option value="${d.id}" ${selected}>[${d.date.replace(/-/g, '/')}] ${title}</option>`;
                 });
@@ -700,7 +755,9 @@
                 const date = document.getElementById('dataDate').value;
                 const time = document.getElementById('dataTime').value;
                 const content = document.getElementById('dataContent').value;
-                if(!date || !time || !content) { alert('請填寫完整 日期、時間 與 主文案！'); return; }
+                
+                // 【修改】移除 content 必填限制
+                if(!date || !time) { alert('請填寫完整 日期 與 時間！'); return; }
 
                 const btn = document.getElementById('saveDataBtn');
                 btn.innerText = '處理與上傳中，請稍候...'; btn.disabled = true;
@@ -720,7 +777,9 @@
                 const itemData = {
                     id: id || '', module: document.getElementById('dataModule').value, date: date, time: time.length === 5 ? time + ':00' : time,
                     dailyOrder: parseInt(document.getElementById('dataDailyOrder').value) || 1,
-                    source: document.getElementById('dataSource').value, mainTitle: document.getElementById('dataTitle').value, content: content, tags: finalTags, links: linksArray,
+                    source: document.getElementById('dataSource').value, mainTitle: document.getElementById('dataTitle').value, 
+                    content: content, bgm: document.getElementById('dataBgm').value.trim(), // 【寫入 BGM】
+                    tags: finalTags, links: linksArray,
                     relatedArchiveId: document.getElementById('relatedArchiveSelect').value || null
                 };
 
@@ -759,6 +818,7 @@
                     document.getElementById('dataSource').value = item.source || '';
                     document.getElementById('dataTitle').value = item.mainTitle || '';
                     document.getElementById('dataContent').value = item.content || '';
+                    document.getElementById('dataBgm').value = item.bgm || ''; // 【讀取 BGM】
                     if (item.module === 'schedule') document.getElementById('relatedArchiveSelect').value = item.relatedArchiveId || '';
                     
                     item.tags.forEach(t => { const cb = document.querySelector(`.modal-tag-cb[value="${t}"]`); if(cb) cb.checked = true; else tempCustomTags.push(t); });
@@ -773,6 +833,7 @@
                     document.getElementById('dataSource').value = '';
                     document.getElementById('dataTitle').value = '';
                     document.getElementById('dataContent').value = '';
+                    document.getElementById('dataBgm').value = '';
                     const initModule = currentModule === 'all' ? 'social' : currentModule;
                     document.getElementById('dataModule').value = initModule;
                     document.getElementById('dataModule').dispatchEvent(new Event('change'));
