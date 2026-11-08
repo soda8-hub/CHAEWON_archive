@@ -26,11 +26,13 @@
         .internal-link-btn:hover { background: var(--mint-light); color: var(--mint-hover); }
         .bgm-tag { display: inline-flex; align-items: center; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; gap: 5px; }
 
-        /* 全局月份導覽器 */
-        .month-navigator { display: flex; justify-content: space-between; align-items: center; background: var(--silver-bg); padding: 8px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--silver-border); }
-        .month-navigator button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--mint-hover); padding: 0 10px; transition: 0.2s; }
-        .month-navigator button:hover { transform: scale(1.2); }
-        #globalMonthDisplay { font-weight: 800; color: var(--text-main); font-size: 1.1rem; }
+        /* 全局月份導覽器與回到當月按鈕 */
+        .month-navigator { display: flex; justify-content: space-between; align-items: center; background: var(--silver-bg); padding: 6px 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--silver-border); }
+        .month-navigator button { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--mint-hover); padding: 0 8px; transition: 0.2s; }
+        .month-navigator button:hover { transform: scale(1.15); }
+        #globalMonthDisplay { font-weight: 800; color: var(--text-main); font-size: 1rem; cursor: pointer; }
+        .btn-current-month { width: 100%; background: var(--mint-light); color: var(--mint-hover); border: 1px solid var(--mint-green); border-radius: 6px; padding: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+        .btn-current-month:hover { background: var(--mint-green); color: white; }
 
         /* 多圖左右輪播系統 (Carousel) */
         .carousel-container { position: relative; width: 100%; border-radius: 8px; overflow: hidden; background: #111; margin-top: 15px; border: 1px solid var(--silver-border); }
@@ -63,19 +65,22 @@
                 <h3 class="card-title">系統狀態</h3>
                 <div class="status-content">
                     <div id="lockStatus" class="status-indicator locked"><span class="icon">🔒</span> 訪客鎖定中</div>
-                    <button id="lockBtn" class="btn-lock">協作登入解鎖 🔓</button>
+                    <button id="lockBtn" class="btn-lock">管理員登入解鎖 🔓</button>
                     <button id="quickAddBtn" class="btn-quick-add disabled">+ 快速新增 (需解鎖)</button>
                 </div>
             </div>
             <div class="card stats-box">
                 <h3 class="card-title">當前資料統計</h3>
                 <div class="stats-summary">
+                    <!-- 全局月份切換器與回到當月按鈕 -->
                     <div class="month-navigator">
                         <button id="globalPrevMonth">◀</button>
-                        <span id="globalMonthDisplay">2026年 11月</span>
+                        <span id="globalMonthDisplay" title="點擊直接回到當月">2026年 11月</span>
                         <button id="globalNextMonth">▶</button>
                     </div>
-                    <p class="month-stat-title">當月總計：<strong id="totalCount" class="count-text">0</strong> <strong>筆</strong></p>
+                    <button id="globalCurrentMonthBtn" class="btn-current-month">📍 回到當月</button>
+                    
+                    <p id="dynamicMonthText" class="month-stat-title">YYYY年 MM月 總計：<strong id="totalCount" class="count-text">0</strong> <strong>筆</strong></p>
                     <p class="today-stat-title">今日發生 (<span id="dynamicTodayDate">MM/DD</span>)：<strong id="todayCount" class="count-text-small">0</strong> <strong>筆</strong></p>
                 </div>
                 <ul id="moduleStats" class="stats-list"></ul>
@@ -103,7 +108,7 @@
                                 <input type="text" id="dateText" placeholder="yyyy/mm/dd 或 yyyy-mm-dd" autocomplete="off">
                                 <div class="date-picker-wrapper" id="datePickerTrigger"><span class="calendar-icon">📅</span><input type="date" id="datePicker"></div>
                             </div>
-                            <button id="applyDateBtn" class="btn-primary-small">指定單日</button>
+                            <button id="applyDateBtn" class="btn-primary-small">篩選</button>
                             <button id="clearDateBtn" class="btn-secondary-small">清除</button>
                             <div class="custom-dropdown" id="sortDropdown">
                                 <div class="dropdown-selected"><span id="sortText">由新到舊 ↓</span> <span class="arrow">﹀</span></div>
@@ -119,9 +124,10 @@
             </div>
             
             <div id="viewContainer" class="view-layout">
+                <!-- 重要日程專屬日曆 -->
                 <div id="calendarContainer" class="calendar-sidebar" style="display: none;">
                     <div class="calendar-header">
-                        <div class="cal-title-group"><h4 id="calendarTitle">2026年</h4><button id="todayBtn" class="btn-today">回到今天</button></div>
+                        <div class="cal-title-group"><h4 id="calendarTitle">2026年 11月</h4><button id="todayBtn" class="btn-today">今天</button></div>
                     </div>
                     <div class="calendar-grid-header"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
                     <div id="calendarGrid" class="calendar-grid"></div>
@@ -178,7 +184,6 @@
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <div style="flex: 2;"><label class="form-label">日期：</label><input type="date" id="dataDate" class="modal-input" style="margin-top: 5px;" required></div>
                 <div style="flex: 2;"><label class="form-label">時間 (統一以 臺灣時間 TST 為準)：</label><input type="time" id="dataTime" class="modal-input" style="margin-top: 5px;" required></div>
-                <!-- 修改為「排序權重」，只有時間相同時才發揮作用 -->
                 <div style="flex: 1;"><label class="form-label">排序權重：</label><input type="number" id="dataDailyOrder" class="modal-input" value="1" min="1" style="margin-top: 5px;" title="當時間相同或未知時，數字越小越排在前面"></div>
             </div>
 
@@ -321,7 +326,7 @@
         }
 
         // ==========================================
-        // 【CRUD 與 虛擬生日資料注入】
+        // 【CRUD 操作與虛擬生日注入】
         // ==========================================
         async function fetchDataFromSupabase() {
             if (!supabaseClient) { masterData = []; return; }
@@ -340,7 +345,6 @@
                     relatedArchiveId: item.related_archive_id || null, isVirtual: false
                 }));
                 
-                // 【新增功能】：自動注入 KIM CHAEWON 歷年專屬生日卡片 (2000 年至今+2年)
                 const virtualEvents = [];
                 for (let y = 2000; y <= sysYear + 2; y++) {
                     virtualEvents.push({
@@ -348,12 +352,12 @@
                         module: 'schedule',
                         date: `${y}-08-01`,
                         time: '00:00:00',
-                        dailyOrder: -999, // 生日卡片永遠置頂於當天
+                        dailyOrder: -999,
                         source: 'System',
                         mainTitle: y === 2000 ? '⭐ KIM CHAEWON 出生' : `🎂 KIM CHAEWON ${y - 2000}歲 生日`,
                         content: y === 2000 ? '2000年8月1日，KIM CHAEWON (金采源) 出生於韓國首爾特別市江南區。' : `今天是 CHAEWON 的 ${y - 2000} 歲生日！Happy Chaewon Day 🎉`,
                         bgm: '', tags: ['生日', 'CHAEWON 專屬'], links: [], media: [], relatedArchiveId: null,
-                        isVirtual: true // 保護標記，隱藏編輯與刪除按鈕
+                        isVirtual: true
                     });
                 }
                 masterData = [...masterData, ...virtualEvents];
@@ -457,6 +461,7 @@
                 this.innerHTML = wrapper.classList.contains('open') ? `🏷️ 收起標籤篩選 <span class="arrow" style="transform: rotate(180deg); display: inline-block; transition: 0.3s;">﹀</span>` : `🏷️ 展開標籤篩選 <span class="arrow" style="display: inline-block; transition: 0.3s;">﹀</span>`;
             });
         }
+        
         function refreshView(targetDate = null) {
             filterData(targetDate);
             const calendarContainer = document.getElementById('calendarContainer');
@@ -473,30 +478,42 @@
                 
                 return matchModule && matchDate && matchTags && matchMonth;
             });
-            renderSidebarStats(currentData); renderTimeline(currentData);
+            renderSidebarStats(currentData); 
+            renderTimeline(currentData);
         }
 
+        // 【修復】補回總計元素的 innerHTML 寫入，確保統計數據正常顯示
         function renderSidebarStats(data) {
             document.getElementById('dynamicTodayDate').innerText = `${sysMonthStr}/${sysDayStr}`;
+            
             const [year, month] = currentMonthFilter.split('-');
             document.getElementById('globalMonthDisplay').innerText = `${year}年 ${month}月`;
+            
             let labelText = `${year}年 ${month}月`;
             if (selectedDate) labelText = selectedDate.replace(/-/g, '/');
-            document.getElementById('dynamicMonthText').innerHTML = `當月總計：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
+            
+            const monthTextElem = document.getElementById('dynamicMonthText');
+            if(monthTextElem) {
+                monthTextElem.innerHTML = `${labelText} 總計：<strong id="totalCount" class="count-text">${data.length}</strong> <strong>筆</strong>`;
+            }
             
             const todayCountVal = masterData.filter(item => item.date === trueTodayStr && !item.isVirtual).length;
-            document.getElementById('todayCount').innerText = todayCountVal;
+            const todayElem = document.getElementById('todayCount');
+            if(todayElem) todayElem.innerText = todayCountVal;
 
-            const statsList = document.getElementById('moduleStats'); statsList.innerHTML = '';
-            if (currentModule === 'all') {
-                const counts = { social: 0, event: 0, brand: 0, schedule: 0 };
-                data.forEach(item => { if(counts[item.module] !== undefined) counts[item.module]++; });
-                for (const [key, val] of Object.entries(counts)) { statsList.innerHTML += `<li><span class="stat-label">${moduleNames[key]}</span> <span class="stat-count">${val} 筆</span></li>`; }
-            } else {
-                const tagCounts = {}; data.forEach(item => { item.tags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; }); });
-                const sortedTags = Object.keys(tagCounts).sort((a,b) => tagCounts[b] - tagCounts[a]);
-                if (sortedTags.length === 0) statsList.innerHTML = `<li><span class="stat-label">尚無數據</span></li>`;
-                else sortedTags.forEach(tag => { statsList.innerHTML += `<li><span class="stat-label">${tag}</span> <span class="stat-count">${tagCounts[tag]} 筆</span></li>`; });
+            const statsList = document.getElementById('moduleStats'); 
+            if(statsList) {
+                statsList.innerHTML = '';
+                if (currentModule === 'all') {
+                    const counts = { social: 0, event: 0, brand: 0, schedule: 0 };
+                    data.forEach(item => { if(counts[item.module] !== undefined) counts[item.module]++; });
+                    for (const [key, val] of Object.entries(counts)) { statsList.innerHTML += `<li><span class="stat-label">${moduleNames[key]}</span> <span class="stat-count">${val} 筆</span></li>`; }
+                } else {
+                    const tagCounts = {}; data.forEach(item => { item.tags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; }); });
+                    const sortedTags = Object.keys(tagCounts).sort((a,b) => tagCounts[b] - tagCounts[a]);
+                    if (sortedTags.length === 0) statsList.innerHTML = `<li><span class="stat-label">尚無數據</span></li>`;
+                    else sortedTags.forEach(tag => { statsList.innerHTML += `<li><span class="stat-label">${tag}</span> <span class="stat-count">${tagCounts[tag]} 筆</span></li>`; });
+                }
             }
         }
 
@@ -531,7 +548,6 @@
             }
         };
 
-        // 【核心升級】：自動按時間排序並重新賦予 `當日 #`
         function renderTimeline(data) {
             const container = document.getElementById('timelineContainer'); container.innerHTML = '';
             if (data.length === 0) { container.innerHTML = '<div class="empty-state">此條件下暫無資料。</div>'; return; }
@@ -541,17 +557,13 @@
 
             sortedDates.forEach(date => {
                 const items = groupedData[date];
-                // 1. 根據真實時間由舊到新排序 (若時間相同，再套用使用者的排序權重)
                 items.sort((a,b) => {
                     const timeDiff = new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`);
                     if (timeDiff !== 0) return timeDiff;
                     return (a.dailyOrder || 1) - (b.dailyOrder || 1);
                 });
                 
-                // 2. 排序完成後，依序賦予真實的「當日順序編號 (1, 2, 3...)」
                 items.forEach((item, index) => item.calculatedDailyOrder = index + 1);
-                
-                // 3. 處理畫面顯示的順序
                 if(currentSortOrder === 'desc') items.reverse();
 
                 const isToday = date === trueTodayStr;
@@ -562,7 +574,6 @@
                 items.forEach(item => {
                     const card = document.createElement('div'); card.className = 'timeline-card'; card.id = `post-${item.id}`;
                     let adminBtns = '';
-                    // 虛擬記憶體(生日卡片)不顯示編輯與刪除按鈕
                     if (isUnlocked && !item.isVirtual) {
                         adminBtns += `<button class="btn-edit-small" onclick="openDataModal('${item.id}')">編輯</button>`;
                         if (currentLoggedEmail === ADMIN_EMAIL) adminBtns += `<button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>`;
@@ -578,7 +589,7 @@
                         const rItem = masterData.find(d => d.id === item.relatedArchiveId);
                         if (rItem) {
                             const rTitle = rItem.mainTitle || (rItem.content ? rItem.content.substring(0, 15) + '...' : '未命名貼文');
-                            relatedHtml = `<div style="margin-bottom: 10px;"><button class="internal-link-btn" onclick="scrollToPost('${item.relatedArchiveId}')">🔗 關聯紀錄：${rTitle}</button></div>`;
+                            relatedHtml = `<div style="margin-bottom: 10px;"><button class="internal-link-btn" onclick="scrollToPost('${item.relatedArchiveId}')">🔗 相關內容：${rTitle}</button></div>`;
                         }
                     }
                     
@@ -610,7 +621,6 @@
                         mediaHtml += `</div>`; 
                     }
 
-                    // 將剛剛計算好的 calculatedDailyOrder 顯示在標籤上
                     card.innerHTML = `
                         <div class="card-date-col"><div class="time">${item.time.slice(0,5)}</div></div>
                         <div class="card-content-col">
@@ -718,6 +728,16 @@
             document.getElementById('globalPrevMonth').addEventListener('click', () => changeMonth(-1));
             document.getElementById('globalNextMonth').addEventListener('click', () => changeMonth(1));
             
+            // 【新增】：點擊月份文字或「回到當月」按鈕，快速跳回系統當前月份
+            const resetToCurrentMonth = () => {
+                currentMonthFilter = `${sysYear}-${sysMonthStr}`;
+                selectedDate = null;
+                document.getElementById('dateText').value = '';
+                refreshView(null);
+            };
+            document.getElementById('globalMonthDisplay').addEventListener('click', resetToCurrentMonth);
+            document.getElementById('globalCurrentMonthBtn').addEventListener('click', resetToCurrentMonth);
+            
             document.getElementById('todayBtn').addEventListener('click', () => {
                 currentMonthFilter = `${sysYear}-${sysMonthStr}`;
                 selectedDate = trueTodayStr;
@@ -740,8 +760,17 @@
         function setupBackToTop() { window.addEventListener('scroll', () => { document.getElementById('backToTopBtn').classList.toggle('show', window.scrollY > 300); }); document.getElementById('backToTopBtn').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' })); }
         function updateLockUI() {
             const lockBtn = document.getElementById('lockBtn'); const statusInd = document.getElementById('lockStatus'); const quickBtn = document.getElementById('quickAddBtn');
-            if (isUnlocked) { statusInd.className = 'status-indicator unlocked'; statusInd.innerHTML = `<span class="icon">🔓</span> ${currentLoggedEmail === ADMIN_EMAIL ? '編輯模式 (Admin)' : '協作模式 (Editor)'}`; lockBtn.innerText = '鎖定系統 (登出) 🔒'; quickBtn.className = 'btn-quick-add unlocked'; quickBtn.innerText = '+ 快速新增資料'; }
-            else { statusInd.className = 'status-indicator locked'; statusInd.innerHTML = '<span class="icon">🔒</span> 訪客鎖定中 (Viewer Mode)'; lockBtn.innerText = '管理員登入解鎖 🔓'; quickBtn.className = 'btn-quick-add disabled'; quickBtn.innerText = '+ 快速新增 (需解鎖)'; }
+            if (isUnlocked) {
+                statusInd.className = 'status-indicator unlocked';
+                statusInd.innerHTML = `<span class="icon">🔓</span> ${currentLoggedEmail === ADMIN_EMAIL ? '編輯模式 (Admin)' : '協作模式 (Editor)'}`;
+                lockBtn.innerText = '鎖定系統 (登出) 🔒';
+                quickBtn.className = 'btn-quick-add unlocked'; quickBtn.innerText = '+ 快速新增資料';
+            } else {
+                statusInd.className = 'status-indicator locked';
+                statusInd.innerHTML = '<span class="icon">🔒</span> 訪客鎖定中 (Viewer Mode)';
+                lockBtn.innerText = '管理員登入解鎖 🔓';
+                quickBtn.className = 'btn-quick-add disabled'; quickBtn.innerText = '+ 快速新增 (需解鎖)';
+            }
             renderTimeline(currentData);
         }
 
@@ -790,8 +819,7 @@
 
             function populateRelatedSelect() {
                 const currentVal = relatedArchiveSelect.value;
-                relatedArchiveSelect.innerHTML = '<option value="">無關聯 (獨立貼文)</option>';
-                // 排除虛擬事件
+                relatedArchiveSelect.innerHTML = '<option value="">無關聯 (獨立日程)</option>';
                 masterData.filter(d => d.module !== 'schedule' && !d.isVirtual).forEach(d => {
                     const title = d.mainTitle ? d.mainTitle : (d.content ? d.content.substring(0, 15) + '...' : '未命名貼文');
                     const selected = (d.id === currentVal) ? 'selected' : '';
