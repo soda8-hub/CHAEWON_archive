@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
     
+    <!-- 網址分享預覽圖 (Open Graph / Twitter Card) -->
     <meta property="og:title" content="CHAEWON Archive">
     <meta property="og:description" content="偶像多媒體足跡與動態典藏系統">
     <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
@@ -116,7 +117,7 @@
 
     <button id="backToTopBtn" class="back-to-top" title="回到頂端">⬆️</button>
 
-    <!-- 各類彈窗 -->
+    <!-- 登入/註冊彈窗 -->
     <div id="securityModal" class="modal-overlay">
         <div class="modal-box" style="max-width: 400px;">
             <h3 id="modalTitle">系統登入/註冊</h3>
@@ -126,14 +127,15 @@
                 <input type="password" id="adminPwd" class="modal-input" placeholder="密碼 (Password)">
                 
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button id="verifyPwdBtn" class="btn-primary" style="flex: 1;">登入系統</button>
-                    <button id="registerBtn" class="btn-secondary-small" style="flex: 1; border-style: solid;">註冊新帳號</button>
+                    <button id="verifyPwdBtn" class="btn-primary" style="flex: 1; margin-bottom: 0;">登入系統</button>
+                    <button id="registerBtn" class="btn-secondary-small" style="flex: 1; height: auto;">註冊新帳號</button>
                 </div>
                 <button class="btn-cancel close-modal" style="width: 100%; margin-top: 10px;">取消</button>
             </div>
         </div>
     </div>
 
+    <!-- 權限升級彈窗 -->
     <div id="upgradeModal" class="modal-overlay" style="display: none;">
         <div class="modal-box" style="max-width: 400px;">
             <h3 style="text-align: center; color: #F39C12; margin-bottom: 10px;">解鎖編輯權限</h3>
@@ -144,6 +146,7 @@
         </div>
     </div>
 
+    <!-- 新增/編輯資料彈窗 -->
     <div id="dataModal" class="modal-overlay">
         <div class="modal-box" style="max-width: 550px; text-align: left; max-height: 90vh; overflow-y: auto; overflow-x: hidden;">
             <h3 id="dataModalTitle" style="text-align: center; margin-bottom: 15px;">新增典藏資料</h3>
@@ -157,50 +160,49 @@
                 <option value="schedule">重要日程</option>
             </select>
 
-            <!-- 【升級 3】: 關聯日程的智慧搜尋選單 -->
-            <div id="relatedArchiveGroup" style="display: none; background: #F8F9F9; padding: 10px; border-left: 4px solid var(--mint-green); border-radius: 4px; margin-top: 10px;">
-                <label class="form-label" style="color: var(--mint-hover);">🔗 內部系統關聯 (選填)：</label>
-                <div class="searchable-select-container" style="position: relative; margin-top: 5px;">
-                    <input type="text" id="relatedSearchInput" class="modal-input" placeholder="搜尋標題或日期以綁定..." style="margin: 0; width: 100%; box-sizing: border-box;">
-                    <input type="hidden" id="relatedArchiveSelect" value="">
-                    <ul id="relatedSearchResults" class="search-results" style="display:none; position:absolute; z-index:100; max-height: 200px; width: 100%; margin-top: 0; top: 100%;"></ul>
-                </div>
-                <p id="relatedSelectedText" style="font-size: 0.8rem; color: var(--mint-hover); font-weight: bold; margin-top: 5px; display: none;">已綁定: <span></span> <button type="button" style="border:none; background:none; color:red; cursor:pointer;" onclick="clearRelatedSelect()">[清除]</button></p>
+            <!-- 關聯日程：優先顯示品牌商務與官方公告 + 支援關鍵字/日期即時篩選 -->
+            <div id="relatedArchiveGroup" style="display: none; background: #F8F9F9; padding: 12px; border-left: 4px solid var(--mint-green); border-radius: 6px; margin-top: 10px;">
+                <label class="form-label" style="color: var(--mint-hover); margin-top: 0;">🔗 內部系統關聯 (優先顯示品牌商務與官方公告)：</label>
+                <input type="text" id="relatedSearchInput" class="modal-input" placeholder="🔍 輸入日期 (如 11/09)、標題或內文快速過濾下方選項..." style="margin: 6px 0; padding: 8px 10px; font-size: 0.85rem; background: white;">
+                <select id="relatedArchiveSelect" class="modal-input" style="margin: 4px 0 0 0; font-size: 0.9rem; background: white;">
+                    <option value="">無關聯 (獨立日程)</option>
+                </select>
                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">(若綁定，時間軸上會出現快速跳轉按鈕)</p>
             </div>
 
             <div class="tag-selection-area">
-                <label class="form-label" style="margin-bottom: 10px;">請勾選適用標籤：</label>
+                <label class="form-label" style="margin-top: 0; margin-bottom: 10px;">請勾選適用標籤：</label>
                 <div id="checkboxGroup" class="tag-checkbox-group"></div>
                 <label class="form-label">手動新增自訂標籤 (按 Enter 建立)：</label>
-                <input type="text" id="customTagInput" class="modal-input" style="margin: 5px 0; padding: 8px; font-size: 0.9rem;" placeholder="輸入如 #EASY...">
+                <input type="text" id="customTagInput" class="modal-input" style="margin: 5px 0; padding: 8px; font-size: 0.9rem; background: white;" placeholder="輸入如 #EASY...">
                 <div id="customTagsDisplay" class="custom-tags-container"></div>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <div style="flex: 2;"><label class="form-label">日期：</label><input type="date" id="dataDate" class="modal-input" style="margin-top: 5px;" required></div>
-                <div style="flex: 2;"><label class="form-label">時間 (統一以臺灣時間為主)：</label><input type="time" id="dataTime" class="modal-input" style="margin-top: 5px;" required></div>
-                <div style="flex: 1;"><label class="form-label">排序權重：</label><input type="number" id="dataDailyOrder" class="modal-input" value="1" min="1" style="margin-top: 5px;" title="當時間相同或未知時，數字越小越排在前面"></div>
+            <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                <div style="flex: 2; min-width: 130px;"><label class="form-label">日期：</label><input type="date" id="dataDate" class="modal-input" required></div>
+                <div style="flex: 2; min-width: 130px;"><label class="form-label">時間 (臺灣時間)：</label><input type="time" id="dataTime" class="modal-input" required></div>
+                <div style="flex: 1; min-width: 80px;"><label class="form-label">排序權重：</label><input type="number" id="dataDailyOrder" class="modal-input" value="1" min="1" title="當時間相同或未知時，數字越小越排在前面"></div>
             </div>
 
             <label class="form-label">來源平台 (主活動，例如: YouTube, Weverse)：</label>
-            <input type="text" id="dataSource" class="modal-input" placeholder="輸入來源..." style="margin-top: 5px;">
+            <input type="text" id="dataSource" class="modal-input" placeholder="輸入來源...">
+            
             <label class="form-label">主要標題 (活動大標題)：</label>
-            <input type="text" id="dataTitle" class="modal-input" placeholder="輸入標題..." style="margin-top: 5px;">
+            <input type="text" id="dataTitle" class="modal-input" placeholder="輸入標題...">
             
             <label class="form-label">🎵 搭配配樂 (BGM, 限動/Reels 常用，選填)：</label>
-            <input type="text" id="dataBgm" class="modal-input" placeholder="例如: LE SSERAFIM - CRAZY..." style="margin-top: 5px;">
+            <input type="text" id="dataBgm" class="modal-input" placeholder="例如: LE SSERAFIM - CRAZY...">
             
             <label class="form-label">內文主文案 (選填，韓文/中文皆可)：</label>
-            <textarea id="dataContent" class="modal-input" placeholder="輸入內容 (可留白)..." rows="3" style="margin-top: 5px; resize: vertical;"></textarea>
+            <textarea id="dataContent" class="modal-input" placeholder="輸入內容 (可留白)..." rows="3" style="resize: vertical;"></textarea>
 
-            <button class="accordion-btn">🔗 附加外部連結 (出處 / 新聞 / 原文)</button>
+            <button type="button" class="accordion-btn">🔗 附加外部連結 (出處 / 新聞 / 原文)</button>
             <div class="accordion-panel">
                 <div id="externalLinksContainer" style="margin-top: 10px;"></div>
                 <button type="button" id="addLinkBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; background: white;">+ 新增一組外部連結</button>
             </div>
 
-            <button class="accordion-btn">📺 官方影音紀錄 (如: 舞台全程/紅毯/官方直拍)</button>
+            <button type="button" class="accordion-btn">📺 官方影音紀錄 (如: 舞台全程/紅毯/官方直拍)</button>
             <div class="accordion-panel">
                 <div id="officialVidListContainer" style="margin-top: 10px;"></div>
                 <button type="button" id="addOfficialVidBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; border-color: #e74c3c; color: #c0392b; background: #fadbd8;">+ 新增一組官方影音連結</button>
@@ -208,7 +210,7 @@
             </div>
 
             <div id="fancamGroupWrapper" style="display: none;">
-                <button class="accordion-btn" style="background-color: #fcf3cf; color: #d68910;">📸 附加粉絲拍攝內容 (Event 專屬)</button>
+                <button type="button" class="accordion-btn" style="background-color: #fcf3cf; color: #d68910;">📸 附加粉絲拍攝內容 (Event 專屬)</button>
                 <div class="accordion-panel" style="background-color: #fef9e7;">
                     <div id="fancamListContainer" style="margin-top: 10px;"></div>
                     <button type="button" id="addFancamBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; border-color: #F39C12; color: #D68910; background: white;">+ 新增一組粉絲拍攝紀錄</button>
@@ -216,14 +218,14 @@
                 </div>
             </div>
 
-            <button class="accordion-btn">📷 附加官方媒體檔案 (圖片上傳)</button>
+            <button type="button" class="accordion-btn">📷 附加官方媒體檔案 (圖片上傳)</button>
             <div class="accordion-panel">
                 <input type="file" id="batchMediaInput" accept="image/*" multiple style="display: none;">
                 <div id="mediaPreviewList" class="preview-list"></div>
                 <button type="button" id="triggerBatchMediaBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed;">+ 從電腦選取圖片 (支援一次選取多張)</button>
             </div>
 
-            <div class="modal-divider" style="margin-top: 30px;"></div>
+            <div class="modal-divider" style="margin-top: 25px;"></div>
             
             <button id="saveDataBtn" class="btn-primary">同步至 Supabase 儲存</button>
             <button class="btn-cancel close-data-modal" style="width: 100%;">取消返回</button>
@@ -241,7 +243,7 @@
         
         let supabaseClient = null; 
         try {
-            if (SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL') {
+            if (SUPABASE_URL && SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL') {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             }
         } catch (error) { console.error("Supabase 初始化失敗:", error); }
@@ -283,6 +285,33 @@
             return styles[name] || { left: '', right: '' };
         }
         const moduleNames = { social: '社群動態', event: '公開演出活動與現場紀錄', brand: '品牌商務與官方公告', schedule: '重要日程' };
+
+        // 智慧解析官方影音字串，相容舊格式 "頻道|圖片URL" 與新格式 "頻道|說明|圖片URL"
+        function parseOfficialVidCaption(captionStr) {
+            if (!captionStr) return { cid: '', cdesc: '', ccover: '' };
+            const parts = captionStr.split('|').map(s => s.trim());
+            let cid = '', cdesc = '', ccover = '';
+            if (parts.length === 1) {
+                cdesc = parts[0];
+            } else if (parts.length === 2) {
+                cid = parts[0];
+                if (parts[1].startsWith('http')) {
+                    ccover = parts[1];
+                } else {
+                    cdesc = parts[1];
+                }
+            } else {
+                cid = parts[0];
+                if (parts[1].startsWith('http') && (!parts[2] || !parts[2].startsWith('http'))) {
+                    ccover = parts[1];
+                    cdesc = parts[2] || '';
+                } else {
+                    cdesc = parts[1];
+                    ccover = parts[2] || '';
+                }
+            }
+            return { cid, cdesc, ccover };
+        }
 
         document.addEventListener('DOMContentLoaded', init);
 
@@ -333,14 +362,14 @@
                     if (panel.style.maxHeight) {
                         panel.style.maxHeight = null;
                     } else {
-                        panel.style.maxHeight = panel.scrollHeight + 50 + "px"; 
+                        panel.style.maxHeight = panel.scrollHeight + 60 + "px"; 
                     }
                 });
             }
         }
         function updateAccordionHeight(panel) {
-            if (panel.style.maxHeight) {
-                panel.style.maxHeight = panel.scrollHeight + 50 + "px";
+            if (panel && panel.style.maxHeight) {
+                panel.style.maxHeight = panel.scrollHeight + 60 + "px";
             }
         }
 
@@ -481,18 +510,8 @@
 
                     parsedMedia.forEach(m => {
                         if (m.media_type === 'youtube') {
-                            let cid = ''; let cdesc = ''; let ccover = '';
-                            if (m.specific_caption) {
-                                if (m.specific_caption.includes('|')) {
-                                    const parts = m.specific_caption.split('|');
-                                    cid = parts[0] || '';
-                                    cdesc = parts[1] || '';
-                                    ccover = parts[2] || '';
-                                } else {
-                                    cdesc = m.specific_caption; 
-                                }
-                                if(cid) savedOfficialAccounts.add(cid);
-                            }
+                            const { cid, cdesc, ccover } = parseOfficialVidCaption(m.specific_caption);
+                            if (cid) savedOfficialAccounts.add(cid);
                             officialVids.push({ url: m.media_url, channelId: cid, desc: cdesc, picUrl: ccover });
                         } else {
                             imgs.push(m);
@@ -552,6 +571,16 @@
             });
         }
 
+        function extractStorageUrlsFromArchive(archiveId) {
+            const oldItem = masterData.find(d => d.id === archiveId);
+            if (!oldItem) return [];
+            const urls = [];
+            if (oldItem.media) oldItem.media.forEach(m => { if (m.media_url) urls.push(m.media_url); });
+            if (oldItem.officialVids) oldItem.officialVids.forEach(v => { if (v.picUrl) urls.push(v.picUrl); });
+            if (oldItem.fancams) oldItem.fancams.forEach(f => { if (f.description && f.description.startsWith('http')) urls.push(f.description); });
+            return urls;
+        }
+
         async function saveToSupabase(itemData, mediaArray, officialVidArray, fancamArray) {
             if (!supabaseClient) { alert("未連線 Supabase"); return false; }
             const payload = { 
@@ -562,6 +591,8 @@
             
             try {
                 let currentArchiveId = itemData.id;
+                const oldStorageUrls = currentArchiveId ? extractStorageUrlsFromArchive(currentArchiveId) : [];
+
                 if (currentArchiveId) {
                     const { error } = await supabaseClient.from('archives').update(payload).eq('id', currentArchiveId);
                     if (error) throw error;
@@ -577,7 +608,9 @@
                         await supabaseClient.from('fancams').delete().eq('archive_id', currentArchiveId); 
                     }
                     
+                    const keptStorageUrls = new Set();
                     let mediaPayloads = [];
+                    
                     for (let i = 0; i < mediaArray.length; i++) {
                         let f = mediaArray[i]; let finalUrl = '';
                         if (f.file) { 
@@ -587,13 +620,16 @@
                             if (uploadError) throw uploadError;
                             const { data: publicUrlData } = supabaseClient.storage.from('media').getPublicUrl(filePath);
                             finalUrl = publicUrlData.publicUrl;
-                        } else if (f.url) { finalUrl = f.url; }
+                        } else if (f.url) { 
+                            finalUrl = f.url; 
+                            keptStorageUrls.add(finalUrl);
+                        }
                         if (finalUrl) mediaPayloads.push({ archive_id: currentArchiveId, media_url: finalUrl, media_type: 'image', specific_caption: f.caption, sort_order: i + 1 });
                     }
                     
                     let vidOrderStart = mediaArray.length + 1;
                     for (let i = 0; i < officialVidArray.length; i++) {
-                        let v = officialVidArray[i]; let finalPicUrl = v.picUrl; 
+                        let v = officialVidArray[i]; let finalPicUrl = v.picUrl || ''; 
                         if (v.file) {
                             const compressedFile = await compressImage(v.file, 1200); 
                             const filePath = `offvid_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
@@ -602,6 +638,8 @@
                                 const { data: publicUrlData } = supabaseClient.storage.from('media').getPublicUrl(filePath);
                                 finalPicUrl = publicUrlData.publicUrl;
                             }
+                        } else if (finalPicUrl) {
+                            keptStorageUrls.add(finalPicUrl);
                         }
                         const combinedCaption = `${v.channelId}|${v.desc}|${finalPicUrl}`;
                         mediaPayloads.push({
@@ -613,7 +651,7 @@
 
                     let fancamPayloads = [];
                     for (let i = 0; i < fancamArray.length; i++) {
-                        let f = fancamArray[i]; let finalPicUrl = f.url;
+                        let f = fancamArray[i]; let finalPicUrl = f.url || '';
                         if (f.file) {
                             const compressedFile = await compressImage(f.file, 600); 
                             const filePath = `fancam_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
@@ -622,6 +660,8 @@
                                 const { data: publicUrlData } = supabaseClient.storage.from('media').getPublicUrl(filePath);
                                 finalPicUrl = publicUrlData.publicUrl;
                             }
+                        } else if (finalPicUrl) {
+                            keptStorageUrls.add(finalPicUrl);
                         }
                         fancamPayloads.push({
                             archive_id: currentArchiveId, fan_account: f.account, platform: f.platform, content_url: f.contentUrl,
@@ -629,6 +669,16 @@
                         });
                     }
                     if (fancamPayloads.length > 0) { await supabaseClient.from('fancams').insert(fancamPayloads); }
+
+                    // 清理在編輯時被按下「移除」的 Storage 實體圖片檔案
+                    const removedStoragePaths = oldStorageUrls
+                        .filter(url => !keptStorageUrls.has(url) && url.includes('/storage/v1/object/public/media/'))
+                        .map(url => url.split('/public/media/')[1])
+                        .filter(Boolean);
+
+                    if (removedStoragePaths.length > 0) {
+                        await supabaseClient.storage.from('media').remove(removedStoragePaths);
+                    }
                 }
                 await fetchDataFromSupabase(); return true;
             } catch (error) { console.error(error); alert("儲存失敗：" + error.message); return false; }
@@ -648,9 +698,9 @@
                     if (mediaData) {
                         mediaData.forEach(m => {
                             if (m.media_url) filePaths.push(m.media_url);
-                            if (m.specific_caption && m.specific_caption.includes('|')) {
-                                const parts = m.specific_caption.split('|');
-                                if(parts.length >= 3 && parts[2]) filePaths.push(parts[2]); 
+                            if (m.specific_caption) {
+                                const { ccover } = parseOfficialVidCaption(m.specific_caption);
+                                if (ccover) filePaths.push(ccover);
                             }
                         });
                     }
@@ -816,10 +866,10 @@
                             
                             if (coverUrl && coverUrl.trim() !== '') { 
                                 officialVidsHtml += `<a href="${v.url}" target="_blank" rel="noopener noreferrer" class="official-vid-card ${cardWidthClass}">`;
-                                officialVidsHtml += `<img src="${coverUrl}" loading="lazy" alt="${cdesc}">`; 
+                                officialVidsHtml += `<img src="${coverUrl}" loading="lazy" alt="${cdesc || cid}">`; 
                                 officialVidsHtml += `<div class="yt-play-icon"></div>`;
                                 officialVidsHtml += `<div class="official-vid-info">`;
-                                officialVidsHtml += `<div style="display:flex; align-items:center; gap:8px;">`;
+                                officialVidsHtml += `<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">`;
                                 officialVidsHtml += `<span class="official-vid-badge">YouTube</span>`;
                                 if (cid) officialVidsHtml += `<span style="font-weight:bold; font-size:0.95rem; color:#333;">@${cid}</span>`;
                                 officialVidsHtml += `</div>`;
@@ -828,7 +878,7 @@
                             } else { 
                                 officialVidsHtml += `<a href="${v.url}" target="_blank" rel="noopener noreferrer" class="official-vid-compact">`;
                                 officialVidsHtml += `<span class="official-vid-badge">YouTube</span>`;
-                                if (cid) officialVidsHtml += `<span style="font-weight:bold; color:#333; margin-right: 5px;">@${cid}</span>`;
+                                if (cid) officialVidsHtml += `<span style="font-weight:bold; color:#333;">@${cid}</span>`;
                                 if (cdesc) officialVidsHtml += `<span>${cdesc}</span>`;
                                 officialVidsHtml += `</a>`;
                             }
@@ -943,6 +993,10 @@
             const grid = document.getElementById('calendarGrid'); const title = document.getElementById('calendarTitle'); grid.innerHTML = '';
             const [year, month] = currentMonthFilter.split('-').map(Number); title.innerText = `${year}年 ${month}月`;
             const firstDay = new Date(year, month - 1, 1).getDay(); const daysInMonth = new Date(year, month, 0).getDate();
+            const todayBtn = document.getElementById('todayBtn');
+            if (todayBtn) {
+                todayBtn.classList.toggle('active', selectedDate === trueTodayStr);
+            }
             for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="cal-cell empty"></div>`;
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -992,7 +1046,6 @@
             if (activeSubTags.length > 0) { container.innerHTML = `<button class="btn-clear-tags">✖ 清除所選標籤</button>`; container.querySelector('.btn-clear-tags').onclick = () => { activeSubTags = []; renderSubTags(); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); }; } else { container.innerHTML = ''; }
         }
         
-        // 【修復 3】: 關聯貼文的智慧搜尋與選擇邏輯
         function setupSearch() {
             const input = document.getElementById('searchInput');
             const resultsList = document.getElementById('searchResults');
@@ -1016,7 +1069,9 @@
                     const li = document.createElement('li'); 
                     const displayTitle = item.mainTitle ? `<strong style="color:var(--mint-hover)">【${item.mainTitle}】</strong> ` : '';
                     const displayContent = item.content ? item.content.substring(0, 20) + '...' : '無內文';
+                    
                     li.innerHTML = `<span class="s-date">${item.date}</span> ${displayTitle}${displayContent}`;
+                    
                     li.addEventListener('mousedown', (e) => {
                         e.preventDefault();
                         input.value = ''; resultsList.innerHTML = '';
@@ -1047,65 +1102,6 @@
             document.addEventListener('mousedown', (e) => { 
                 if(e.target !== input && e.target.parentNode !== resultsList) resultsList.innerHTML = ''; 
             });
-
-            // --- 內部關聯貼文的搜尋邏輯 ---
-            const rInput = document.getElementById('relatedSearchInput');
-            const rResults = document.getElementById('relatedSearchResults');
-            const rSelect = document.getElementById('relatedArchiveSelect');
-            const rText = document.getElementById('relatedSelectedText');
-            let rFocus = -1;
-
-            rInput.addEventListener('input', function() {
-                const val = this.value.toLowerCase().trim();
-                rResults.innerHTML = ''; rFocus = -1;
-                if (!val) { rResults.style.display = 'none'; return; }
-                
-                const searchScope = masterData.filter(d => d.module !== 'schedule' && !d.isVirtual);
-                const matched = searchScope.filter(item => {
-                    const searchStr = (item.content + ' ' + (item.mainTitle || '') + ' ' + item.date).toLowerCase();
-                    return searchStr.includes(val);
-                });
-
-                if (matched.length > 0) rResults.style.display = 'block';
-                else rResults.style.display = 'none';
-
-                matched.forEach(item => {
-                    const li = document.createElement('li');
-                    const title = item.mainTitle ? item.mainTitle : (item.content ? item.content.substring(0, 15) + '...' : '未命名貼文');
-                    li.innerHTML = `<span class="s-date">${item.date}</span> ${title}`;
-                    li.addEventListener('mousedown', (e) => {
-                        e.preventDefault();
-                        rSelect.value = item.id;
-                        rText.querySelector('span').innerText = `[${item.date}] ${title}`;
-                        rText.style.display = 'block';
-                        rInput.value = '';
-                        rResults.style.display = 'none';
-                    });
-                    rResults.appendChild(li);
-                });
-            });
-            rInput.addEventListener('keydown', function(e) {
-                const items = rResults.getElementsByTagName('li');
-                if (e.key === 'ArrowDown') { rFocus++; rAddActive(items); } 
-                else if (e.key === 'ArrowUp') { rFocus--; rAddActive(items); } 
-                else if (e.key === 'Enter') { e.preventDefault(); if (rFocus > -1 && items[rFocus]) items[rFocus].dispatchEvent(new MouseEvent('mousedown')); }
-            });
-            function rAddActive(items) {
-                if (!items || items.length === 0) return;
-                for (let i = 0; i < items.length; i++) items[i].classList.remove('autocomplete-active');
-                if (rFocus >= items.length) rFocus = 0;
-                if (rFocus < 0) rFocus = (items.length - 1);
-                items[rFocus].classList.add('autocomplete-active');
-                items[rFocus].scrollIntoView({ block: 'nearest' });
-            }
-            document.addEventListener('mousedown', (e) => { 
-                if(e.target !== rInput && e.target.parentNode !== rResults) rResults.style.display = 'none'; 
-            });
-        }
-        
-        window.clearRelatedSelect = function() {
-            document.getElementById('relatedArchiveSelect').value = '';
-            document.getElementById('relatedSelectedText').style.display = 'none';
         }
         
         function setupDateFilterAndSort() {
@@ -1143,7 +1139,7 @@
             const resetToCurrentMonth = () => { currentMonthFilter = `${sysYear}-${sysMonthStr}`; selectedDate = null; document.getElementById('dateText').value = ''; refreshView(null); };
             document.getElementById('globalMonthDisplay').addEventListener('click', resetToCurrentMonth);
             document.getElementById('globalCurrentMonthBtn').addEventListener('click', resetToCurrentMonth);
-            document.getElementById('todayBtn').addEventListener('click', () => { currentMonthFilter = `${sysYear}-${sysMonthStr}`; selectedDate = trueTodayStr; refreshView(trueTodayStr); });
+            document.getElementById('todayBtn').addEventListener('click', () => { currentMonthFilter = `${sysYear}-${sysMonthStr}`; selectedDate = trueTodayStr; document.getElementById('dateText').value = trueTodayStr.replace(/-/g, '/'); refreshView(trueTodayStr); });
         }
         
         function clearDateFilter() { document.getElementById('dateText').value = ''; selectedDate = null; refreshView(null); }
@@ -1189,10 +1185,11 @@
         // 【動態表單管理】
         // ==========================================
         function setupDataModal() {
-            const mediaListContainer = document.getElementById('mediaListContainer');
             const officialVidListContainer = document.getElementById('officialVidListContainer');
             const externalLinksContainer = document.getElementById('externalLinksContainer');
             const relatedArchiveGroup = document.getElementById('relatedArchiveGroup');
+            const relatedArchiveSelect = document.getElementById('relatedArchiveSelect');
+            const relatedSearchInput = document.getElementById('relatedSearchInput');
             const fancamGroupWrapper = document.getElementById('fancamGroupWrapper');
             const fancamListContainer = document.getElementById('fancamListContainer');
             
@@ -1231,16 +1228,16 @@
                         <span style="font-weight: bold; font-size: 0.85rem; color: #c0392b;">📺 官方影音紀錄</span>
                         <button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button>
                     </div>
-                    <div style="display: flex; gap: 10px; margin-top: 5px;">
-                        <input type="text" list="officialAccountList" class="vid-channel-input modal-input" placeholder="頻道ID (如: _TV_Daily)" value="${cid}" style="flex: 1; margin:0;" autocomplete="off">
-                        <input type="text" class="vid-title-input modal-input" placeholder="影片說明 (如: 藍毯全程)" value="${cdesc}" style="flex: 2; margin:0;">
+                    <div style="display: flex; gap: 10px; margin-top: 5px; flex-wrap: wrap;">
+                        <input type="text" list="officialAccountList" class="vid-channel-input modal-input" placeholder="頻道ID (如: _TV_Daily)" value="${cid}" style="flex: 1; min-width: 130px; margin:0;" autocomplete="off">
+                        <input type="text" class="vid-title-input modal-input" placeholder="影片說明 (選填，如: 藍毯全程)" value="${cdesc}" style="flex: 2; min-width: 160px; margin:0;">
                     </div>
-                    <input type="url" class="vid-url-input modal-input" placeholder="YouTube 影片網址 (https://...)" value="${urlVal}" style="margin-top: 5px;" required>
+                    <input type="url" class="vid-url-input modal-input" placeholder="YouTube 影片網址 (https://...)" value="${urlVal}" style="margin-top: 8px;" required>
                     
                     <p style="font-size: 0.8rem; margin: 8px 0 3px 0; color: #555;">上傳高畫質影片封面圖 (選填，自動壓縮成大圖展示)：</p>
-                    <input type="file" class="vid-pic-input modal-input" accept="image/*">
+                    <input type="file" class="vid-pic-input modal-input" accept="image/*" style="margin: 0;">
                     <input type="hidden" class="vid-old-pic-url" value="${picUrlVal}">
-                    ${picUrlVal ? `<p style="font-size: 0.75rem; color: var(--mint-green);">已存在預覽大圖，上傳新檔將會覆蓋。</p>` : ''}
+                    ${picUrlVal ? `<p style="font-size: 0.75rem; color: var(--mint-green); margin-top: 4px;">已存在預覽大圖，上傳新檔將會覆蓋。</p>` : ''}
                 `;
                 officialVidListContainer.appendChild(block);
                 updateAccordionHeight(officialVidListContainer.parentElement);
@@ -1258,9 +1255,9 @@
 
                 block.innerHTML = `
                     <div class="fancam-block-header"><span style="font-weight: bold; font-size: 0.85rem; color: #F39C12;">📸 粉絲拍攝紀錄</span><button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button></div>
-                    <div style="display: flex; gap: 10px; margin-top: 5px;">
-                        <input type="text" list="fancamAccountList" class="fc-account-input modal-input" placeholder="帳號 (如: wonder_0801)" value="${accountVal}" style="flex: 1;" required autocomplete="off">
-                        <select class="fc-platform-select modal-input" style="flex: 1;">
+                    <div style="display: flex; gap: 10px; margin-top: 5px; flex-wrap: wrap;">
+                        <input type="text" list="fancamAccountList" class="fc-account-input modal-input" placeholder="帳號 (如: wonder_0801)" value="${accountVal}" style="flex: 1; min-width: 140px; margin: 0;" required autocomplete="off">
+                        <select class="fc-platform-select modal-input" style="flex: 1; min-width: 120px; margin: 0;">
                             <option value="X" ${platformVal==='X'?'selected':''}>X</option>
                             <option value="Instagram" ${platformVal==='Instagram'?'selected':''}>Instagram</option>
                             <option value="YouTube" ${platformVal==='YouTube'?'selected':''}>YouTube</option>
@@ -1269,12 +1266,12 @@
                             <option value="Weibo" ${platformVal==='Weibo'?'selected':''}>Weibo</option>
                         </select>
                     </div>
-                    <input type="url" class="fc-url-input modal-input" placeholder="該篇飯拍的原始連結 (https://...)" value="${urlVal}" style="margin-top: 5px;" required>
+                    <input type="url" class="fc-url-input modal-input" placeholder="該篇飯拍的原始連結 (https://...)" value="${urlVal}" style="margin-top: 8px;" required>
                     
                     <p style="font-size: 0.8rem; margin: 8px 0 3px 0; color: #555;">上傳飯拍預覽圖 (選填，建議留白以尊重站子 <strong style="color:#d9534f;">禁二改</strong> 原則)：</p>
-                    <input type="file" class="fc-pic-input modal-input" accept="image/*">
+                    <input type="file" class="fc-pic-input modal-input" accept="image/*" style="margin: 0;">
                     <input type="hidden" class="fc-old-pic-url" value="${picUrlVal}">
-                    ${picUrlVal ? `<p style="font-size: 0.75rem; color: var(--mint-green);">已存在預覽圖，上傳新檔將會覆蓋。</p>` : ''}
+                    ${picUrlVal ? `<p style="font-size: 0.75rem; color: var(--mint-green); margin-top: 4px;">已存在預覽圖，上傳新檔將會覆蓋。</p>` : ''}
                 `;
                 fancamListContainer.appendChild(block);
                 updateAccordionHeight(fancamListContainer.parentElement);
@@ -1338,6 +1335,50 @@
                 batchMediaInput.value = ''; 
             });
 
+            // 重要日程內部系統關聯：優先顯示「品牌商務與官方公告」，並支援日期與標題內文即時搜尋
+            function populateRelatedSelect(filterKeyword = '', selectedId = null) {
+                const currentVal = selectedId !== null ? selectedId : relatedArchiveSelect.value;
+                relatedArchiveSelect.innerHTML = '<option value="">無關聯 (獨立日程)</option>';
+                
+                const kw = filterKeyword.toLowerCase().trim();
+                const candidates = masterData.filter(d => {
+                    if (d.module === 'schedule' || d.isVirtual) return false;
+                    if (!kw) return true;
+                    const dateSlash = d.date.replace(/-/g, '/');
+                    const searchPool = `${d.date} ${dateSlash} ${d.mainTitle || ''} ${d.content || ''} ${d.source || ''}`.toLowerCase();
+                    return searchPool.includes(kw);
+                });
+
+                const groupOrder = [
+                    { key: 'brand', label: '📢 品牌商務與官方公告 (優先推薦)' },
+                    { key: 'event', label: '🎤 公開演出活動與現場紀錄' },
+                    { key: 'social', label: '📱 社群動態' }
+                ];
+
+                groupOrder.forEach(grp => {
+                    const items = candidates.filter(d => d.module === grp.key);
+                    if (items.length > 0) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = grp.label;
+                        items.forEach(d => {
+                            const title = d.mainTitle ? d.mainTitle : (d.content ? d.content.substring(0, 18) + '...' : '未命名貼文');
+                            const opt = document.createElement('option');
+                            opt.value = d.id;
+                            opt.textContent = `[${d.date.replace(/-/g, '/')}] ${title}`;
+                            if (d.id === currentVal) opt.selected = true;
+                            optgroup.appendChild(opt);
+                        });
+                        relatedArchiveSelect.appendChild(optgroup);
+                    }
+                });
+            }
+
+            if (relatedSearchInput) {
+                relatedSearchInput.addEventListener('input', (e) => {
+                    populateRelatedSelect(e.target.value);
+                });
+            }
+
             document.getElementById('dataModule').addEventListener('change', (e) => {
                 checkboxGroup.innerHTML = '';
                 let availableTags = [];
@@ -1348,8 +1389,11 @@
                 
                 if (e.target.value === 'schedule') {
                     relatedArchiveGroup.style.display = 'block';
+                    if (relatedSearchInput) relatedSearchInput.value = '';
+                    populateRelatedSelect('');
                 } else {
-                    relatedArchiveGroup.style.display = 'none'; clearRelatedSelect();
+                    relatedArchiveGroup.style.display = 'none';
+                    relatedArchiveSelect.value = '';
                 }
 
                 if (e.target.value === 'event') {
@@ -1461,7 +1505,7 @@
                 officialVidListContainer.innerHTML = ''; externalLinksContainer.innerHTML = ''; fancamListContainer.innerHTML = ''; tempCustomTags = []; 
                 
                 selectedMediaFiles = []; existingMediaItems = []; renderMediaPreviews(); batchMediaInput.value = '';
-                clearRelatedSelect();
+                if (relatedSearchInput) relatedSearchInput.value = '';
                 
                 document.querySelectorAll('.accordion-btn').forEach(btn => {
                     btn.classList.remove('active');
@@ -1482,14 +1526,8 @@
                     document.getElementById('dataContent').value = item.content || '';
                     document.getElementById('dataBgm').value = item.bgm || ''; 
                     
-                    if (item.module === 'schedule' && item.relatedArchiveId) {
-                        const rItem = masterData.find(d => d.id === item.relatedArchiveId);
-                        if(rItem) {
-                            document.getElementById('relatedArchiveSelect').value = rItem.id;
-                            const rTitle = rItem.mainTitle || (rItem.content ? rItem.content.substring(0, 15) + '...' : '未命名貼文');
-                            document.getElementById('relatedSelectedText').querySelector('span').innerText = `[${rItem.date}] ${rTitle}`;
-                            document.getElementById('relatedSelectedText').style.display = 'block';
-                        }
+                    if (item.module === 'schedule') {
+                        populateRelatedSelect('', item.relatedArchiveId || '');
                     }
                     
                     item.tags.forEach(t => { const cb = document.querySelector(`.modal-tag-cb[value="${t}"]`); if(cb) cb.checked = true; else tempCustomTags.push(t); });
