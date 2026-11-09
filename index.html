@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
     
+    <!-- 網址分享預覽圖 (Open Graph / Twitter Card) -->
     <meta property="og:title" content="CHAEWON Archive">
     <meta property="og:description" content="偶像多媒體足跡與動態典藏系統">
     <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
@@ -189,7 +190,6 @@
             <label class="form-label">內文主文案 (選填，韓文/中文皆可)：</label>
             <textarea id="dataContent" class="modal-input" placeholder="輸入內容 (可留白)..." rows="3" style="margin-top: 5px; resize: vertical;"></textarea>
 
-            <!-- 摺疊面板區域 -->
             <button class="accordion-btn">🔗 附加外部連結 (出處 / 新聞 / 原文)</button>
             <div class="accordion-panel">
                 <div id="externalLinksContainer" style="margin-top: 10px;"></div>
@@ -479,10 +479,14 @@
                         if (m.media_type === 'youtube') {
                             let cid = ''; let cdesc = ''; let ccover = '';
                             if (m.specific_caption) {
-                                const parts = m.specific_caption.split('|');
-                                cid = parts[0] || '';
-                                cdesc = parts[1] || '';
-                                ccover = parts[2] || '';
+                                if (m.specific_caption.includes('|')) {
+                                    const parts = m.specific_caption.split('|');
+                                    cid = parts[0] || '';
+                                    cdesc = parts[1] || '';
+                                    ccover = parts[2] || '';
+                                } else {
+                                    cdesc = m.specific_caption; // 相容舊資料
+                                }
                                 if(cid) savedOfficialAccounts.add(cid);
                             }
                             officialVids.push({ url: m.media_url, channelId: cid, desc: cdesc, picUrl: ccover });
@@ -564,15 +568,13 @@
                 }
 
                 if (currentArchiveId) {
-                    // 【核心修復 2】: 刪除舊的子表資料，確保「移除」動作能真正生效
+                    // 【核心修復 2】: 點擊儲存前，先完全清空舊有關聯資料，確保被「移除」的項目能徹底刪除
                     if (itemData.id) { 
-                        await supabaseClient.from('archive_media').delete().eq('archive_id', currentArchiveId); 
+                        await supabaseClient.from('archive_media').delete().eq('archive_id', currentArchiveId);
                         await supabaseClient.from('fancams').delete().eq('archive_id', currentArchiveId); 
                     }
                     
                     let mediaPayloads = [];
-                    
-                    // 重新寫入最新狀態的圖片
                     for (let i = 0; i < mediaArray.length; i++) {
                         let f = mediaArray[i]; let finalUrl = '';
                         if (f.file) { 
@@ -586,7 +588,6 @@
                         if (finalUrl) mediaPayloads.push({ archive_id: currentArchiveId, media_url: finalUrl, media_type: 'image', specific_caption: f.caption, sort_order: i + 1 });
                     }
                     
-                    // 重新寫入最新狀態的官方影片
                     let vidOrderStart = mediaArray.length + 1;
                     for (let i = 0; i < officialVidArray.length; i++) {
                         let v = officialVidArray[i]; let finalPicUrl = v.picUrl; 
@@ -607,7 +608,6 @@
 
                     if (mediaPayloads.length > 0) { await supabaseClient.from('archive_media').insert(mediaPayloads); }
 
-                    // 重新寫入最新狀態的飯拍
                     let fancamPayloads = [];
                     for (let i = 0; i < fancamArray.length; i++) {
                         let f = fancamArray[i]; let finalPicUrl = f.url;
@@ -796,42 +796,47 @@
                         if (currentLoggedEmail === ADMIN_EMAIL.toLowerCase()) adminBtns += `<button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>`;
                     }
                     
+                    // 【核心修復 3】: 排版順序對調 (外部連結 -> 官方影音 -> 飯拍 -> 官方圖片)
                     let linksHtml = '';
                     if (item.links && item.links.length > 0) {
                         linksHtml = '<div class="multi-links-group" style="margin-top: 10px;">' + item.links.map(l => `<a href="${l.url}" class="db-link" target="_blank" rel="noopener noreferrer">${l.title}</a>`).join('') + '</div>';
                     }
                     
-                    // 【核心修復 1 & 3】: 排版順序對調與空白圖修復 (外部連結 -> 官方影音 -> 飯拍 -> 一般圖片)
-                    let officialVidsHtml = '';
                     const hasFancams = item.fancams && item.fancams.length > 0;
+                    
+                    // 官方影音紀錄 (支援「無圖時切換為精簡文字按鈕」)
+                    let officialVidsHtml = '';
                     if (item.officialVids && item.officialVids.length > 0) {
                         const cardWidthClass = hasFancams ? 'half-width' : 'full-width';
                         officialVidsHtml = `<div class="official-vid-gallery" style="${hasFancams ? 'flex-direction: row; flex-wrap: wrap;' : ''}">`;
+                        
                         item.officialVids.forEach((v) => {
                             let cid = v.channelId || ''; let cdesc = v.desc || ''; let coverUrl = v.picUrl || '';
                             
-                            officialVidsHtml += `<a href="${v.url}" target="_blank" rel="noopener noreferrer" class="official-vid-card ${cardWidthClass}">`;
-                            
-                            // 強健的圖片顯示邏輯：有圖秀圖，沒圖秀灰色方塊
+                            // 【修復 1】：如果沒有圖片，顯示為精簡文字按鈕
                             if (coverUrl && coverUrl.trim() !== '') { 
+                                officialVidsHtml += `<a href="${v.url}" target="_blank" rel="noopener noreferrer" class="official-vid-card ${cardWidthClass}">`;
                                 officialVidsHtml += `<img src="${coverUrl}" loading="lazy" alt="${cdesc}">`; 
+                                officialVidsHtml += `<div class="yt-play-icon"></div>`;
+                                officialVidsHtml += `<div class="official-vid-info">`;
+                                officialVidsHtml += `<div style="display:flex; align-items:center; gap:8px;">`;
+                                officialVidsHtml += `<span class="official-vid-badge">YouTube</span>`;
+                                if (cid) officialVidsHtml += `<span style="font-weight:bold; font-size:0.95rem; color:#333;">@${cid}</span>`;
+                                officialVidsHtml += `</div>`;
+                                if (cdesc) officialVidsHtml += `<span class="official-vid-title">${cdesc}</span>`;
+                                officialVidsHtml += `</div></a>`;
                             } else { 
-                                officialVidsHtml += `<div style="width:100%; aspect-ratio:16/9; background:#333; display:flex; align-items:center; justify-content:center; color:#888;">無預覽圖</div>`; 
+                                officialVidsHtml += `<a href="${v.url}" target="_blank" rel="noopener noreferrer" class="official-vid-compact">`;
+                                officialVidsHtml += `<span class="official-vid-badge">YouTube</span>`;
+                                if (cid) officialVidsHtml += `<span style="font-weight:bold; color:#333; margin-right: 5px;">@${cid}</span>`;
+                                if (cdesc) officialVidsHtml += `<span>${cdesc}</span>`;
+                                officialVidsHtml += `</a>`;
                             }
-                            
-                            officialVidsHtml += `<div class="yt-play-icon"></div>`;
-                            officialVidsHtml += `<div class="official-vid-info">`;
-                            officialVidsHtml += `<div style="display:flex; align-items:center; gap:8px;">`;
-                            officialVidsHtml += `<span class="official-vid-badge">YouTube</span>`;
-                            if (cid) officialVidsHtml += `<span style="font-weight:bold; font-size:0.95rem; color:#333;">@${cid}</span>`;
-                            officialVidsHtml += `</div>`;
-                            // 即使沒有頻道ID，有影片說明(cdesc)依然要顯示
-                            if (cdesc) officialVidsHtml += `<span class="official-vid-title">${cdesc}</span>`;
-                            officialVidsHtml += `</div></a>`;
                         });
                         officialVidsHtml += `</div>`;
                     }
 
+                    // 粉絲拍攝紀錄
                     let fancamHtml = '';
                     if (hasFancams) {
                         let currentGroupOrder = 0;
@@ -852,6 +857,7 @@
                             if (!grouped[f.groupKey]) grouped[f.groupKey] = [];
                             grouped[f.groupKey].push(f);
                         });
+                        
                         fancamHtml = `<div class="fancam-gallery">`;
                         fancamHtml += `<div class="fancam-gallery-title">📸 粉絲拍攝內容 (${item.fancams.length})</div>`;
                         fancamHtml += `<div class="fancam-grid">`;
@@ -912,7 +918,6 @@
                         mediaHtml += `</div>`; 
                     }
 
-                    // 確保渲染順序：外部連結 -> 官方影音(變形寬度) -> 飯拍 -> 官方媒體圖片
                     card.innerHTML = `
                         <div class="card-date-col"><div class="time">${item.time.slice(0,5)}</div></div>
                         <div class="card-content-col">
@@ -1361,7 +1366,6 @@
                     tags: finalTags, links: linksArray, relatedArchiveId: document.getElementById('relatedArchiveSelect').value || null
                 };
 
-                // 合併新舊圖片資料準備上傳
                 let mediaArray = [...existingMediaItems, ...selectedMediaFiles];
 
                 const officialVidBlocks = document.querySelectorAll('.official-vid-block');
