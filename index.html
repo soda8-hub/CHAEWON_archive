@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
-    
+    <!-- 網址分享預覽圖 (Open Graph / Twitter Card) -->
     <meta property="og:title" content="CHAEWON Archive">
     <meta property="og:description" content="偶像多媒體足跡與動態典藏系統">
     <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
@@ -191,7 +191,7 @@
                                 <input type="text" id="dateText" placeholder="yyyy/mm/dd 或 yyyy-mm-dd" autocomplete="off">
                                 <div class="date-picker-wrapper" id="datePickerTrigger"><span class="calendar-icon">📅</span><input type="date" id="datePicker"></div>
                             </div>
-                            <button id="applyDateBtn" class="btn-primary-small">指定單日</button>
+                            <button id="applyDateBtn" class="btn-primary-small">篩選</button>
                             <button id="clearDateBtn" class="btn-secondary-small">清除</button>
                             <div class="custom-dropdown" id="sortDropdown">
                                 <div class="dropdown-selected"><span id="sortText">由新到舊 ↓</span> <span class="arrow">﹀</span></div>
@@ -210,7 +210,7 @@
                 <div id="calendarContainer" class="calendar-sidebar" style="display: none;">
                     <div class="calendar-header">
                         <button id="calPrevMonthBtn">◀</button>
-                        <div class="cal-title-group"><h4 id="calendarTitle">2026年 11月</h4><button id="todayBtn" class="btn-today">回到今天</button></div>
+                        <div class="cal-title-group"><h4 id="calendarTitle">2026年 11月</h4><button id="todayBtn" class="btn-today">今天</button></div>
                         <button id="calNextMonthBtn">▶</button>
                     </div>
                     <div class="calendar-grid-header"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
@@ -340,8 +340,8 @@
         // ==========================================
         // 【設定區】Supabase 連線與權限資訊
         // ==========================================
-        const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL'; 
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const SUPABASE_URL = 'Yhttps://kxywdxavuakxajpbbpbp.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'sb_publishable_tpHN-Vos2cXlVNHokyiWxg_4HxdB8gR';
         
         const ADMIN_EMAIL = 'oncesoda6@gmail.com';
         
