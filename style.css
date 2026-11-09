@@ -31,6 +31,10 @@ body {
     overflow-x: hidden;
 }
 
+/* 【關鍵修復】電腦版預設隱藏手機版頂部導覽列，並限制 Logo 尺寸 */
+.mobile-header { display: none; }
+.mobile-brand-logo { height: 36px; width: 36px; min-width: 36px; min-height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--mint-green); flex-shrink: 0; }
+
 /* =========================================
    2. 主佈局與左側邊欄 (Sidebar)
 ========================================= */
@@ -61,7 +65,11 @@ body {
 .btn-lock:hover { background: #EAECEE; }
 .btn-quick-add.disabled { background: var(--silver-bg); color: #BFC9CA; cursor: not-allowed; }
 .btn-quick-add.unlocked { background: var(--text-main); color: white; }
-.btn-secondary-small { background: var(--silver-bg); color: var(--text-main); border: 1px solid var(--silver-border); padding: 0 16px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; height: 40px; transition: 0.2s;}
+
+.btn-primary-small, .btn-secondary-small { padding: 0 16px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 0.9rem; height: 44px; white-space: nowrap; transition: 0.2s;}
+.btn-primary-small { background: var(--mint-green); color: white; }
+.btn-primary-small:hover { background: var(--mint-hover); }
+.btn-secondary-small { background: var(--silver-bg); color: var(--text-main); border: 1px solid var(--silver-border); }
 .btn-secondary-small:hover { border-color: var(--mint-hover); color: var(--mint-hover); }
 
 .month-stat-title { font-size: 1.1rem; color: var(--text-main); margin-bottom: 5px; font-weight: bold;}
@@ -77,7 +85,7 @@ body {
 /* =========================================
    3. 右側工具列與過濾搜尋
 ========================================= */
-.content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; z-index: 1;}
+.content-area { flex: 1; min-width: 0; width: 100%; display: flex; flex-direction: column; gap: 20px; z-index: 1;}
 .top-toolbar { background: rgba(255, 255, 255, 0.95); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); backdrop-filter: blur(5px); z-index: 20; position: relative;}
 
 .nav-menu-container { width: 100%; background: var(--silver-bg); padding: 6px; border-radius: 30px; display: flex; margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch;}
@@ -90,15 +98,14 @@ body {
 .toolbar-controls { display: flex; flex-direction: column; gap: 12px;}
 .filter-main-row { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
 
-/* 搜尋引擎獨立絕對定位，解決超出隱藏與覆蓋問題 */
 .search-container { flex: 1 1 300px; min-width: 250px; height: 44px; min-height: 44px; position: relative; z-index: 1000; display: flex; align-items: center; background: white; border-radius: 12px; padding: 0 15px; border: 1px solid var(--silver-border); transition: 0.3s;}
 .search-container:focus-within { border-color: var(--mint-green); box-shadow: 0 0 0 2px var(--mint-light);}
 .search-icon { color: var(--text-muted); font-size: 0.9rem;}
 .search-container input { width: 100%; height: 100%; padding: 0 10px; border: none; background: transparent; outline: none; font-size: 0.95rem;}
-.search-results { position: absolute; top: calc(100% + 5px); left: 0; width: 100%; background: white; border: 1px solid var(--silver-border); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 0; margin: 0; list-style: none; max-height: 350px; overflow-y: auto; z-index: 9999;}
-.search-results li { padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.9rem; color: #333; transition: 0.2s;}
+.search-results { position: absolute; top: calc(100% + 5px); left: 0; width: 100%; background: white; border: 1px solid var(--silver-border); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 0; margin: 0; list-style: none; max-height: 300px; overflow-y: auto; z-index: 9999;}
+.search-results li { padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.9rem; color: #333; transition: 0.2s; word-break: break-word;}
 .search-results li:hover, .search-results li.autocomplete-active { background-color: var(--mint-light); }
-.search-results li .s-date { font-size: 0.8rem; color: #777; margin-right: 8px; background: #eee; padding: 2px 6px; border-radius: 4px; }
+.search-results li .s-date { font-size: 0.8rem; color: #777; margin-right: 8px; background: #eee; padding: 2px 6px; border-radius: 4px; display: inline-block;}
 
 .inline-date-filter { flex: 1 1 auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 .date-input-group { display: flex; border: 1px solid var(--silver-border); border-radius: 10px; background: white; overflow: hidden; height: 44px; flex: 1 1 200px; min-width: 200px;}
@@ -107,9 +114,6 @@ body {
 .date-picker-wrapper:hover { background: var(--mint-light); }
 .calendar-icon { font-size: 1.1rem; pointer-events: none; z-index: 1;}
 .date-picker-wrapper input[type="date"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2;}
-
-.btn-primary-small { padding: 0 16px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 0.9rem; height: 44px; white-space: nowrap; background: var(--mint-green); color: white;}
-.btn-primary-small:hover { background: var(--mint-hover); }
 
 .custom-dropdown { position: relative; height: 44px; user-select: none; flex: 1 1 130px; min-width: 130px; max-width: 150px; z-index: 900;}
 .dropdown-selected { display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 15px; border-radius: 10px; border: 1px solid var(--silver-border); background: white; color: var(--text-main); font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s;}
@@ -130,7 +134,6 @@ body {
 .toolbar-divider { height: 1px; background: var(--silver-border); width: 100%; margin: 0;}
 .hide-on-desktop { display: none !important; }
 
-/* 展開標籤手風琴按鈕 */
 .mobile-tag-toggle { 
     display: none; width: 100%; padding: 12px 15px; background: var(--silver-bg); 
     border: 1px solid var(--silver-border); color: var(--text-main); border-radius: 10px; 
@@ -158,7 +161,7 @@ body {
 /* =========================================
    4. 視圖佈局與日曆模組
 ========================================= */
-.view-layout { display: flex; gap: 30px; align-items: flex-start;}
+.view-layout { display: flex; gap: 30px; align-items: flex-start; width: 100%; }
 .calendar-sidebar { flex: 0 0 320px; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: var(--border-radius); border: 1px solid var(--silver-border); box-shadow: var(--shadow-sm); position: sticky; top: 20px; backdrop-filter: blur(5px);}
 .month-navigator { display: flex; justify-content: space-between; align-items: center; background: var(--silver-bg); padding: 6px 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--silver-border); }
 .month-navigator button { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--mint-hover); padding: 0 8px; transition: 0.2s; }
@@ -172,9 +175,9 @@ body {
 .cal-title-group { display: flex; flex-direction: column; align-items: center; gap: 5px;}
 .cal-title-group h4 { font-size: 1rem; color: var(--text-main); margin: 0;}
 
-/* 修復日曆「今天」按鈕的綠色反饋 */
-.btn-today { background: var(--mint-light) !important; color: var(--mint-hover) !important; font-size: 0.75rem; padding: 2px 10px !important; border-radius: 12px !important; border: 1px solid var(--mint-green) !important;}
-.btn-today:hover, .btn-today:active { background: var(--mint-green) !important; color: white !important; }
+/* 「今天」按鈕：預設淺綠，點擊或選中時深綠 */
+.btn-today { background: var(--mint-light) !important; color: var(--mint-hover) !important; font-size: 0.75rem; padding: 3px 12px !important; border-radius: 12px !important; border: 1px solid var(--mint-green) !important; transition: 0.2s;}
+.btn-today:hover, .btn-today:active, .btn-today.active { background: var(--mint-hover) !important; color: white !important; border-color: var(--mint-hover) !important;}
 
 .calendar-grid-header, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; gap: 8px; width: 100%; }
 .calendar-grid-header span { font-weight: bold; color: var(--text-muted); font-size: 0.85rem; padding-bottom: 5px; }
@@ -193,35 +196,36 @@ body {
 /* =========================================
    5. 時間軸主內容卡片
 ========================================= */
-.timeline { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; position: relative; box-sizing: border-box; }
+.timeline { flex: 1; width: 100%; max-width: 100%; min-width: 0; display: flex; flex-direction: column; gap: 20px; position: relative; box-sizing: border-box; }
 .timeline::before { content: ''; position: absolute; left: 60px; top: 0; bottom: 0; width: 2px; background: var(--silver-border); z-index: 0; }
 .timeline-date-header { display: flex; align-items: center; gap: 10px; margin: 10px 0 5px 0; z-index: 1;}
 .timeline-date-header h3 { font-size: 1rem; color: var(--text-main); background: var(--silver-bg); padding: 6px 16px; border-radius: 20px; border: 1px solid var(--silver-border); display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
 .daily-count { color: var(--mint-hover); font-size: 0.9rem; font-weight: bold;}
-.timeline-card { display: flex; gap: 20px; position: relative; z-index: 1; transition: transform 0.2s; width: 100%; }
+.timeline-card { display: flex; gap: 20px; position: relative; z-index: 1; transition: transform 0.2s; width: 100%; max-width: 100%; min-width: 0; }
 .timeline-card:hover { transform: translateX(3px); }
 .card-date-col { flex: 0 0 50px; text-align: right; padding-top: 5px; }
 .card-date-col .time { font-size: 0.85rem; color: var(--text-muted); font-weight: bold;}
 .card-date-col::after { content: ''; position: absolute; left: 55px; top: 10px; width: 12px; height: 12px; background: var(--silver-card); border: 3px solid var(--mint-green); border-radius: 50%; }
-.card-content-col { flex: 1; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: var(--border-radius); box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); backdrop-filter: blur(5px); margin-left: 20px; overflow: hidden;}
-.card-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; }
+.card-content-col { flex: 1; min-width: 0; max-width: 100%; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: var(--border-radius); box-shadow: var(--shadow-sm); border: 1px solid var(--silver-border); backdrop-filter: blur(5px); margin-left: 20px; overflow: hidden;}
+.card-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; gap: 10px;}
 .tags { display: flex; gap: 8px; flex-wrap: wrap; }
 .tag { background: var(--mint-light); color: var(--mint-hover); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
 .tag-platform { background: var(--text-main); color: white; }
 .tag-daily { background: #E2E8F0; color: #475569; }
-.content-text { font-size: 1rem; color: var(--text-main); line-height: 1.7; margin-bottom: 12px;}
+.content-text { font-size: 1rem; color: var(--text-main); line-height: 1.7; margin-bottom: 12px; word-break: break-word; overflow-wrap: anywhere;}
 
-.internal-link-btn { background: var(--silver-bg); color: var(--text-main); border: 1px solid var(--mint-green); padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px;}
+.internal-link-btn { background: var(--silver-bg); color: var(--text-main); border: 1px solid var(--mint-green); padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px; max-width: 100%; text-align: left;}
 .internal-link-btn:hover { background: var(--mint-light); color: var(--mint-hover); }
-.bgm-tag { display: inline-flex; align-items: center; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; gap: 5px; }
+.bgm-tag { display: inline-flex; align-items: center; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; gap: 5px; max-width: 100%; word-break: break-word;}
 
 .multi-links-group { display: flex; gap: 10px; flex-wrap: wrap;}
-.db-link { display: inline-block; background: white; color: var(--text-main); text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: 1px solid var(--silver-border); transition: 0.2s;}
+.db-link { display: inline-block; background: white; color: var(--text-main); text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: 1px solid var(--silver-border); transition: 0.2s; word-break: break-word;}
 .db-link:before { content: '🔗 ';}
 .db-link:hover { background: var(--mint-light); border-color: var(--mint-green); color: var(--mint-hover);}
 .empty-state { text-align: center; padding: 50px; color: var(--text-muted); background: rgba(255, 255, 255, 0.95); border-radius: var(--border-radius); border: 1px dashed var(--silver-border);}
 
-.admin-actions button { border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: 5px; transition: 0.2s;}
+.admin-actions { display: flex; flex-shrink: 0; gap: 5px; }
+.admin-actions button { border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; white-space: nowrap;}
 .btn-edit-small { background: var(--silver-bg); color: var(--text-main); border: 1px solid var(--silver-border);}
 .btn-edit-small:hover { background: var(--mint-light); border-color: var(--mint-green); color: var(--mint-hover);}
 .btn-del-small { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2;}
@@ -234,14 +238,13 @@ body {
 /* =========================================
    6. 飯拍與官方影音專區 (Gallery)
 ========================================= */
-/* 飯拍群組 (Fancam) */
-.fancam-gallery { margin-top: 15px; background: #fdfdfd; border: 1px solid var(--silver-border); border-radius: 8px; padding: 12px; }
+.fancam-gallery { margin-top: 15px; background: #fdfdfd; border: 1px solid var(--silver-border); border-radius: 8px; padding: 12px; width: 100%; box-sizing: border-box;}
 .fancam-gallery-title { font-size: 0.9rem; color: var(--mint-hover); font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid var(--silver-border); padding-bottom: 5px;}
-.fancam-grid { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+.fancam-grid { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; width: 100%; }
 .fancam-group-card { background: white; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%; max-width: 280px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.2s; }
 .fancam-group-card:hover { border-color: var(--mint-green); box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
 .fancam-group-header { background: #f9f9f9; padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; }
-.fancam-platform { font-size: 0.7rem; color: white; background: #555; padding: 2px 6px; border-radius: 4px; }
+.fancam-platform { font-size: 0.7rem; color: white; background: #555; padding: 2px 6px; border-radius: 4px; flex-shrink: 0;}
 .fancam-account { font-weight: bold; font-size: 0.85rem; color: #333; word-break: break-all; }
 .fancam-group-body { padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 8px; }
 .fancam-text-link { display: inline-flex; align-items: center; background: #f4f4f4; color: #333; font-size: 0.8rem; padding: 4px 10px; border-radius: 15px; text-decoration: none; border: 1px solid #ddd; transition: 0.2s; font-weight: bold; }
@@ -252,38 +255,38 @@ body {
 .pic-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); color: white; font-size: 0.65rem; text-align: center; padding: 2px 0; font-weight: bold; }
 
 /* 官方大圖影音 (Official Vid) */
-.official-vid-gallery { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+.official-vid-gallery { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; width: 100%; }
 .official-vid-card { position: relative; display: block; width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.3s; text-decoration: none; }
 .official-vid-card.full-width { max-width: 600px; }
 .official-vid-card.half-width { max-width: 320px; }
 .official-vid-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); border-color: #ff0000; }
 .official-vid-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: #222; }
-.yt-play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 40px; background: rgba(30,30,30,0.8); border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.yt-play-icon { position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 40px; background: rgba(30,30,30,0.8); border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
 .yt-play-icon::before { content: ''; width: 0; height: 0; border-style: solid; border-width: 10px 0 10px 18px; border-color: transparent transparent transparent white; margin-left: 5px; }
 .official-vid-card:hover .yt-play-icon { background: #ff0000; }
 .official-vid-info { padding: 12px; background: white; display: flex; flex-direction: column; gap: 5px; border-top: 1px solid #eee; }
-.official-vid-badge { align-self: flex-start; background: #ff0000; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.5px; }
-.official-vid-title { color: #333; font-weight: bold; font-size: 0.95rem; line-height: 1.3; margin-top: 2px;}
+.official-vid-badge { align-self: flex-start; background: #ff0000; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.5px; flex-shrink: 0;}
+.official-vid-title { color: #333; font-weight: bold; font-size: 0.95rem; line-height: 1.3; margin-top: 2px; word-break: break-word; overflow-wrap: anywhere;}
 
 /* 無圖的官方影音精簡文字卡片 */
-.official-vid-compact { display: inline-flex; align-items: center; background: #fff; border: 1px solid #ddd; padding: 6px 12px; border-radius: 20px; text-decoration: none; color: #333; font-size: 0.85rem; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); gap: 5px; margin-bottom: 8px; margin-right: 8px; }
+.official-vid-compact { display: inline-flex; flex-wrap: wrap; align-items: center; background: #fff; border: 1px solid #ddd; padding: 6px 12px; border-radius: 20px; text-decoration: none; color: #333; font-size: 0.85rem; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); gap: 6px; margin-bottom: 4px; margin-right: 8px; max-width: 100%; word-break: break-word; overflow-wrap: anywhere;}
 .official-vid-compact:hover { border-color: #ff0000; background: #fdfafb; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
 .official-vid-compact .official-vid-badge { align-self: center; margin: 0; }
 
 /* 圖片輪播區 (Carousel) */
-.carousel-container { position: relative; width: 100%; border-radius: 8px; overflow: hidden; background: #111; margin-top: 15px; border: 1px solid var(--silver-border); }
-.carousel-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; }
+.carousel-container { position: relative; width: 100%; max-width: 100%; border-radius: 8px; overflow: hidden; background: #111; margin-top: 15px; border: 1px solid var(--silver-border); }
+.carousel-track { display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; }
 .carousel-track::-webkit-scrollbar { display: none; }
-.carousel-slide { flex: 0 0 100%; scroll-snap-align: center; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.carousel-slide { flex: 0 0 100%; width: 100%; max-width: 100%; scroll-snap-align: center; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .carousel-slide img, .carousel-slide iframe { width: 100%; max-height: 60vh; object-fit: contain; display: block; cursor: zoom-in; }
 .carousel-counter { position: absolute; top: 12px; right: 12px; background: rgba(0, 0, 0, 0.65); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; z-index: 10; backdrop-filter: blur(4px); }
 .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.8); border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #333; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: 0.2s;}
 .carousel-btn:hover { background: white; transform: translateY(-50%) scale(1.1); }
 .carousel-btn.prev { left: 10px; }
 .carousel-btn.next { right: 10px; }
-.media-caption { padding: 10px 15px; font-size: 0.9rem; color: #eee; background: #222; margin: 0; font-weight: 500; width: 100%; text-align: left; }
+.media-caption { padding: 10px 15px; font-size: 0.9rem; color: #eee; background: #222; margin: 0; font-weight: 500; width: 100%; text-align: left; word-break: break-word;}
 
-/* 燈箱 (Lightbox) 確保預設為 none，避免叉叉跑出來 */
+/* 燈箱 (Lightbox) */
 .lightbox-overlay { display: none; position: fixed; z-index: 99999; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); justify-content: center; align-items: center; backdrop-filter: blur(5px);}
 .lightbox-overlay.active { display: flex; }
 .lightbox-img { max-width: 90%; max-height: 90vh; object-fit: contain; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 8px; }
@@ -294,38 +297,34 @@ body {
    7. 彈窗與編輯表單模組 (Modal)
 ========================================= */
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(3px);}
-.modal-box { background: white; padding: 30px; border-radius: var(--border-radius); width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: popIn 0.3s ease; border: 1px solid var(--silver-border);}
+.modal-box { background: white; padding: 28px; border-radius: var(--border-radius); width: 92%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: popIn 0.25s ease; border: 1px solid var(--silver-border);}
 @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.modal-box h3 { margin-bottom: 20px; color: var(--text-main); border-bottom: 2px solid var(--mint-light); padding-bottom: 10px;}
-.form-label { display: block; text-align: left; font-size: 0.85rem; font-weight: bold; color: var(--text-muted); }
+.modal-box h3 { margin-bottom: 18px; color: var(--text-main); border-bottom: 2px solid var(--mint-light); padding-bottom: 10px;}
+.form-label { display: block; text-align: left; font-size: 0.85rem; font-weight: bold; color: var(--text-muted); margin-top: 12px;}
 
-/* 表單內部的輸入框統一樣式 */
-.modal-input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid var(--silver-border); border-radius: 8px; outline: none; font-size: 0.95rem; font-weight: bold; background: var(--silver-bg); color: var(--text-main); transition: 0.2s;}
+.modal-input { width: 100%; padding: 10px 12px; margin: 6px 0; border: 1px solid var(--silver-border); border-radius: 8px; outline: none; font-size: 0.95rem; font-weight: bold; background: var(--silver-bg); color: var(--text-main); transition: 0.2s;}
 .modal-input:focus { border-color: var(--mint-green); background: white; box-shadow: 0 0 0 2px var(--mint-light);}
 select.modal-input { cursor: pointer; }
 
-/* 彈窗按鈕 */
 .btn-primary { width: 100%; padding: 12px; background: var(--mint-green); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-bottom: 10px; font-weight: bold; transition: 0.2s;}
 .btn-primary:hover { background: var(--mint-hover); box-shadow: 0 4px 12px rgba(32, 201, 151, 0.3); transform: translateY(-1px);}
 .btn-cancel { width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-weight: bold; transition: 0.2s;}
 .btn-cancel:hover { color: #E74C3C; background: #FFEBEE; border-radius: 8px;}
 
-/* 表單動態區塊內部小元件 */
-.tag-selection-area { background: var(--silver-bg); border: 1px solid var(--silver-border); border-radius: 8px; padding: 15px; margin-top: 10px; }
+.tag-selection-area { background: var(--silver-bg); border: 1px solid var(--silver-border); border-radius: 8px; padding: 15px; margin-top: 12px; }
 .tag-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
 .tag-checkbox-label { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; cursor: pointer; color: var(--text-main); }
-.custom-tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 32px; padding: 5px; border: 1px dashed var(--mint-green); border-radius: 6px; background: white; }
+.custom-tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 36px; padding: 6px; border: 1px dashed var(--mint-green); border-radius: 6px; background: white; }
 .custom-tag-pill { background: var(--mint-green); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 4px rgba(32,201,151,0.2);}
 .custom-tag-pill span { cursor: pointer; font-weight: bold; padding: 0 4px; border-radius: 50%; transition: 0.2s;}
 .custom-tag-pill span:hover { background: white; color: var(--mint-green);}
 
 .modal-divider { height: 1px; background: var(--silver-border); margin: 20px 0; }
 .link-block, .fancam-block, .official-vid-block, .media-block { background: var(--silver-bg); border: 1px dashed var(--mint-green); border-radius: 8px; padding: 12px; margin-bottom: 12px; position: relative; }
-.link-block-header, .fancam-block-header, .official-vid-block-header, .media-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.link-block-header, .fancam-block-header, .official-vid-block-header, .media-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .remove-block-btn { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: 0.2s;}
 .remove-block-btn:hover { background: #E74C3C; color: white; }
 
-/* 摺疊選單 (Accordion) */
 .accordion-btn { background-color: #f9f9f9; color: var(--text-main); cursor: pointer; padding: 12px 15px; width: 100%; text-align: left; border: 1px solid var(--silver-border); outline: none; transition: 0.3s; border-radius: 8px; margin-top: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem;}
 .accordion-btn.active, .accordion-btn:hover { background-color: var(--mint-light); border-color: var(--mint-green); color: var(--mint-hover);}
 .accordion-btn:after { content: '\002B'; font-weight: bold; font-size: 1.2rem; transition: 0.3s;}
@@ -333,11 +332,10 @@ select.modal-input { cursor: pointer; }
 .accordion-panel { padding: 0 15px; background-color: white; overflow: hidden; max-height: 0; transition: max-height 0.3s ease-out; border-radius: 0 0 8px 8px; border: 1px solid transparent; border-top: none;}
 .accordion-btn.active + .accordion-panel { border-color: var(--mint-green); margin-bottom: 10px; padding-bottom: 15px;}
 
-/* 圖片上傳預覽 (Batch) */
 .preview-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-.preview-item { display: flex; align-items: center; gap: 15px; background: #fff; border: 1px solid var(--silver-border); padding: 10px; border-radius: 8px; }
+.preview-item { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--silver-border); padding: 10px; border-radius: 8px; }
 .preview-thumb { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; flex-shrink: 0; border: 1px solid #eee; }
-.preview-caption { flex: 1; margin: 0; padding: 10px; border: 1px solid var(--silver-border); border-radius: 6px; outline: none; font-size: 0.9rem; resize: none; background: var(--silver-bg);}
+.preview-caption { flex: 1; margin: 0; padding: 8px 10px; border: 1px solid var(--silver-border); border-radius: 6px; outline: none; font-size: 0.9rem; resize: none; background: var(--silver-bg);}
 .preview-caption:focus { border-color: var(--mint-green); background: white;}
 .preview-remove { background: #FFEBEE; color: #C62828; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0;}
 .preview-remove:hover { background: #E74C3C; color: white; transform: scale(1.1); }
@@ -354,49 +352,49 @@ select.modal-input { cursor: pointer; }
 
     .mobile-header { 
         display: flex; justify-content: space-between; align-items: center; 
-        padding: 15px 20px; background: rgba(255, 255, 255, 0.95); 
+        padding: 12px 16px; background: rgba(255, 255, 255, 0.95); 
         border-bottom: 1px solid var(--silver-border); position: sticky; 
-        top: 0; z-index: 100; font-weight: 800; backdrop-filter: blur(5px);
+        top: 0; z-index: 100; font-weight: 800; backdrop-filter: blur(5px); width: 100%;
     }
     .mobile-header .logo { display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 0; }
-    .mobile-brand-logo { height: 36px; width: 36px; min-width: 36px; min-height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--mint-green); flex-shrink: 0; }
     .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px;}
     .hamburger span { width: 25px; height: 3px; background: var(--text-main); transition: 0.3s; border-radius: 3px;}
 
-    .main-layout { flex-direction: column; padding: 10px; margin-top: 10px; width: 100%; overflow: hidden;}
-    .content-area { order: 1; width: 100%; max-width: 100vw; overflow: visible; /* 讓搜尋清單可以超出版面 */ }
+    .main-layout { flex-direction: column; padding: 10px; margin: 10px auto; width: 100%; max-width: 100vw; overflow-x: hidden;}
+    .content-area { order: 1; width: 100%; max-width: 100%; overflow: visible; }
     .sidebar { order: 2; display: none; } 
     
-    .sidebar.active { display: flex; position: fixed; top: 66px; left: 0; width: 100%; height: calc(100vh - 66px); background: rgba(245, 247, 250, 0.98); z-index: 90; padding: 20px; overflow-y: auto; backdrop-filter: blur(10px);}
+    .sidebar.active { display: flex; position: fixed; top: 61px; left: 0; width: 100%; height: calc(100vh - 61px); background: rgba(245, 247, 250, 0.98); z-index: 95; padding: 20px; overflow-y: auto; backdrop-filter: blur(10px);}
     .desktop-logo-container { display: none; }
 
-    .view-layout { flex-direction: column; }
+    /* 【關鍵修復】手機版直向佈局強制撐滿 100% 寬度，防止卡片與輪播超出螢幕 */
+    .view-layout { flex-direction: column; align-items: stretch; width: 100%; max-width: 100%; gap: 16px;}
     
-    .calendar-sidebar { flex: auto; width: 100%; position: static; padding: 15px; margin-bottom: 20px; box-sizing: border-box; }
+    .calendar-sidebar { flex: none; width: 100%; max-width: 100%; position: static; padding: 15px; margin-bottom: 10px; box-sizing: border-box; }
     .calendar-grid-header, .calendar-grid { gap: 6px; }
     .cal-cell { padding: 2px 0; font-size: 0.85rem; min-height: 0; min-width: 0; }
     .day-num { font-size: 0.9rem; }
     
-    .filter-main-row { flex-direction: column; align-items: stretch; gap: 10px;}
-    .search-container { flex: none; width: 100%; height: 44px; }
-    .inline-date-filter { width: 100%; flex-wrap: wrap; justify-content: flex-start;}
-    .date-input-group { flex: 1 1 auto; min-width: 180px;}
-    .custom-dropdown { flex: 1 1 auto; min-width: 120px; max-width: none;}
+    .top-toolbar { padding: 15px; width: 100%; max-width: 100%; z-index: 30;}
+    .filter-main-row { flex-direction: column; align-items: stretch; gap: 10px; width: 100%;}
+    .search-container { flex: none; width: 100%; min-width: 0; height: 44px; }
+    .inline-date-filter { width: 100%; flex-wrap: wrap; justify-content: space-between; gap: 8px;}
+    .date-input-group { flex: 1 1 180px; min-width: 0;}
+    .custom-dropdown { flex: 1 1 130px; min-width: 120px; max-width: none;}
     
     .social-grid { grid-template-columns: 1fr; }
 
+    .timeline { width: 100%; max-width: 100%; }
     .timeline::before { display: none; }
     .card-date-col::after { display: none; }
     
-    .timeline-card { flex-direction: column; gap: 8px; padding-left: 0;}
-    .card-content-col { margin-left: 0; padding: 15px;}
-    .card-date-col { text-align: left; display: flex; gap: 10px; align-items: center; padding-left: 5px;}
+    .timeline-card { flex-direction: column; gap: 6px; padding-left: 0; width: 100%; max-width: 100%;}
+    .card-content-col { margin-left: 0; padding: 15px; width: 100%; max-width: 100%;}
+    .card-date-col { flex: none; width: 100%; text-align: left; display: flex; gap: 10px; align-items: center; padding-left: 5px; padding-top: 0;}
+    
+    .fancam-group-card { max-width: 100%; width: 100%; }
+    .official-vid-card.half-width, .official-vid-card.full-width { max-width: 100%; width: 100%; }
     
     .back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; font-size: 1.2rem;}
-    
-    /* 手機版大圖卡片需強制滿寬 */
-    .official-vid-card.half-width { max-width: 100%; }
-    
-    /* 彈窗在手機上滿版 */
-    .modal-box { width: 95%; max-width: 100%; padding: 20px;}
+    .modal-box { width: 95%; max-width: 95vw; padding: 18px;}
 }
