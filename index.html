@@ -5,12 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
     
-    <!-- 網址分享預覽圖 (Open Graph / Twitter Card) -->
-    <meta property="og:title" content="CHAEWON Archive">
-    <meta property="og:description" content="偶像多媒體足跡與動態典藏系統">
-    <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
+    <!-- 網址分享預覽圖 (Open Graph / LINE / Twitter Card 完整規範) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="CHAEWON Archive">
+    <meta property="og:title" content="CHAEWON Archive | 偶像多媒體足跡與動態典藏系統">
+    <meta property="og:description" content="KIM CHAEWON 偶像多媒體足跡與動態典藏系統">
     <meta property="og:url" content="https://soda8-hub.github.io/CHAEWON_archive/">
+    <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
+    <meta property="og:image:secure_url" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CHAEWON Archive | 偶像多媒體足跡與動態典藏系統">
+    <meta name="twitter:description" content="KIM CHAEWON 偶像多媒體足跡與動態典藏系統">
+    <meta name="twitter:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
     
     <link rel="icon" type="image/png" href="images/logo.png">
     <link rel="stylesheet" href="style.css">
@@ -300,6 +309,71 @@
         }
         const moduleNames = { social: '社群動態', event: '公開演出活動與現場紀錄', brand: '品牌商務與官方公告', schedule: '重要日程' };
 
+        // 將原生 <select> 自動升級為系統薄荷綠風格下拉選單
+        function upgradeSelectToCustom(selectEl) {
+            if (!selectEl || selectEl.dataset.upgraded === 'true') return;
+            selectEl.dataset.upgraded = 'true';
+            selectEl.classList.add('native-select-hidden');
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'modal-custom-select';
+
+            const trigger = document.createElement('div');
+            trigger.className = 'modal-select-trigger';
+
+            const selectedTextSpan = document.createElement('span');
+            const arrowSpan = document.createElement('span');
+            arrowSpan.className = 'arrow';
+            arrowSpan.textContent = '﹀';
+
+            trigger.appendChild(selectedTextSpan);
+            trigger.appendChild(arrowSpan);
+
+            const optionsList = document.createElement('ul');
+            optionsList.className = 'modal-select-options';
+
+            function syncCustomSelectUI() {
+                optionsList.innerHTML = '';
+                const selectedOpt = selectEl.options[selectEl.selectedIndex] || selectEl.options[0];
+                selectedTextSpan.textContent = selectedOpt ? selectedOpt.textContent : '';
+
+                Array.from(selectEl.options).forEach(opt => {
+                    const li = document.createElement('li');
+                    li.textContent = opt.textContent;
+                    if (opt.value === selectEl.value) li.classList.add('active');
+                    li.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selectEl.value = opt.value;
+                        syncCustomSelectUI();
+                        wrapper.classList.remove('open');
+                        selectEl.dispatchEvent(new Event('change'));
+                    });
+                    optionsList.appendChild(li);
+                });
+            }
+
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.modal-custom-select.open').forEach(other => {
+                    if (other !== wrapper) other.classList.remove('open');
+                });
+                wrapper.classList.toggle('open');
+                const parentPanel = wrapper.closest('.accordion-panel');
+                if (parentPanel) updateAccordionHeight(parentPanel);
+            });
+
+            selectEl.addEventListener('change', syncCustomSelectUI);
+            syncCustomSelectUI();
+
+            wrapper.appendChild(trigger);
+            wrapper.appendChild(optionsList);
+            selectEl.parentNode.insertBefore(wrapper, selectEl.nextSibling);
+        }
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.modal-custom-select.open').forEach(el => el.classList.remove('open'));
+        });
+
         function parseOfficialVidCaption(captionStr) {
             if (!captionStr) return { cid: '', cdesc: '', ccover: '' };
             const parts = captionStr.split('|').map(s => s.trim());
@@ -375,14 +449,14 @@
                     if (panel.style.maxHeight) {
                         panel.style.maxHeight = null;
                     } else {
-                        panel.style.maxHeight = panel.scrollHeight + 60 + "px"; 
+                        panel.style.maxHeight = panel.scrollHeight + 80 + "px"; 
                     }
                 });
             }
         }
         function updateAccordionHeight(panel) {
             if (panel && panel.style.maxHeight) {
-                panel.style.maxHeight = panel.scrollHeight + 60 + "px";
+                panel.style.maxHeight = panel.scrollHeight + 80 + "px";
             }
         }
 
@@ -616,9 +690,12 @@
                 }
 
                 if (currentArchiveId) {
+                    // 嚴格清空舊有關聯子表並檢查錯誤，確保「✖ 移除」100% 同步刪除且不重複
                     if (itemData.id) { 
-                        await supabaseClient.from('archive_media').delete().eq('archive_id', currentArchiveId);
-                        await supabaseClient.from('fancams').delete().eq('archive_id', currentArchiveId); 
+                        const { error: delMediaErr } = await supabaseClient.from('archive_media').delete().eq('archive_id', currentArchiveId);
+                        if (delMediaErr) throw delMediaErr;
+                        const { error: delFcErr } = await supabaseClient.from('fancams').delete().eq('archive_id', currentArchiveId); 
+                        if (delFcErr) throw delFcErr;
                     }
                     
                     const keptStorageUrls = new Set();
@@ -660,7 +737,10 @@
                         });
                     }
 
-                    if (mediaPayloads.length > 0) { await supabaseClient.from('archive_media').insert(mediaPayloads); }
+                    if (mediaPayloads.length > 0) {
+                        const { error: insMediaErr } = await supabaseClient.from('archive_media').insert(mediaPayloads);
+                        if (insMediaErr) throw insMediaErr;
+                    }
 
                     let fancamPayloads = [];
                     for (let i = 0; i < fancamArray.length; i++) {
@@ -681,7 +761,10 @@
                             description: finalPicUrl 
                         });
                     }
-                    if (fancamPayloads.length > 0) { await supabaseClient.from('fancams').insert(fancamPayloads); }
+                    if (fancamPayloads.length > 0) {
+                        const { error: insFcErr } = await supabaseClient.from('fancams').insert(fancamPayloads);
+                        if (insFcErr) throw insFcErr;
+                    }
 
                     // 自動從 Storage 清除被移除的舊圖片
                     const removedStoragePaths = oldStorageUrls
@@ -753,7 +836,6 @@
             if(currentModule === 'schedule') renderCalendar();
         }
         
-        // 【關鍵修復 1】：所有模組皆與當前所選月份 (currentMonthFilter) 同步連動
         function filterData(targetDate = null) {
             currentData = masterData.filter(item => {
                 const matchModule = currentModule === 'all' || item.module === currentModule;
@@ -1160,7 +1242,6 @@
             document.getElementById('globalMonthDisplay').addEventListener('click', resetToCurrentMonth);
             document.getElementById('globalCurrentMonthBtn').addEventListener('click', resetToCurrentMonth);
             
-            // 【關鍵修復 2】：點擊「今天」可切換選中，再次點擊「今天」即可取消單日篩選
             document.getElementById('todayBtn').addEventListener('click', function() {
                 if (selectedDate === trueTodayStr) {
                     clearDateFilter();
@@ -1217,6 +1298,9 @@
         // 【動態表單管理】
         // ==========================================
         function setupDataModal() {
+            const dataModuleSelect = document.getElementById('dataModule');
+            upgradeSelectToCustom(dataModuleSelect);
+
             const officialVidListContainer = document.getElementById('officialVidListContainer');
             const externalLinksContainer = document.getElementById('externalLinksContainer');
             const relatedArchiveGroup = document.getElementById('relatedArchiveGroup');
@@ -1314,6 +1398,7 @@
                     ${picUrlVal ? `<p style="font-size: 0.75rem; color: var(--mint-green); margin-top: 4px;">已存在預覽圖，上傳新檔將會覆蓋。</p>` : ''}
                 `;
                 fancamListContainer.appendChild(block);
+                upgradeSelectToCustom(block.querySelector('.fc-platform-select'));
                 updateAccordionHeight(fancamListContainer.parentElement);
             }
 
@@ -1375,7 +1460,6 @@
                 batchMediaInput.value = ''; 
             });
 
-            // 【關鍵修復 5】：重要日程關聯選取器 (點擊直接成立，優先顯示品牌商務與官方公告)
             window.selectRelatedArchive = function(archiveId) {
                 const target = masterData.find(d => d.id === archiveId);
                 if (!target) return;
@@ -1468,7 +1552,7 @@
                 }
             });
 
-            document.getElementById('dataModule').addEventListener('change', (e) => {
+            dataModuleSelect.addEventListener('change', (e) => {
                 checkboxGroup.innerHTML = '';
                 let availableTags = [];
                 const rawTags = moduleSubTags[e.target.value === 'all' ? 'social' : e.target.value];
