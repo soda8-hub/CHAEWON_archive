@@ -66,18 +66,25 @@
         .fancam-pic-link:hover img { transform: scale(1.05); }
         .pic-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); color: white; font-size: 0.65rem; text-align: center; padding: 2px 0; font-weight: bold; }
 
-        /* 新增：官方影音按鈕樣式 */
-        .official-vid-btn { display: inline-flex; align-items: center; background: #ff0000; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; text-decoration: none; transition: 0.2s; margin-top: 5px; box-shadow: 0 2px 5px rgba(255,0,0,0.3); }
-        .official-vid-btn:hover { background: #cc0000; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(255,0,0,0.4); color: white; }
+        .official-vid-gallery { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .official-vid-card { position: relative; display: block; width: 100%; max-width: 600px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.3s; text-decoration: none; }
+        .official-vid-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); border-color: #ff0000; }
+        .official-vid-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: #222; }
+        
+        .yt-play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 40px; background: rgba(30,30,30,0.8); border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .yt-play-icon::before { content: ''; width: 0; height: 0; border-style: solid; border-width: 10px 0 10px 18px; border-color: transparent transparent transparent white; margin-left: 5px; }
+        .official-vid-card:hover .yt-play-icon { background: #ff0000; }
+        
+        .official-vid-info { padding: 12px; background: white; display: flex; flex-direction: column; gap: 5px; border-top: 1px solid #eee; }
+        .official-vid-badge { align-self: flex-start; background: #ff0000; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.5px; }
+        .official-vid-title { color: #333; font-weight: bold; font-size: 0.95rem; line-height: 1.3; }
 
-        /* 燈箱樣式 (Lightbox) */
         .lightbox-overlay { display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
         .lightbox-overlay.active { display: flex; }
         .lightbox-img { max-width: 90%; max-height: 90vh; object-fit: contain; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 4px; }
         .lightbox-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .lightbox-close:hover, .lightbox-close:focus { color: #bbb; text-decoration: none; cursor: pointer; }
 
-        /* 彈窗摺疊樣式 */
         .accordion-btn { background-color: #f1f1f1; color: #444; cursor: pointer; padding: 10px; width: 100%; text-align: left; border: none; outline: none; transition: 0.4s; border-radius: 6px; margin-top: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .accordion-btn.active, .accordion-btn:hover { background-color: #ddd; }
         .accordion-btn:after { content: '\002B'; color: #777; font-weight: bold; float: right; margin-left: 5px; font-size: 1.2rem;}
@@ -87,7 +94,6 @@
 </head>
 <body>
 
-    <!-- 燈箱容器 -->
     <div id="lightbox" class="lightbox-overlay">
         <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
         <img class="lightbox-img" id="lightboxImg">
@@ -146,7 +152,6 @@
                         <div class="search-container desktop-search">
                             <span class="search-icon">🔍</span>
                             <input type="text" id="searchInput" placeholder="搜尋標題、內文、標籤或站子..." autocomplete="off">
-                            <!-- 【修復】限制搜尋列表高度，防止過長破版 -->
                             <ul id="searchResults" class="search-results" style="max-height: 300px; overflow-y: auto;"></ul>
                         </div>
                         <div class="inline-date-filter">
@@ -259,33 +264,32 @@
             <label class="form-label">內文主文案 (選填，韓文/中文皆可)：</label>
             <textarea id="dataContent" class="modal-input" placeholder="輸入內容 (可留白)..." rows="3" style="margin-top: 5px; resize: vertical;"></textarea>
 
-            <!-- 【升級】摺疊選單設計 (Accordion) -->
-            <button class="accordion-btn">📺 官方影音紀錄 (如: 舞台全程/紅毯/官方直拍)</button>
-            <div class="accordion-panel">
-                <div id="officialVidListContainer" style="margin-top: 10px;"></div>
-                <button type="button" id="addOfficialVidBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; border-color: #e74c3c; color: #c0392b; background: #fadbd8;">+ 新增一組官方影音連結</button>
-            </div>
-
             <button class="accordion-btn">🔗 附加外部連結 (出處 / 新聞 / 原文)</button>
             <div class="accordion-panel">
                 <div id="externalLinksContainer" style="margin-top: 10px;"></div>
                 <button type="button" id="addLinkBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; background: white;">+ 新增一組外部連結</button>
             </div>
 
+            <button class="accordion-btn">📺 官方影音紀錄 (如: 舞台全程/紅毯/官方直拍)</button>
+            <div class="accordion-panel">
+                <div id="officialVidListContainer" style="margin-top: 10px;"></div>
+                <button type="button" id="addOfficialVidBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; border-color: #e74c3c; color: #c0392b; background: #fadbd8;">+ 新增一組官方影音連結</button>
+            </div>
+
             <div id="fancamGroupWrapper" style="display: none;">
-                <button class="accordion-btn" style="background-color: #fcf3cf; color: #d68910;">📸 附加站子飯拍/直拍紀錄 (Event 專屬)</button>
+                <button class="accordion-btn" style="background-color: #fcf3cf; color: #d68910;">📸 附加粉絲拍攝內容 (Event 專屬)</button>
                 <div class="accordion-panel" style="background-color: #fef9e7;">
                     <div id="fancamListContainer" style="margin-top: 10px;"></div>
-                    <button type="button" id="addFancamBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; border-color: #F39C12; color: #D68910; background: white;">+ 新增一組站子飯拍紀錄</button>
-                    <!-- 用於紀錄輸入過的站子帳號供 AutoComplete 使用 -->
+                    <button type="button" id="addFancamBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; border-color: #F39C12; color: #D68910; background: white;">+ 新增一組粉絲拍攝紀錄</button>
                     <datalist id="fancamAccountList"></datalist>
                 </div>
             </div>
 
+            <!-- 【修改按鈕文字】 -->
             <button class="accordion-btn">📷 附加官方媒體檔案 (上傳圖片)</button>
             <div class="accordion-panel">
                 <div id="mediaListContainer" style="margin-top: 10px;"></div>
-                <button type="button" id="addMediaBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed;">+ 新增一張圖片</button>
+                <button type="button" id="addMediaBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed;">+ 新增圖片 (支援一次選取多張)</button>
             </div>
 
             <div class="modal-divider" style="margin-top: 30px;"></div>
@@ -327,14 +331,12 @@
         let currentSortOrder = 'desc'; 
         let tempCustomTags = [];
         
-        // 用於自動完成的站子名單
         let savedFanAccounts = new Set();
         
         let isUnlocked = false; 
         let isEditor = false; 
         let currentLoggedEmail = null; 
 
-        // 【修復 2 & 4】：調整標籤，加入年末舞台，並將日程中的演唱會改為「演唱會(日程)」
         const moduleSubTags = {
             all: { 'CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'], 'Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'], 'Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'], 'X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'], 'YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'], 'TikTok / Challenge': ['TikTok/抖音', 'Challenge'], '公開演出活動與現場紀錄': ['打歌舞臺', '線下簽售', '線上視訊簽售', '演唱會', '年末舞台', '音樂節/祭', '機場', '頒獎典禮', '(代言)活動出席'], '品牌商務與官方公告': ['品牌商務', '官方公告', '回歸相關'], '重要日程': ['演唱會(日程)', '預錄時間', '生日', '節目播出'] },
             social: { 'CHAEWON 專屬': ['CHAEWON單人', 'Instagram--_chaechae_1', 'Weverse--CHAEWON', '多人'], 'Instagram': ['Instagram POST', 'Instagram STORY', 'Instagram Reel'], 'Weverse': ['Weverse POST', 'Weverse PHOTO', 'Weverse LIVE'], 'X (Twitter)': ['X--LE SSERAFIM', 'X--LE SSERAFIM_Members', 'X--Others'], 'YouTube': ['YouTube--LE SSERAFIM', 'YouTube--LE SSERAFIM_Short', 'YouTube--Others', 'YouTube--Others_Short'], 'TikTok / Challenge': ['TikTok/抖音', 'Challenge'] },
@@ -367,7 +369,6 @@
             }
         }
 
-        // 【新增 3】：燈箱系統 (Lightbox) 控制
         function setupLightbox() {
             const lightbox = document.getElementById('lightbox');
             lightbox.addEventListener('click', (e) => {
@@ -388,7 +389,6 @@
             document.getElementById('lightboxImg').src = '';
         };
 
-        // 【新增 5】：摺疊面板控制
         function setupAccordion() {
             const acc = document.getElementsByClassName("accordion-btn");
             for (let i = 0; i < acc.length; i++) {
@@ -398,12 +398,11 @@
                     if (panel.style.maxHeight) {
                         panel.style.maxHeight = null;
                     } else {
-                        panel.style.maxHeight = panel.scrollHeight + 30 + "px"; // +30 預留空間給動態新增的按鈕
+                        panel.style.maxHeight = panel.scrollHeight + 30 + "px"; 
                     }
                 });
             }
         }
-        // 幫助函數：動態新增內容後重新計算高度
         function updateAccordionHeight(panel) {
             if (panel.style.maxHeight) {
                 panel.style.maxHeight = panel.scrollHeight + 50 + "px";
@@ -536,19 +535,16 @@
                 savedFanAccounts.clear();
 
                 masterData = data.map(item => {
-                    // 收集所有站子帳號供 AutoComplete 使用
                     if (item.fancams) {
                         item.fancams.forEach(f => {
                             if(f.fan_account) savedFanAccounts.add(f.fan_account);
                         });
                     }
 
-                    // 【新增 4】：拆分官方影片與一般圖片
                     let parsedMedia = item.archive_media || [];
                     let parsedLinks = item.links || [];
                     let officialVids = [];
 
-                    // 將 YouTube / Vimeo 從 media 中抽離出來作為「官方影音紀錄」
                     const imgs = [];
                     parsedMedia.forEach(m => {
                         if (m.media_type === 'youtube' || m.media_type === 'vimeo') {
@@ -571,7 +567,6 @@
                     };
                 });
                 
-                // 更新 Datalist
                 updateDatalist();
 
                 const virtualEvents = [];
@@ -636,7 +631,6 @@
                     if (itemData.id) { await supabaseClient.from('archive_media').delete().eq('archive_id', currentArchiveId); }
                     let mediaPayloads = [];
                     
-                    // 儲存圖片
                     for (let i = 0; i < mediaArray.length; i++) {
                         let m = mediaArray[i]; let finalUrl = m.url;
                         if (m.type === 'image' && m.file) {
@@ -650,13 +644,25 @@
                         if (finalUrl) mediaPayloads.push({ archive_id: currentArchiveId, media_url: finalUrl, media_type: m.type, specific_caption: m.caption, sort_order: i + 1 });
                     }
                     
-                    // 儲存官方影片 (寫入回 archive_media 表，只是 type 為 youtube)
                     let vidOrderStart = mediaArray.length + 1;
-                    officialVidArray.forEach((v, idx) => {
+                    for (let i = 0; i < officialVidArray.length; i++) {
+                        let v = officialVidArray[i];
+                        let finalPicUrl = v.picUrl; 
+                        if (v.file) {
+                            const compressedFile = await compressImage(v.file, 1200); 
+                            const filePath = `offvid_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
+                            const { error: uploadError } = await supabaseClient.storage.from('media').upload(filePath, compressedFile);
+                            if (!uploadError) {
+                                const { data: publicUrlData } = supabaseClient.storage.from('media').getPublicUrl(filePath);
+                                finalPicUrl = publicUrlData.publicUrl;
+                            }
+                        }
+                        const combinedCaption = v.title + (finalPicUrl ? '|' + finalPicUrl : '');
+                        
                         mediaPayloads.push({
-                            archive_id: currentArchiveId, media_url: v.url, media_type: v.type, specific_caption: v.title, sort_order: vidOrderStart + idx
+                            archive_id: currentArchiveId, media_url: v.url, media_type: 'youtube', specific_caption: combinedCaption, sort_order: vidOrderStart + i
                         });
-                    });
+                    }
 
                     if (mediaPayloads.length > 0) { await supabaseClient.from('archive_media').insert(mediaPayloads); }
 
@@ -688,14 +694,22 @@
             if(confirm('確定要從雲端刪除這筆資料嗎？(包含 Storage 內的圖片與飯拍圖將一併永久清除) 此動作無法復原！')) {
                 if (!supabaseClient) return;
                 try {
-                    const { data: mediaData } = await supabaseClient.from('archive_media').select('media_url').eq('archive_id', id);
+                    const { data: mediaData } = await supabaseClient.from('archive_media').select('media_url, specific_caption').eq('archive_id', id);
                     const { data: fancamData } = await supabaseClient.from('fancams').select('description').eq('archive_id', id);
                     
                     const { error } = await supabaseClient.from('archives').delete().eq('id', id);
                     if (error) throw error;
 
                     let filePaths = [];
-                    if (mediaData) filePaths = [...filePaths, ...mediaData.map(m => m.media_url)];
+                    if (mediaData) {
+                        mediaData.forEach(m => {
+                            if (m.media_url) filePaths.push(m.media_url);
+                            if (m.specific_caption && m.specific_caption.includes('|')) {
+                                const picUrl = m.specific_caption.split('|')[1];
+                                if(picUrl) filePaths.push(picUrl);
+                            }
+                        });
+                    }
                     if (fancamData) filePaths = [...filePaths, ...fancamData.map(f => f.description)];
 
                     const finalPaths = filePaths.map(url => {
@@ -846,10 +860,31 @@
                         linksHtml = '<div class="multi-links-group" style="margin-top: 10px;">' + item.links.map(l => `<a href="${l.url}" class="db-link" target="_blank" rel="noopener noreferrer">${l.title}</a>`).join('') + '</div>';
                     }
                     
-                    // 【新增 4】：渲染官方影片按鈕 (YouTube/Vimeo)
                     let officialVidsHtml = '';
                     if (item.officialVids && item.officialVids.length > 0) {
-                        officialVidsHtml = '<div style="margin-top: 10px;">' + item.officialVids.map(v => `<a href="${v.url}" class="official-vid-btn" target="_blank" rel="noopener noreferrer">▶ ${v.title}</a>`).join(' ') + '</div>';
+                        officialVidsHtml = `<div class="official-vid-gallery">`;
+                        item.officialVids.forEach((v) => {
+                            let title = v.title;
+                            let coverUrl = '';
+                            if (v.title && v.title.includes('|')) {
+                                const parts = v.title.split('|');
+                                title = parts[0];
+                                coverUrl = parts[1];
+                            }
+                            
+                            officialVidsHtml += `<a href="${v.url}" target="_blank" rel="noopener noreferrer" class="official-vid-card">`;
+                            if (coverUrl) {
+                                officialVidsHtml += `<img src="${coverUrl}" loading="lazy" alt="${title}">`;
+                            } else {
+                                officialVidsHtml += `<div style="width:100%; aspect-ratio:16/9; background:#333; display:flex; align-items:center; justify-content:center; color:#888;">無預覽圖</div>`;
+                            }
+                            officialVidsHtml += `<div class="yt-play-icon"></div>`;
+                            officialVidsHtml += `<div class="official-vid-info">`;
+                            officialVidsHtml += `<span class="official-vid-badge">YouTube</span>`;
+                            officialVidsHtml += `<span class="official-vid-title">${title || '觀看官方影音'}</span>`;
+                            officialVidsHtml += `</div></a>`;
+                        });
+                        officialVidsHtml += `</div>`;
                     }
 
                     let relatedHtml = '';
@@ -892,7 +927,7 @@
                         });
 
                         fancamHtml = `<div class="fancam-gallery">`;
-                        fancamHtml += `<div class="fancam-gallery-title">📸 站子飯拍 / 現場直拍紀錄 (${item.fancams.length})</div>`;
+                        fancamHtml += `<div class="fancam-gallery-title">📸 粉絲拍攝紀錄 (${item.fancams.length})</div>`;
                         fancamHtml += `<div class="fancam-grid">`;
                         
                         for (const key in grouped) {
@@ -911,7 +946,6 @@
                                 const partLabel = groupItems.length > 1 ? `Part ${idx + 1}` : '🔗 觀看';
                                 
                                 if (hasPic) {
-                                    // 【新增 3】：結合 Lightbox 放大預覽飯拍圖
                                     fancamHtml += `<a href="${f.content_url}" target="_blank" rel="noopener noreferrer" class="fancam-pic-link" title="前往觀看原始貼文">`;
                                     fancamHtml += `<img src="${f.description}" loading="lazy" onclick="event.preventDefault(); openLightbox('${f.description}')" title="點擊放大預覽">`;
                                     fancamHtml += `<span class="pic-label">${partLabel}</span></a>`;
@@ -932,8 +966,7 @@
                         sortedMedia.forEach((m, idx) => {
                             mediaHtml += `<div class="carousel-slide">`;
                             if (isMultiple) { mediaHtml += `<div class="carousel-counter">${idx + 1} / ${sortedMedia.length}</div>`; }
-                            // 【新增 3】：結合 Lightbox 放大官方圖片
-                            if (m.media_type === 'image') { mediaHtml += `<img src="${m.media_url}" loading="lazy" alt="Archive Image" onclick="openLightbox('${m.media_url}')">`; } 
+                            if (m.media_type === 'image') { mediaHtml += `<img src="${m.media_url}" loading="lazy" alt="Archive Image" onclick="openLightbox('${m.media_url}')" title="點擊看大圖">`; } 
                             else if (m.media_type === 'vimeo' || m.media_type === 'youtube') { mediaHtml += `<iframe src="${m.media_url}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`; }
                             if (m.specific_caption) { mediaHtml += `<p class="media-caption">${m.specific_caption.replace(/\n/g, '<br>')}</p>`; }
                             mediaHtml += `</div>`;
@@ -1020,8 +1053,6 @@
             const container = document.getElementById('clearTagsContainer');
             if (activeSubTags.length > 0) { container.innerHTML = `<button class="btn-clear-tags">✖ 清除所選標籤</button>`; container.querySelector('.btn-clear-tags').onclick = () => { activeSubTags = []; renderSubTags(); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); }; } else { container.innerHTML = ''; }
         }
-
-        // 【修復 1】：將點擊空白處關閉選單改為 mousedown，以免 click 事件還沒觸發就被清空
         function setupSearch() {
             const input = document.getElementById('searchInput');
             const resultsList = document.getElementById('searchResults');
@@ -1038,8 +1069,7 @@
                     return searchStr.includes(val);
                 });
                 
-                renderSidebarStats(matched); 
-                renderTimeline(matched);
+                renderSidebarStats(matched); renderTimeline(matched);
                 
                 matched.forEach(item => {
                     const li = document.createElement('li'); 
@@ -1048,9 +1078,8 @@
                     
                     li.innerHTML = `<span class="s-date">${item.date}</span> ${displayTitle}${displayContent}`;
                     
-                    // 使用 mousedown 避免失去焦點(blur)導致無法觸發
                     li.addEventListener('mousedown', (e) => {
-                        e.preventDefault(); // 防止失去焦點
+                        e.preventDefault();
                         input.value = ''; resultsList.innerHTML = '';
                         const targetCard = document.getElementById(`post-${item.id}`);
                         if(targetCard) { 
@@ -1066,7 +1095,7 @@
                 const items = resultsList.getElementsByTagName('li');
                 if (e.key === 'ArrowDown') { currentFocus++; addActive(items); } 
                 else if (e.key === 'ArrowUp') { currentFocus--; addActive(items); } 
-                else if (e.key === 'Enter') { e.preventDefault(); if (currentFocus > -1 && items[currentFocus]) items[currentFocus].dispatchEvent(new Event('mousedown')); }
+                else if (e.key === 'Enter') { e.preventDefault(); if (currentFocus > -1 && items[currentFocus]) items[currentFocus].dispatchEvent(new MouseEvent('mousedown')); }
             });
             function addActive(items) {
                 if (!items || items.length === 0) return;
@@ -1076,8 +1105,6 @@
                 items[currentFocus].classList.add('autocomplete-active');
                 items[currentFocus].scrollIntoView({ block: 'nearest' });
             }
-            
-            // 點擊外面才隱藏
             document.addEventListener('mousedown', (e) => { 
                 if(e.target !== input && e.target.parentNode !== resultsList) resultsList.innerHTML = ''; 
             });
@@ -1161,7 +1188,7 @@
         }
 
         // ==========================================
-        // 【動態表單管理】(含摺疊選單重構)
+        // 【動態表單管理】
         // ==========================================
         function setupDataModal() {
             const mediaListContainer = document.getElementById('mediaListContainer');
@@ -1193,25 +1220,37 @@
             function createOfficialVidBlock(data = null) {
                 const blockId = Date.now() + Math.random().toString(36).substring(7);
                 const block = document.createElement('div'); block.className = 'official-vid-block'; block.id = `vid-block-${blockId}`;
-                const typeVal = data ? data.type : 'youtube'; const titleVal = data ? data.title : ''; const urlVal = data ? data.url : '';
+                
+                let titleVal = ''; let picUrlVal = '';
+                if(data && data.title) {
+                    if (data.title.includes('|')) {
+                        const parts = data.title.split('|');
+                        titleVal = parts[0];
+                        picUrlVal = parts[1];
+                    } else { titleVal = data.title; }
+                }
+                const urlVal = data ? data.url : '';
+
                 block.innerHTML = `
                     <div class="official-vid-block-header">
-                        <select class="vid-type-select modal-input" style="margin:0; width: 40%; padding: 8px;">
-                            <option value="youtube" ${typeVal==='youtube'?'selected':''}>YouTube</option>
-                            <option value="vimeo" ${typeVal==='vimeo'?'selected':''}>Vimeo</option>
-                        </select>
+                        <span style="font-weight: bold; font-size: 0.85rem; color: #c0392b;">📺 官方影音紀錄</span>
                         <button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 5px;">
-                        <input type="text" class="vid-title-input modal-input" placeholder="按鈕標題 (如: M2 直拍)" value="${titleVal}" style="flex: 1; margin:0;" required>
-                        <input type="url" class="vid-url-input modal-input" placeholder="影片網址 (https://...)" value="${urlVal}" style="flex: 2; margin:0;" required>
+                        <input type="text" class="vid-title-input modal-input" placeholder="顯示標題 (如: M2 直拍)" value="${titleVal}" style="flex: 1; margin:0;" required>
+                        <input type="url" class="vid-url-input modal-input" placeholder="YouTube 網址 (https://...)" value="${urlVal}" style="flex: 2; margin:0;" required>
                     </div>
+                    <p style="font-size: 0.8rem; margin: 8px 0 3px 0; color: #555;">上傳高畫質影片封面圖 (選填，自動壓縮成大圖展示)：</p>
+                    <input type="file" class="vid-pic-input modal-input" accept="image/*">
+                    <input type="hidden" class="vid-old-pic-url" value="${picUrlVal}">
+                    ${picUrlVal ? `<p style="font-size: 0.75rem; color: var(--mint-green);">已存在預覽大圖，上傳新檔將會覆蓋。</p>` : ''}
                 `;
                 officialVidListContainer.appendChild(block);
                 updateAccordionHeight(officialVidListContainer.parentElement);
             }
 
-            function createMediaBlock(data = null) {
+            // 【升級 1】：批次選擇多張圖片並分配到獨立區塊
+            function createMediaBlock(data = null, preSelectedFile = null) {
                 const blockId = Date.now() + Math.random().toString(36).substring(7);
                 const block = document.createElement('div'); block.className = 'media-block'; block.id = `media-block-${blockId}`;
                 const captionVal = data ? data.specific_caption : '';
@@ -1221,16 +1260,42 @@
                         <button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button>
                     </div>
                     <div class="media-input-wrapper" style="margin-top: 5px;">
-                        <input type="file" class="media-file-input modal-input" accept="image/*" style="margin:0; padding:8px;" ${data?'style="display:none;"':''}>
+                        <!-- 加上 multiple 屬性支援多選 -->
+                        <input type="file" class="media-file-input modal-input" accept="image/*" multiple style="margin:0; padding:8px;" ${data?'style="display:none;"':''}>
                         ${data ? `<input type="text" class="modal-input" value="已上傳圖片 (編輯時不支援替換檔案)" disabled style="margin:0; padding:8px; background:#f0f0f0;">` : ''}
                     </div>
-                    <input type="text" class="media-caption-input modal-input" placeholder="該圖的專屬小文案 (選填)..." value="${captionVal || ''}" style="margin-top: 8px; padding: 8px;">
+                    <input type="text" class="media-caption-input modal-input" placeholder="該圖的專屬小文案 (選填，輪播時顯示)..." value="${captionVal || ''}" style="margin-top: 8px; padding: 8px;">
                 `;
                 mediaListContainer.appendChild(block);
                 updateAccordionHeight(mediaListContainer.parentElement);
+
+                const fileInput = block.querySelector('.media-file-input');
+                
+                // 如果是透過多選後自動分裂出來的區塊，把檔案塞進去
+                if (preSelectedFile) {
+                    const dt = new DataTransfer();
+                    dt.items.add(preSelectedFile);
+                    fileInput.files = dt.files;
+                }
+
+                // 監聽選擇檔案事件，處理多選分裂
+                fileInput.addEventListener('change', (e) => {
+                    if (fileInput.files.length > 1) {
+                        const files = Array.from(fileInput.files);
+                        
+                        // 當前區塊只保留第一張圖
+                        const dt = new DataTransfer();
+                        dt.items.add(files[0]);
+                        fileInput.files = dt.files;
+                        
+                        // 其餘的圖片自動分裂出新區塊
+                        for (let i = 1; i < files.length; i++) {
+                            createMediaBlock(null, files[i]);
+                        }
+                    }
+                });
             }
 
-            // 【新增 5】：站子自動完成 (list="fancamAccountList")
             function createFancamBlock(data = null) {
                 const blockId = Date.now() + Math.random().toString(36).substring(7);
                 const block = document.createElement('div'); block.className = 'fancam-block'; block.id = `fancam-block-${blockId}`;
@@ -1242,9 +1307,9 @@
                 const picUrlVal = (data && data.description && data.description.startsWith('http')) ? data.description : '';
 
                 block.innerHTML = `
-                    <div class="fancam-block-header"><span style="font-weight: bold; font-size: 0.85rem; color: #F39C12;">📸 站子飯拍紀錄</span><button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button></div>
+                    <div class="fancam-block-header"><span style="font-weight: bold; font-size: 0.85rem; color: #F39C12;">📸 粉絲拍攝紀錄</span><button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button></div>
                     <div style="display: flex; gap: 10px; margin-top: 5px;">
-                        <input type="text" list="fancamAccountList" class="fc-account-input modal-input" placeholder="站子帳號 (如: wonder_0801)" value="${accountVal}" style="flex: 1;" required>
+                        <input type="text" list="fancamAccountList" class="fc-account-input modal-input" placeholder="帳號 (如: wonder_0801)" value="${accountVal}" style="flex: 1;" required autocomplete="off">
                         <select class="fc-platform-select modal-input" style="flex: 1;">
                             <option value="X" ${platformVal==='X'?'selected':''}>X</option>
                             <option value="Instagram" ${platformVal==='Instagram'?'selected':''}>Instagram</option>
@@ -1369,10 +1434,16 @@
                 const officialVidBlocks = document.querySelectorAll('.official-vid-block');
                 let officialVidArray = [];
                 officialVidBlocks.forEach(block => {
-                    const type = block.querySelector('.vid-type-select').value;
+                    const type = 'youtube'; 
                     const title = block.querySelector('.vid-title-input').value;
                     const url = block.querySelector('.vid-url-input').value;
-                    if(url) officialVidArray.push({ type, title, url });
+                    
+                    let file = null;
+                    let picUrl = block.querySelector('.vid-old-pic-url').value;
+                    const fileInput = block.querySelector('.vid-pic-input');
+                    if (fileInput.files.length > 0) file = fileInput.files[0];
+                    
+                    if(url) officialVidArray.push({ type, title, url, file, picUrl });
                 });
 
                 const fancamBlocks = document.querySelectorAll('.fancam-block');
@@ -1409,7 +1480,6 @@
                 fancamListContainer.innerHTML = ''; 
                 tempCustomTags = []; 
                 
-                // 收合所有面板
                 document.querySelectorAll('.accordion-btn').forEach(btn => {
                     btn.classList.remove('active');
                     if(btn.nextElementSibling) btn.nextElementSibling.style.maxHeight = null;
