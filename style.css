@@ -19,6 +19,12 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif; }
 
+/* 全域與彈窗自訂精緻捲軸 */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--silver-bg); border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 8px; border: 2px solid var(--silver-bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--mint-green); }
+
 body { 
     background-color: var(--silver-bg); 
     background-image: 
@@ -121,7 +127,7 @@ body {
 .dropdown-selected .arrow { font-size: 0.75rem; color: var(--text-muted); transition: transform 0.3s;}
 .custom-dropdown.open .dropdown-selected { border-color: var(--mint-green); box-shadow: 0 0 0 2px var(--mint-light);}
 .custom-dropdown.open .arrow { transform: rotate(180deg); color: var(--mint-green);}
-.dropdown-options { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--mint-green); border-radius: 8px; margin-top: 5px; list-style: none; box-shadow: var(--shadow-sm); z-index: 20; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease;}
+.dropdown-options { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--mint-green); border-radius: 8px; margin-top: 5px; list-style: none; box-shadow: var(--shadow-sm); z-index: 20; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; overflow: hidden;}
 .custom-dropdown.open .dropdown-options { opacity: 1; visibility: visible; transform: translateY(0);}
 .dropdown-options li { padding: 10px 15px; cursor: pointer; font-size: 0.9rem; font-weight: bold; color: var(--text-main); border-bottom: 1px solid var(--silver-bg);}
 .dropdown-options li:hover { background: var(--mint-light); color: var(--mint-hover);}
@@ -175,7 +181,6 @@ body {
 .cal-title-group { display: flex; flex-direction: column; align-items: center; gap: 5px;}
 .cal-title-group h4 { font-size: 1rem; color: var(--text-main); margin: 0;}
 
-/* 「今天」按鈕：未選取時淺綠，選取中(.active)呈現深綠 */
 .btn-today { background: var(--mint-light) !important; color: var(--mint-hover) !important; font-size: 0.78rem; padding: 3px 14px !important; border-radius: 12px !important; border: 1px solid var(--mint-green) !important; transition: 0.2s; cursor: pointer;}
 .btn-today:hover { border-color: var(--mint-hover) !important; }
 .btn-today.active { background: var(--mint-hover) !important; color: white !important; border-color: var(--mint-hover) !important; box-shadow: 0 2px 6px rgba(23, 165, 137, 0.35);}
@@ -295,7 +300,7 @@ body {
 .lightbox-close:hover { color: var(--mint-green); transform: scale(1.1);}
 
 /* =========================================
-   7. 彈窗與編輯表單模組 (Modal)
+   7. 彈窗與編輯表單模組 (Modal 系統化視覺升級)
 ========================================= */
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(3px);}
 .modal-box { background: white; padding: 26px; border-radius: var(--border-radius); width: 92%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: popIn 0.25s ease; border: 1px solid var(--silver-border);}
@@ -310,13 +315,65 @@ body {
 
 .form-label { display: block; text-align: left; font-size: 0.85rem; font-weight: bold; color: var(--text-muted); margin-top: 12px; word-break: break-word;}
 
-.modal-input { width: 100%; min-width: 0; padding: 10px 12px; margin: 6px 0; border: 1px solid var(--silver-border); border-radius: 8px; outline: none; font-size: 0.95rem; font-weight: bold; background: var(--silver-bg); color: var(--text-main); transition: 0.2s;}
+.modal-input { width: 100%; min-width: 0; padding: 10px 12px; margin: 6px 0; border: 1px solid var(--silver-border); border-radius: 10px; outline: none; font-size: 0.95rem; font-weight: bold; background: var(--silver-bg); color: var(--text-main); transition: 0.2s;}
 .modal-input:focus { border-color: var(--mint-green); background: white; box-shadow: 0 0 0 2px var(--mint-light);}
-select.modal-input { cursor: pointer; }
+
+/* 檔案上傳按鈕系統化美化 (取代瀏覽器預設灰框) */
+input[type="file"].modal-input { padding: 7px 10px; background: white; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+input[type="file"].modal-input::file-selector-button {
+    background: var(--mint-light);
+    color: var(--mint-hover);
+    border: 1px solid var(--mint-green);
+    border-radius: 6px;
+    padding: 5px 12px;
+    margin-right: 10px;
+    font-weight: bold;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+input[type="file"].modal-input::file-selector-button:hover {
+    background: var(--mint-green);
+    color: white;
+}
+
+/* 彈窗專用：自訂系統風下拉選單 (取代原生藍底選單) */
+.native-select-hidden { display: none !important; }
+.modal-custom-select { position: relative; width: 100%; margin: 6px 0; user-select: none; text-align: left; }
+.modal-select-trigger {
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%; padding: 10px 14px; border-radius: 10px;
+    border: 1px solid var(--silver-border); background: var(--silver-bg);
+    color: var(--text-main); font-weight: bold; font-size: 0.95rem;
+    cursor: pointer; transition: 0.2s;
+}
+.modal-select-trigger:hover { border-color: var(--mint-green); background: white; }
+.modal-custom-select.open .modal-select-trigger {
+    border-color: var(--mint-green); background: white;
+    box-shadow: 0 0 0 2px var(--mint-light);
+}
+.modal-select-trigger .arrow { font-size: 0.75rem; color: var(--text-muted); transition: transform 0.3s; }
+.modal-custom-select.open .modal-select-trigger .arrow { transform: rotate(180deg); color: var(--mint-green); }
+
+.modal-select-options {
+    position: absolute; top: calc(100% + 5px); left: 0; right: 0;
+    background: white; border: 1px solid var(--mint-green); border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12); list-style: none; padding: 0; margin: 0;
+    z-index: 9999; opacity: 0; visibility: hidden; transform: translateY(-8px);
+    transition: all 0.2s ease; overflow: hidden;
+}
+.modal-custom-select.open .modal-select-options { opacity: 1; visibility: visible; transform: translateY(0); }
+.modal-select-options li {
+    padding: 10px 14px; cursor: pointer; font-size: 0.92rem; font-weight: bold;
+    color: var(--text-main); border-bottom: 1px solid var(--silver-bg); transition: 0.15s;
+}
+.modal-select-options li:last-child { border-bottom: none; }
+.modal-select-options li:hover { background: var(--mint-light); color: var(--mint-hover); }
+.modal-select-options li.active { background: var(--mint-green); color: white; }
 
 /* 響應式表單橫列 (電腦版並排，手機版自動轉直向滿寬) */
 .form-row-3col { display: grid; grid-template-columns: 2fr 2fr 1.2fr; gap: 10px; margin-top: 10px; align-items: end; }
-.block-flex-row { display: flex; gap: 10px; margin-top: 5px; flex-wrap: wrap; }
+.block-flex-row { display: flex; gap: 10px; margin-top: 5px; flex-wrap: wrap; align-items: center;}
 .block-flex-row > * { flex: 1 1 150px; min-width: 0; margin: 0 !important; }
 
 /* 重要日程：內部系統關聯智慧選取器 */
@@ -338,30 +395,44 @@ select.modal-input { cursor: pointer; }
 .related-item-badge.brand-priority { background: var(--mint-green); }
 .related-item-title { font-size: 0.88rem; font-weight: bold; color: var(--text-main); word-break: break-word; line-height: 1.35; }
 
-.btn-primary { width: 100%; padding: 12px; background: var(--mint-green); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-bottom: 10px; font-weight: bold; transition: 0.2s;}
+.btn-primary { width: 100%; padding: 12px; background: var(--mint-green); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; margin-bottom: 10px; font-weight: bold; transition: 0.2s;}
 .btn-primary:hover { background: var(--mint-hover); box-shadow: 0 4px 12px rgba(32, 201, 151, 0.3); transform: translateY(-1px);}
 .btn-cancel { width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-weight: bold; transition: 0.2s;}
 .btn-cancel:hover { color: #E74C3C; background: #FFEBEE; border-radius: 8px;}
 
-.tag-selection-area { background: var(--silver-bg); border: 1px solid var(--silver-border); border-radius: 8px; padding: 15px; margin-top: 12px; }
-.tag-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-.tag-checkbox-label { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; cursor: pointer; color: var(--text-main); }
-.custom-tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 36px; padding: 6px; border: 1px dashed var(--mint-green); border-radius: 6px; background: white; }
+/* 標籤勾選區塊：系統風膠囊勾選設計 */
+.tag-selection-area { background: var(--silver-bg); border: 1px solid var(--silver-border); border-radius: 10px; padding: 15px; margin-top: 12px; }
+.tag-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+.tag-checkbox-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.84rem; font-weight: 600; cursor: pointer; color: var(--text-main);
+    background: white; border: 1px solid var(--silver-border);
+    padding: 5px 11px; border-radius: 16px; transition: 0.2s; user-select: none;
+}
+.tag-checkbox-label:hover { border-color: var(--mint-green); color: var(--mint-hover); }
+.tag-checkbox-label input[type="checkbox"] { accent-color: var(--mint-green); width: 15px; height: 15px; cursor: pointer; }
+.tag-checkbox-label:has(input:checked) {
+    background: var(--mint-light); border-color: var(--mint-green); color: var(--mint-hover);
+    box-shadow: 0 2px 5px rgba(32, 201, 151, 0.15);
+}
+
+.custom-tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 38px; padding: 6px; border: 1px dashed var(--mint-green); border-radius: 8px; background: white; }
 .custom-tag-pill { background: var(--mint-green); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 4px rgba(32,201,151,0.2);}
 .custom-tag-pill span { cursor: pointer; font-weight: bold; padding: 0 4px; border-radius: 50%; transition: 0.2s;}
 .custom-tag-pill span:hover { background: white; color: var(--mint-green);}
 
 .modal-divider { height: 1px; background: var(--silver-border); margin: 20px 0; }
-.link-block, .fancam-block, .official-vid-block, .media-block { background: var(--silver-bg); border: 1px dashed var(--mint-green); border-radius: 8px; padding: 12px; margin-bottom: 12px; position: relative; }
+.link-block, .fancam-block, .official-vid-block, .media-block { background: var(--silver-bg); border: 1px dashed var(--mint-green); border-radius: 10px; padding: 12px; margin-bottom: 12px; position: relative; }
 .link-block-header, .fancam-block-header, .official-vid-block-header, .media-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px;}
 .remove-block-btn { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: 0.2s; white-space: nowrap; flex-shrink: 0;}
 .remove-block-btn:hover { background: #E74C3C; color: white; }
 
-.accordion-btn { background-color: #f9f9f9; color: var(--text-main); cursor: pointer; padding: 12px 15px; width: 100%; text-align: left; border: 1px solid var(--silver-border); outline: none; transition: 0.3s; border-radius: 8px; margin-top: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.95rem; line-height: 1.4;}
+.accordion-btn { background-color: #f9f9f9; color: var(--text-main); cursor: pointer; padding: 12px 15px; width: 100%; text-align: left; border: 1px solid var(--silver-border); outline: none; transition: 0.3s; border-radius: 10px; margin-top: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.95rem; line-height: 1.4;}
 .accordion-btn.active, .accordion-btn:hover { background-color: var(--mint-light); border-color: var(--mint-green); color: var(--mint-hover);}
 .accordion-btn:after { content: '\002B'; font-weight: bold; font-size: 1.2rem; transition: 0.3s; flex-shrink: 0;}
 .accordion-btn.active:after { content: "\2212"; transform: rotate(180deg);}
-.accordion-panel { padding: 0 15px; background-color: white; overflow: hidden; max-height: 0; transition: max-height 0.3s ease-out; border-radius: 0 0 8px 8px; border: 1px solid transparent; border-top: none;}
+.accordion-panel { padding: 0 15px; background-color: white; overflow: visible; max-height: 0; transition: max-height 0.3s ease-out; border-radius: 0 0 10px 10px; border: 1px solid transparent; border-top: none;}
+.accordion-btn:not(.active) + .accordion-panel { overflow: hidden; }
 .accordion-btn.active + .accordion-panel { border-color: var(--mint-green); margin-bottom: 10px; padding-bottom: 15px;}
 
 .preview-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
@@ -433,7 +504,7 @@ select.modal-input { cursor: pointer; }
 /* 手機窄螢幕表單防截字與垂直堆疊優化 */
 @media (max-width: 640px) {
     .form-row-3col { grid-template-columns: 1fr; gap: 4px; }
-    .block-flex-row { flex-direction: column; gap: 8px; }
+    .block-flex-row { flex-direction: column; gap: 8px; align-items: stretch; }
     .block-flex-row > * { flex: none; width: 100%; }
     .accordion-btn { padding: 10px 12px; font-size: 0.9rem; }
     .accordion-panel { padding: 0 10px; }
