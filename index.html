@@ -59,7 +59,7 @@
                 <div class="stats-summary">
                     <div class="month-navigator">
                         <button id="globalPrevMonth">◀</button>
-                        <span id="globalMonthDisplay" title="點擊直接回到當月">2026年 11月</span>
+                        <span id="globalMonthDisplay" title="點擊篩選當月">2026年 11月</span>
                         <button id="globalNextMonth">▶</button>
                     </div>
                     <button id="globalCurrentMonthBtn" class="btn-current-month">📍 回到當月</button>
@@ -279,6 +279,7 @@
         
         let currentModule = 'all'; 
         let currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
+        let isMonthFilterActive = false; // 預設不鎖定單月，讓全部時間軸顯示所有資料
         let selectedDate = null; 
         
         let masterData = []; 
@@ -309,7 +310,6 @@
         }
         const moduleNames = { social: '社群動態', event: '公開演出活動與現場紀錄', brand: '品牌商務與官方公告', schedule: '重要日程' };
 
-        // 將原生 <select> 自動升級為系統薄荷綠風格下拉選單
         function upgradeSelectToCustom(selectEl) {
             if (!selectEl || selectEl.dataset.upgraded === 'true') return;
             selectEl.dataset.upgraded = 'true';
@@ -690,7 +690,6 @@
                 }
 
                 if (currentArchiveId) {
-                    // 嚴格清空舊有關聯子表並檢查錯誤，確保「✖ 移除」100% 同步刪除且不重複
                     if (itemData.id) { 
                         const { error: delMediaErr } = await supabaseClient.from('archive_media').delete().eq('archive_id', currentArchiveId);
                         if (delMediaErr) throw delMediaErr;
@@ -766,7 +765,6 @@
                         if (insFcErr) throw insFcErr;
                     }
 
-                    // 自動從 Storage 清除被移除的舊圖片
                     const removedStoragePaths = oldStorageUrls
                         .filter(url => !keptStorageUrls.has(url) && url.includes('/storage/v1/object/public/media/'))
                         .map(url => url.split('/public/media/')[1])
@@ -836,15 +834,29 @@
             if(currentModule === 'schedule') renderCalendar();
         }
         
+        // 預設在「全部時間軸」顯示所有月份；點選左側統計區上下月切換時，才鎖定顯示該月內容
         function filterData(targetDate = null) {
             currentData = masterData.filter(item => {
                 const matchModule = currentModule === 'all' || item.module === currentModule;
                 const matchDate = targetDate ? item.date === targetDate : true;
                 const matchTags = activeSubTags.length === 0 || activeSubTags.some(tag => item.tags.includes(tag) || item.source.includes(tag));
-                const matchMonth = !targetDate ? item.date.startsWith(currentMonthFilter) : true;
+                const matchMonth = ((currentModule === 'schedule' || isMonthFilterActive) && !targetDate) ? item.date.startsWith(currentMonthFilter) : true;
                 
                 return matchModule && matchDate && matchTags && matchMonth;
             });
+
+            const filterMsg = document.getElementById('filterMsg');
+            if (filterMsg) {
+                if (targetDate) {
+                    filterMsg.innerText = `📅 指定單日篩選：${targetDate.replace(/-/g, '/')} (點選「清除」可顯示全部)`;
+                } else if (isMonthFilterActive && currentModule !== 'schedule') {
+                    const [y, m] = currentMonthFilter.split('-');
+                    filterMsg.innerText = `📅 目前篩選月份：${y}年 ${m}月 (點選「清除」或上方分類可顯示全部)`;
+                } else {
+                    filterMsg.innerText = '';
+                }
+            }
+
             renderSidebarStats(currentData); 
             renderTimeline(currentData);
         }
@@ -895,6 +907,7 @@
             const targetItem = masterData.find(d => d.id === id);
             if (targetItem) {
                 currentMonthFilter = targetItem.date.substring(0, 7);
+                isMonthFilterActive = false;
                 selectedDate = null; document.getElementById('dateText').value = '';
             }
             
@@ -1172,6 +1185,7 @@
                         e.preventDefault();
                         input.value = ''; resultsList.innerHTML = '';
                         currentMonthFilter = item.date.substring(0, 7);
+                        isMonthFilterActive = false;
                         selectedDate = null;
                         document.getElementById('dateText').value = '';
                         refreshView(null);
@@ -1238,7 +1252,13 @@
             document.getElementById('calPrevMonthBtn')?.addEventListener('click', () => changeMonth(-1));
             document.getElementById('calNextMonthBtn')?.addEventListener('click', () => changeMonth(1));
             
-            const resetToCurrentMonth = () => { currentMonthFilter = `${sysYear}-${sysMonthStr}`; selectedDate = null; document.getElementById('dateText').value = ''; refreshView(null); };
+            const resetToCurrentMonth = () => { 
+                currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
+                isMonthFilterActive = true; 
+                selectedDate = null; 
+                document.getElementById('dateText').value = ''; 
+                refreshView(null); 
+            };
             document.getElementById('globalMonthDisplay').addEventListener('click', resetToCurrentMonth);
             document.getElementById('globalCurrentMonthBtn').addEventListener('click', resetToCurrentMonth);
             
@@ -1255,13 +1275,19 @@
             });
         }
         
-        function clearDateFilter() { document.getElementById('dateText').value = ''; selectedDate = null; refreshView(null); }
+        function clearDateFilter() { 
+            document.getElementById('dateText').value = ''; 
+            selectedDate = null; 
+            isMonthFilterActive = false; 
+            refreshView(null); 
+        }
         function changeMonth(offset) {
             let [y, m] = currentMonthFilter.split('-').map(Number);
             m += offset;
             if (m > 12) { m = 1; y++; }
             if (m < 1) { m = 12; y--; }
             currentMonthFilter = `${y}-${String(m).padStart(2,'0')}`;
+            isMonthFilterActive = true;
             selectedDate = null; document.getElementById('dateText').value = ''; refreshView(null);
         }
         
