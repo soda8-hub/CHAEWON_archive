@@ -4,96 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
+    
+    <!-- 網址分享預覽圖 (Open Graph / Twitter Card) -->
+    <meta property="og:title" content="CHAEWON Archive">
+    <meta property="og:description" content="偶像多媒體足跡與動態典藏系統">
+    <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
+    <meta property="og:url" content="https://soda8-hub.github.io/CHAEWON_archive/">
+    <meta name="twitter:card" content="summary_large_image">
+    
     <link rel="icon" type="image/png" href="images/logo.png">
     <link rel="stylesheet" href="style.css">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <style>
-        .tag-selection-area { background: var(--silver-bg); border: 1px solid var(--silver-border); border-radius: 8px; padding: 15px; margin-top: 10px; }
-        .tag-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-        .tag-checkbox-label { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; cursor: pointer; color: var(--text-main); }
-        .custom-tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 32px; padding: 5px; border: 1px dashed var(--mint-green); border-radius: 6px; background: white; }
-        .custom-tag-pill { background: var(--mint-green); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 5px; }
-        .custom-tag-pill span { cursor: pointer; font-weight: bold; }
-        
-        .modal-divider { height: 1px; background: var(--silver-border); margin: 20px 0; }
-        .media-block, .link-block, .fancam-block, .official-vid-block { background: var(--silver-bg); border: 1px dashed var(--mint-green); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
-        .media-block-header, .link-block-header, .fancam-block-header, .official-vid-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .remove-block-btn { background: #FFEBEE; color: #C62828; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; font-weight: bold;}
-        
-        .internal-link-btn { background: var(--silver-bg); color: var(--text-main); border: 1px solid var(--mint-green); padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px;}
-        .internal-link-btn:hover { background: var(--mint-light); color: var(--mint-hover); }
-        .bgm-tag { display: inline-flex; align-items: center; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; gap: 5px; }
-
-        .month-navigator { display: flex; justify-content: space-between; align-items: center; background: var(--silver-bg); padding: 6px 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--silver-border); }
-        .month-navigator button { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--mint-hover); padding: 0 8px; transition: 0.2s; }
-        .month-navigator button:hover { transform: scale(1.15); }
-        #globalMonthDisplay { font-weight: 800; color: var(--text-main); font-size: 1rem; cursor: pointer; }
-        .btn-current-month { width: 100%; background: var(--mint-light); color: var(--mint-hover); border: 1px solid var(--mint-green); border-radius: 6px; padding: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
-        .btn-current-month:hover { background: var(--mint-green); color: white; }
-
-        .carousel-container { position: relative; width: 100%; border-radius: 8px; overflow: hidden; background: #111; margin-top: 15px; border: 1px solid var(--silver-border); }
-        .carousel-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; }
-        .carousel-track::-webkit-scrollbar { display: none; }
-        .carousel-slide { flex: 0 0 100%; scroll-snap-align: center; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .carousel-slide img, .carousel-slide iframe { width: 100%; max-height: 60vh; object-fit: contain; display: block; cursor: zoom-in; }
-        .carousel-counter { position: absolute; top: 12px; right: 12px; background: rgba(0, 0, 0, 0.65); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; z-index: 10; backdrop-filter: blur(4px); }
-        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.8); border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #333; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: 0.2s;}
-        .carousel-btn:hover { background: white; transform: translateY(-50%) scale(1.1); }
-        .carousel-btn.prev { left: 10px; }
-        .carousel-btn.next { right: 10px; }
-        .media-caption { padding: 10px 15px; font-size: 0.9rem; color: #eee; background: #222; margin: 0; font-weight: 500; width: 100%; text-align: left; }
-        
-        .fancam-gallery { margin-top: 15px; background: #fdfdfd; border: 1px solid var(--silver-border); border-radius: 8px; padding: 12px; }
-        .fancam-gallery-title { font-size: 0.9rem; color: var(--mint-hover); font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid var(--silver-border); padding-bottom: 5px;}
-        .fancam-grid { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
-        
-        .fancam-group-card { background: white; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%; max-width: 280px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.2s; }
-        .fancam-group-card:hover { border-color: var(--mint-green); box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
-        
-        .fancam-group-header { background: #f9f9f9; padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; }
-        .fancam-platform { font-size: 0.7rem; color: white; background: #555; padding: 2px 6px; border-radius: 4px; }
-        .fancam-account { font-weight: bold; font-size: 0.85rem; color: #333; word-break: break-all; }
-        
-        .fancam-group-body { padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 8px; }
-        
-        .fancam-text-link { display: inline-flex; align-items: center; background: #f4f4f4; color: #333; font-size: 0.8rem; padding: 4px 10px; border-radius: 15px; text-decoration: none; border: 1px solid #ddd; transition: 0.2s; font-weight: bold; }
-        .fancam-text-link:hover { border-color: var(--mint-green); color: var(--mint-hover); background: #eafffa; transform: translateY(-1px); }
-        
-        .fancam-pic-link { position: relative; width: 65px; height: 65px; border-radius: 6px; overflow: hidden; border: 1px solid #eee; display: block; text-decoration: none; flex-shrink: 0;}
-        .fancam-pic-link img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; background: #f5f5f5; }
-        .fancam-pic-link:hover img { transform: scale(1.05); }
-        .pic-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); color: white; font-size: 0.65rem; text-align: center; padding: 2px 0; font-weight: bold; }
-
-        .official-vid-gallery { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .official-vid-card { position: relative; display: block; width: 100%; max-width: 600px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.3s; text-decoration: none; }
-        .official-vid-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); border-color: #ff0000; }
-        .official-vid-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: #222; }
-        
-        .yt-play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 40px; background: rgba(30,30,30,0.8); border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .yt-play-icon::before { content: ''; width: 0; height: 0; border-style: solid; border-width: 10px 0 10px 18px; border-color: transparent transparent transparent white; margin-left: 5px; }
-        .official-vid-card:hover .yt-play-icon { background: #ff0000; }
-        
-        .official-vid-info { padding: 12px; background: white; display: flex; flex-direction: column; gap: 5px; border-top: 1px solid #eee; }
-        .official-vid-badge { align-self: flex-start; background: #ff0000; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.5px; }
-        .official-vid-title { color: #333; font-weight: bold; font-size: 0.95rem; line-height: 1.3; }
-
-        .lightbox-overlay { display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
-        .lightbox-overlay.active { display: flex; }
-        .lightbox-img { max-width: 90%; max-height: 90vh; object-fit: contain; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 4px; }
-        .lightbox-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .lightbox-close:hover, .lightbox-close:focus { color: #bbb; text-decoration: none; cursor: pointer; }
-
-        .accordion-btn { background-color: #f1f1f1; color: #444; cursor: pointer; padding: 10px; width: 100%; text-align: left; border: none; outline: none; transition: 0.4s; border-radius: 6px; margin-top: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .accordion-btn.active, .accordion-btn:hover { background-color: #ddd; }
-        .accordion-btn:after { content: '\002B'; color: #777; font-weight: bold; float: right; margin-left: 5px; font-size: 1.2rem;}
-        .accordion-btn.active:after { content: "\2212"; }
-        .accordion-panel { padding: 0 10px; background-color: white; overflow: hidden; max-height: 0; transition: max-height 0.2s ease-out; border-radius: 0 0 6px 6px; }
-    </style>
 </head>
 <body>
 
+    <!-- 燈箱容器 (Lightbox) -->
     <div id="lightbox" class="lightbox-overlay">
         <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
         <img class="lightbox-img" id="lightboxImg">
@@ -152,7 +78,7 @@
                         <div class="search-container desktop-search">
                             <span class="search-icon">🔍</span>
                             <input type="text" id="searchInput" placeholder="搜尋標題、內文、標籤或站子..." autocomplete="off">
-                            <ul id="searchResults" class="search-results" style="max-height: 300px; overflow-y: auto;"></ul>
+                            <ul id="searchResults" class="search-results"></ul>
                         </div>
                         <div class="inline-date-filter">
                             <div class="date-input-group">
@@ -264,16 +190,11 @@
             <label class="form-label">內文主文案 (選填，韓文/中文皆可)：</label>
             <textarea id="dataContent" class="modal-input" placeholder="輸入內容 (可留白)..." rows="3" style="margin-top: 5px; resize: vertical;"></textarea>
 
+            <!-- 摺疊面板區域 -->
             <button class="accordion-btn">🔗 附加外部連結 (出處 / 新聞 / 原文)</button>
             <div class="accordion-panel">
                 <div id="externalLinksContainer" style="margin-top: 10px;"></div>
                 <button type="button" id="addLinkBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; background: white;">+ 新增一組外部連結</button>
-            </div>
-
-            <button class="accordion-btn">📺 官方影音紀錄 (如: 舞台全程/紅毯/官方直拍)</button>
-            <div class="accordion-panel">
-                <div id="officialVidListContainer" style="margin-top: 10px;"></div>
-                <button type="button" id="addOfficialVidBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; border-color: #e74c3c; color: #c0392b; background: #fadbd8;">+ 新增一組官方影音連結</button>
             </div>
 
             <div id="fancamGroupWrapper" style="display: none;">
@@ -285,11 +206,19 @@
                 </div>
             </div>
 
-            <!-- 【修改按鈕文字】 -->
+            <button class="accordion-btn">📺 官方影音紀錄 (如: 舞台全程/紅毯/官方直拍)</button>
+            <div class="accordion-panel">
+                <div id="officialVidListContainer" style="margin-top: 10px;"></div>
+                <button type="button" id="addOfficialVidBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed; border-color: #e74c3c; color: #c0392b; background: #fadbd8;">+ 新增一組官方影音連結</button>
+                <datalist id="officialAccountList"></datalist>
+            </div>
+
             <button class="accordion-btn">📷 附加官方媒體檔案 (上傳圖片)</button>
             <div class="accordion-panel">
-                <div id="mediaListContainer" style="margin-top: 10px;"></div>
-                <button type="button" id="addMediaBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed;">+ 新增圖片 (支援一次選取多張)</button>
+                <!-- 批次上傳觸發器 -->
+                <input type="file" id="batchMediaInput" accept="image/*" multiple style="display: none;">
+                <div id="mediaPreviewList" class="preview-list"></div>
+                <button type="button" id="triggerBatchMediaBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed;">+ 選取圖片 (支援一次選取多張)</button>
             </div>
 
             <div class="modal-divider" style="margin-top: 30px;"></div>
@@ -305,7 +234,6 @@
         // ==========================================
         const SUPABASE_URL = 'https://kxywdxavuakxajpbbpbp.supabase.co'; 
         const SUPABASE_ANON_KEY = 'sb_publishable_tpHN-Vos2cXlVNHokyiWxg_4HxdB8gR';
-        
         const ADMIN_EMAIL = 'oncesoda6@gmail.com';
         
         let supabaseClient = null; 
@@ -331,7 +259,10 @@
         let currentSortOrder = 'desc'; 
         let tempCustomTags = [];
         
+        let selectedMediaFiles = [];
+        let existingMediaItems = []; 
         let savedFanAccounts = new Set();
+        let savedOfficialAccounts = new Set();
         
         let isUnlocked = false; 
         let isEditor = false; 
@@ -398,7 +329,7 @@
                     if (panel.style.maxHeight) {
                         panel.style.maxHeight = null;
                     } else {
-                        panel.style.maxHeight = panel.scrollHeight + 30 + "px"; 
+                        panel.style.maxHeight = panel.scrollHeight + 50 + "px"; 
                     }
                 });
             }
@@ -424,10 +355,7 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             isUnlocked = !!session; 
             currentLoggedEmail = session ? session.user.email.toLowerCase() : null; 
-            
-            if (isUnlocked) { await checkEditorStatus(); } 
-            else { isEditor = false; }
-            
+            if (isUnlocked) { await checkEditorStatus(); } else { isEditor = false; }
             updateLockUI();
         }
 
@@ -533,6 +461,7 @@
                 if (error) throw error;
                 
                 savedFanAccounts.clear();
+                savedOfficialAccounts.clear();
 
                 masterData = data.map(item => {
                     if (item.fancams) {
@@ -544,11 +473,19 @@
                     let parsedMedia = item.archive_media || [];
                     let parsedLinks = item.links || [];
                     let officialVids = [];
-
                     const imgs = [];
+
                     parsedMedia.forEach(m => {
-                        if (m.media_type === 'youtube' || m.media_type === 'vimeo') {
-                            officialVids.push({ url: m.media_url, title: m.specific_caption || '觀看影片', type: m.media_type });
+                        if (m.media_type === 'youtube') {
+                            let cid = ''; let cdesc = ''; let ccover = '';
+                            if (m.specific_caption) {
+                                const parts = m.specific_caption.split('|');
+                                cid = parts[0] || '';
+                                cdesc = parts[1] || '';
+                                ccover = parts[2] || '';
+                                if(cid) savedOfficialAccounts.add(cid);
+                            }
+                            officialVids.push({ url: m.media_url, channelId: cid, desc: cdesc, picUrl: ccover });
                         } else {
                             imgs.push(m);
                         }
@@ -558,12 +495,8 @@
                         id: item.id, module: item.module, date: item.date, time: item.time, dailyOrder: item.daily_order,
                         source: item.source_platform || 'System', mainTitle: item.main_title || '', 
                         content: item.content_kr || item.content_tw || '', bgm: item.bgm || '',
-                        tags: item.tags || [], 
-                        links: parsedLinks, 
-                        media: imgs, 
-                        officialVids: officialVids,
-                        fancams: item.fancams || [], 
-                        relatedArchiveId: item.related_archive_id || null, isVirtual: false
+                        tags: item.tags || [], links: parsedLinks, media: imgs, officialVids: officialVids,
+                        fancams: item.fancams || [], relatedArchiveId: item.related_archive_id || null, isVirtual: false
                     };
                 });
                 
@@ -584,12 +517,15 @@
         }
 
         function updateDatalist() {
-            const datalist = document.getElementById('fancamAccountList');
-            if(datalist) {
-                datalist.innerHTML = '';
-                savedFanAccounts.forEach(acc => {
-                    datalist.innerHTML += `<option value="${acc}">`;
-                });
+            const fDatalist = document.getElementById('fancamAccountList');
+            if(fDatalist) {
+                fDatalist.innerHTML = '';
+                savedFanAccounts.forEach(acc => { fDatalist.innerHTML += `<option value="${acc}">`; });
+            }
+            const oDatalist = document.getElementById('officialAccountList');
+            if(oDatalist) {
+                oDatalist.innerHTML = '';
+                savedOfficialAccounts.forEach(acc => { oDatalist.innerHTML += `<option value="${acc}">`; });
             }
         }
 
@@ -632,22 +568,21 @@
                     let mediaPayloads = [];
                     
                     for (let i = 0; i < mediaArray.length; i++) {
-                        let m = mediaArray[i]; let finalUrl = m.url;
-                        if (m.type === 'image' && m.file) {
-                            const compressedFile = await compressImage(m.file);
+                        let f = mediaArray[i]; let finalUrl = '';
+                        if (f.file) { 
+                            const compressedFile = await compressImage(f.file);
                             const filePath = `post_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
                             const { error: uploadError } = await supabaseClient.storage.from('media').upload(filePath, compressedFile);
                             if (uploadError) throw uploadError;
                             const { data: publicUrlData } = supabaseClient.storage.from('media').getPublicUrl(filePath);
                             finalUrl = publicUrlData.publicUrl;
-                        }
-                        if (finalUrl) mediaPayloads.push({ archive_id: currentArchiveId, media_url: finalUrl, media_type: m.type, specific_caption: m.caption, sort_order: i + 1 });
+                        } else if (f.url) { finalUrl = f.url; }
+                        if (finalUrl) mediaPayloads.push({ archive_id: currentArchiveId, media_url: finalUrl, media_type: 'image', specific_caption: f.caption, sort_order: i + 1 });
                     }
                     
                     let vidOrderStart = mediaArray.length + 1;
                     for (let i = 0; i < officialVidArray.length; i++) {
-                        let v = officialVidArray[i];
-                        let finalPicUrl = v.picUrl; 
+                        let v = officialVidArray[i]; let finalPicUrl = v.picUrl; 
                         if (v.file) {
                             const compressedFile = await compressImage(v.file, 1200); 
                             const filePath = `offvid_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
@@ -657,8 +592,7 @@
                                 finalPicUrl = publicUrlData.publicUrl;
                             }
                         }
-                        const combinedCaption = v.title + (finalPicUrl ? '|' + finalPicUrl : '');
-                        
+                        const combinedCaption = `${v.channelId}|${v.desc}|${finalPicUrl}`;
                         mediaPayloads.push({
                             archive_id: currentArchiveId, media_url: v.url, media_type: 'youtube', specific_caption: combinedCaption, sort_order: vidOrderStart + i
                         });
@@ -705,8 +639,8 @@
                         mediaData.forEach(m => {
                             if (m.media_url) filePaths.push(m.media_url);
                             if (m.specific_caption && m.specific_caption.includes('|')) {
-                                const picUrl = m.specific_caption.split('|')[1];
-                                if(picUrl) filePaths.push(picUrl);
+                                const parts = m.specific_caption.split('|');
+                                if(parts.length >= 3 && parts[2]) filePaths.push(parts[2]); 
                             }
                         });
                     }
@@ -860,28 +794,71 @@
                         linksHtml = '<div class="multi-links-group" style="margin-top: 10px;">' + item.links.map(l => `<a href="${l.url}" class="db-link" target="_blank" rel="noopener noreferrer">${l.title}</a>`).join('') + '</div>';
                     }
                     
+                    let fancamHtml = '';
+                    const hasFancams = item.fancams && item.fancams.length > 0;
+                    if (hasFancams) {
+                        let currentGroupOrder = 0;
+                        const groupOrderMap = {};
+                        item.fancams.forEach(f => {
+                            let platText = f.platform;
+                            if(platText === 'X (Twitter)') platText = 'X';
+                            const key = platText + '::' + f.fan_account;
+                            if (groupOrderMap[key] === undefined) { groupOrderMap[key] = currentGroupOrder++; }
+                            f.groupKey = key;
+                        });
+                        item.fancams.sort((a, b) => {
+                            if (groupOrderMap[a.groupKey] !== groupOrderMap[b.groupKey]) { return groupOrderMap[a.groupKey] - groupOrderMap[b.groupKey]; }
+                            return 0;
+                        });
+                        const grouped = {};
+                        item.fancams.forEach(f => {
+                            if (!grouped[f.groupKey]) grouped[f.groupKey] = [];
+                            grouped[f.groupKey].push(f);
+                        });
+                        fancamHtml = `<div class="fancam-gallery">`;
+                        fancamHtml += `<div class="fancam-gallery-title">📸 粉絲拍攝內容 (${item.fancams.length})</div>`;
+                        fancamHtml += `<div class="fancam-grid">`;
+                        for (const key in grouped) {
+                            const groupItems = grouped[key];
+                            const [platText, account] = key.split('::');
+                            fancamHtml += `<div class="fancam-group-card">`;
+                            fancamHtml += `<div class="fancam-group-header">
+                                              <span class="fancam-platform">${platText}</span>
+                                              <span class="fancam-account">@${account}</span>
+                                           </div>`;
+                            fancamHtml += `<div class="fancam-group-body">`;
+                            groupItems.forEach((f, idx) => {
+                                const hasPic = f.description && f.description.startsWith('http');
+                                const partLabel = groupItems.length > 1 ? `Part ${idx + 1}` : '🔗 觀看';
+                                if (hasPic) {
+                                    fancamHtml += `<a href="${f.content_url}" target="_blank" rel="noopener noreferrer" class="fancam-pic-link" title="前往觀看原始貼文">`;
+                                    fancamHtml += `<img src="${f.description}" loading="lazy" onclick="event.preventDefault(); openLightbox('${f.description}')" title="點擊放大預覽">`;
+                                    fancamHtml += `<span class="pic-label">${partLabel}</span></a>`;
+                                } else {
+                                    fancamHtml += `<a href="${f.content_url}" target="_blank" rel="noopener noreferrer" class="fancam-text-link">${partLabel}</a>`;
+                                }
+                            });
+                            fancamHtml += `</div></div>`;
+                        }
+                        fancamHtml += `</div></div>`;
+                    }
+
                     let officialVidsHtml = '';
                     if (item.officialVids && item.officialVids.length > 0) {
-                        officialVidsHtml = `<div class="official-vid-gallery">`;
+                        const cardWidthClass = hasFancams ? 'half-width' : 'full-width';
+                        officialVidsHtml = `<div class="official-vid-gallery" style="${hasFancams ? 'flex-direction: row; flex-wrap: wrap;' : ''}">`;
                         item.officialVids.forEach((v) => {
-                            let title = v.title;
-                            let coverUrl = '';
-                            if (v.title && v.title.includes('|')) {
-                                const parts = v.title.split('|');
-                                title = parts[0];
-                                coverUrl = parts[1];
-                            }
-                            
-                            officialVidsHtml += `<a href="${v.url}" target="_blank" rel="noopener noreferrer" class="official-vid-card">`;
-                            if (coverUrl) {
-                                officialVidsHtml += `<img src="${coverUrl}" loading="lazy" alt="${title}">`;
-                            } else {
-                                officialVidsHtml += `<div style="width:100%; aspect-ratio:16/9; background:#333; display:flex; align-items:center; justify-content:center; color:#888;">無預覽圖</div>`;
-                            }
+                            let cid = v.channelId || ''; let cdesc = v.desc || ''; let coverUrl = v.picUrl || '';
+                            officialVidsHtml += `<a href="${v.url}" target="_blank" rel="noopener noreferrer" class="official-vid-card ${cardWidthClass}">`;
+                            if (coverUrl) { officialVidsHtml += `<img src="${coverUrl}" loading="lazy" alt="${cdesc}">`; } 
+                            else { officialVidsHtml += `<div style="width:100%; aspect-ratio:16/9; background:#333; display:flex; align-items:center; justify-content:center; color:#888;">無預覽圖</div>`; }
                             officialVidsHtml += `<div class="yt-play-icon"></div>`;
                             officialVidsHtml += `<div class="official-vid-info">`;
+                            officialVidsHtml += `<div style="display:flex; align-items:center; gap:8px;">`;
                             officialVidsHtml += `<span class="official-vid-badge">YouTube</span>`;
-                            officialVidsHtml += `<span class="official-vid-title">${title || '觀看官方影音'}</span>`;
+                            if (cid) officialVidsHtml += `<span style="font-weight:bold; font-size:0.95rem; color:#333;">@${cid}</span>`;
+                            officialVidsHtml += `</div>`;
+                            if (cdesc) officialVidsHtml += `<span class="official-vid-title">${cdesc}</span>`;
                             officialVidsHtml += `</div></a>`;
                         });
                         officialVidsHtml += `</div>`;
@@ -899,65 +876,6 @@
                     let bgmHtml = '';
                     if (item.bgm) { bgmHtml = `<div class="bgm-tag">🎵 ${item.bgm}</div>`; }
 
-                    let fancamHtml = '';
-                    if (item.fancams && item.fancams.length > 0) {
-                        let currentGroupOrder = 0;
-                        const groupOrderMap = {};
-                        
-                        item.fancams.forEach(f => {
-                            let platText = f.platform;
-                            if(platText === 'X (Twitter)') platText = 'X';
-                            const key = platText + '::' + f.fan_account;
-                            
-                            if (groupOrderMap[key] === undefined) { groupOrderMap[key] = currentGroupOrder++; }
-                            f.groupKey = key;
-                        });
-
-                        item.fancams.sort((a, b) => {
-                            if (groupOrderMap[a.groupKey] !== groupOrderMap[b.groupKey]) {
-                                return groupOrderMap[a.groupKey] - groupOrderMap[b.groupKey];
-                            }
-                            return 0;
-                        });
-
-                        const grouped = {};
-                        item.fancams.forEach(f => {
-                            if (!grouped[f.groupKey]) grouped[f.groupKey] = [];
-                            grouped[f.groupKey].push(f);
-                        });
-
-                        fancamHtml = `<div class="fancam-gallery">`;
-                        fancamHtml += `<div class="fancam-gallery-title">📸 粉絲拍攝紀錄 (${item.fancams.length})</div>`;
-                        fancamHtml += `<div class="fancam-grid">`;
-                        
-                        for (const key in grouped) {
-                            const groupItems = grouped[key];
-                            const [platText, account] = key.split('::');
-
-                            fancamHtml += `<div class="fancam-group-card">`;
-                            fancamHtml += `<div class="fancam-group-header">
-                                              <span class="fancam-platform">${platText}</span>
-                                              <span class="fancam-account">@${account}</span>
-                                           </div>`;
-                            fancamHtml += `<div class="fancam-group-body">`;
-                            
-                            groupItems.forEach((f, idx) => {
-                                const hasPic = f.description && f.description.startsWith('http');
-                                const partLabel = groupItems.length > 1 ? `Part ${idx + 1}` : '🔗 觀看';
-                                
-                                if (hasPic) {
-                                    fancamHtml += `<a href="${f.content_url}" target="_blank" rel="noopener noreferrer" class="fancam-pic-link" title="前往觀看原始貼文">`;
-                                    fancamHtml += `<img src="${f.description}" loading="lazy" onclick="event.preventDefault(); openLightbox('${f.description}')" title="點擊放大預覽">`;
-                                    fancamHtml += `<span class="pic-label">${partLabel}</span></a>`;
-                                } else {
-                                    fancamHtml += `<a href="${f.content_url}" target="_blank" rel="noopener noreferrer" class="fancam-text-link">${partLabel}</a>`;
-                                }
-                            });
-                            fancamHtml += `</div></div>`;
-                        }
-                        fancamHtml += `</div></div>`;
-                    }
-
                     let mediaHtml = '';
                     if (item.media && item.media.length > 0) {
                         const sortedMedia = item.media.sort((a,b) => a.sort_order - b.sort_order);
@@ -967,7 +885,6 @@
                             mediaHtml += `<div class="carousel-slide">`;
                             if (isMultiple) { mediaHtml += `<div class="carousel-counter">${idx + 1} / ${sortedMedia.length}</div>`; }
                             if (m.media_type === 'image') { mediaHtml += `<img src="${m.media_url}" loading="lazy" alt="Archive Image" onclick="openLightbox('${m.media_url}')" title="點擊看大圖">`; } 
-                            else if (m.media_type === 'vimeo' || m.media_type === 'youtube') { mediaHtml += `<iframe src="${m.media_url}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`; }
                             if (m.specific_caption) { mediaHtml += `<p class="media-caption">${m.specific_caption.replace(/\n/g, '<br>')}</p>`; }
                             mediaHtml += `</div>`;
                         });
@@ -991,8 +908,8 @@
                             ${bgmHtml}
                             ${item.content ? `<p class="content-text">${item.content.replace(/\n/g, '<br>')}</p>` : ''}
                             ${linksHtml}
-                            ${officialVidsHtml}
                             ${fancamHtml}
+                            ${officialVidsHtml}
                             ${mediaHtml}
                         </div>
                     `;
@@ -1065,7 +982,8 @@
                 const searchScope = masterData.filter(item => currentModule === 'all' || item.module === currentModule);
                 const matched = searchScope.filter(item => {
                     const fancamText = item.fancams ? item.fancams.map(f => f.fan_account).join(' ') : '';
-                    const searchStr = (item.content + ' ' + item.tags.join(' ') + ' ' + item.source + ' ' + (item.mainTitle || '') + ' ' + fancamText).toLowerCase();
+                    const offVidText = item.officialVids ? item.officialVids.map(v => v.channelId + ' ' + v.desc).join(' ') : '';
+                    const searchStr = (item.content + ' ' + item.tags.join(' ') + ' ' + item.source + ' ' + (item.mainTitle || '') + ' ' + fancamText + ' ' + offVidText).toLowerCase();
                     return searchStr.includes(val);
                 });
                 
@@ -1191,7 +1109,6 @@
         // 【動態表單管理】
         // ==========================================
         function setupDataModal() {
-            const mediaListContainer = document.getElementById('mediaListContainer');
             const officialVidListContainer = document.getElementById('officialVidListContainer');
             const externalLinksContainer = document.getElementById('externalLinksContainer');
             const relatedArchiveGroup = document.getElementById('relatedArchiveGroup');
@@ -1199,7 +1116,10 @@
             const fancamGroupWrapper = document.getElementById('fancamGroupWrapper');
             const fancamListContainer = document.getElementById('fancamListContainer');
             
-            const addMediaBtn = document.getElementById('addMediaBtn');
+            const triggerBatchMediaBtn = document.getElementById('triggerBatchMediaBtn');
+            const batchMediaInput = document.getElementById('batchMediaInput');
+            const mediaPreviewList = document.getElementById('mediaPreviewList');
+
             const addOfficialVidBtn = document.getElementById('addOfficialVidBtn');
             const addLinkBtn = document.getElementById('addLinkBtn');
             const addFancamBtn = document.getElementById('addFancamBtn');
@@ -1221,14 +1141,9 @@
                 const blockId = Date.now() + Math.random().toString(36).substring(7);
                 const block = document.createElement('div'); block.className = 'official-vid-block'; block.id = `vid-block-${blockId}`;
                 
-                let titleVal = ''; let picUrlVal = '';
-                if(data && data.title) {
-                    if (data.title.includes('|')) {
-                        const parts = data.title.split('|');
-                        titleVal = parts[0];
-                        picUrlVal = parts[1];
-                    } else { titleVal = data.title; }
-                }
+                let cid = data ? data.channelId : '';
+                let cdesc = data ? data.desc : '';
+                let picUrlVal = data ? data.picUrl : '';
                 const urlVal = data ? data.url : '';
 
                 block.innerHTML = `
@@ -1237,9 +1152,11 @@
                         <button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 5px;">
-                        <input type="text" class="vid-title-input modal-input" placeholder="顯示標題 (如: M2 直拍)" value="${titleVal}" style="flex: 1; margin:0;" required>
-                        <input type="url" class="vid-url-input modal-input" placeholder="YouTube 網址 (https://...)" value="${urlVal}" style="flex: 2; margin:0;" required>
+                        <input type="text" list="officialAccountList" class="vid-channel-input modal-input" placeholder="頻道ID (如: _TV_Daily)" value="${cid}" style="flex: 1; margin:0;" autocomplete="off">
+                        <input type="text" class="vid-title-input modal-input" placeholder="影片說明 (如: 藍毯全程)" value="${cdesc}" style="flex: 2; margin:0;" required>
                     </div>
+                    <input type="url" class="vid-url-input modal-input" placeholder="YouTube 影片網址 (https://...)" value="${urlVal}" style="margin-top: 5px;" required>
+                    
                     <p style="font-size: 0.8rem; margin: 8px 0 3px 0; color: #555;">上傳高畫質影片封面圖 (選填，自動壓縮成大圖展示)：</p>
                     <input type="file" class="vid-pic-input modal-input" accept="image/*">
                     <input type="hidden" class="vid-old-pic-url" value="${picUrlVal}">
@@ -1247,53 +1164,6 @@
                 `;
                 officialVidListContainer.appendChild(block);
                 updateAccordionHeight(officialVidListContainer.parentElement);
-            }
-
-            // 【升級 1】：批次選擇多張圖片並分配到獨立區塊
-            function createMediaBlock(data = null, preSelectedFile = null) {
-                const blockId = Date.now() + Math.random().toString(36).substring(7);
-                const block = document.createElement('div'); block.className = 'media-block'; block.id = `media-block-${blockId}`;
-                const captionVal = data ? data.specific_caption : '';
-                block.innerHTML = `
-                    <div class="media-block-header">
-                        <span style="font-weight: bold; font-size: 0.85rem; color: var(--text-muted);">📷 圖片上傳</span>
-                        <button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button>
-                    </div>
-                    <div class="media-input-wrapper" style="margin-top: 5px;">
-                        <!-- 加上 multiple 屬性支援多選 -->
-                        <input type="file" class="media-file-input modal-input" accept="image/*" multiple style="margin:0; padding:8px;" ${data?'style="display:none;"':''}>
-                        ${data ? `<input type="text" class="modal-input" value="已上傳圖片 (編輯時不支援替換檔案)" disabled style="margin:0; padding:8px; background:#f0f0f0;">` : ''}
-                    </div>
-                    <input type="text" class="media-caption-input modal-input" placeholder="該圖的專屬小文案 (選填，輪播時顯示)..." value="${captionVal || ''}" style="margin-top: 8px; padding: 8px;">
-                `;
-                mediaListContainer.appendChild(block);
-                updateAccordionHeight(mediaListContainer.parentElement);
-
-                const fileInput = block.querySelector('.media-file-input');
-                
-                // 如果是透過多選後自動分裂出來的區塊，把檔案塞進去
-                if (preSelectedFile) {
-                    const dt = new DataTransfer();
-                    dt.items.add(preSelectedFile);
-                    fileInput.files = dt.files;
-                }
-
-                // 監聽選擇檔案事件，處理多選分裂
-                fileInput.addEventListener('change', (e) => {
-                    if (fileInput.files.length > 1) {
-                        const files = Array.from(fileInput.files);
-                        
-                        // 當前區塊只保留第一張圖
-                        const dt = new DataTransfer();
-                        dt.items.add(files[0]);
-                        fileInput.files = dt.files;
-                        
-                        // 其餘的圖片自動分裂出新區塊
-                        for (let i = 1; i < files.length; i++) {
-                            createMediaBlock(null, files[i]);
-                        }
-                    }
-                });
             }
 
             function createFancamBlock(data = null) {
@@ -1330,6 +1200,64 @@
                 updateAccordionHeight(fancamListContainer.parentElement);
             }
 
+            function renderMediaPreviews() {
+                mediaPreviewList.innerHTML = '';
+                
+                existingMediaItems.forEach((m, idx) => {
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'preview-item';
+                    previewDiv.innerHTML = `
+                        <img src="${m.url}" class="preview-thumb">
+                        <textarea class="preview-caption" rows="2" placeholder="該圖的專屬小文案...">${m.caption || ''}</textarea>
+                        <button type="button" class="preview-remove" onclick="removeExistingMedia(${idx})">✖</button>
+                    `;
+                    previewDiv.querySelector('textarea').addEventListener('input', (e) => {
+                        existingMediaItems[idx].caption = e.target.value;
+                    });
+                    mediaPreviewList.appendChild(previewDiv);
+                });
+
+                selectedMediaFiles.forEach((fileObj, idx) => {
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'preview-item';
+                    
+                    const url = URL.createObjectURL(fileObj.file);
+                    previewDiv.innerHTML = `
+                        <img src="${url}" class="preview-thumb" onload="URL.revokeObjectURL(this.src)">
+                        <textarea class="preview-caption" rows="2" placeholder="為這張圖加上專屬文案...">${fileObj.caption || ''}</textarea>
+                        <button type="button" class="preview-remove" onclick="removeNewMedia(${idx})">✖</button>
+                    `;
+                    previewDiv.querySelector('textarea').addEventListener('input', (e) => {
+                        selectedMediaFiles[idx].caption = e.target.value;
+                    });
+                    mediaPreviewList.appendChild(previewDiv);
+                });
+
+                updateAccordionHeight(mediaPreviewList.parentElement);
+            }
+
+            window.removeExistingMedia = function(idx) {
+                existingMediaItems.splice(idx, 1);
+                renderMediaPreviews();
+            };
+            window.removeNewMedia = function(idx) {
+                selectedMediaFiles.splice(idx, 1);
+                renderMediaPreviews();
+            };
+
+            triggerBatchMediaBtn.addEventListener('click', () => {
+                batchMediaInput.click();
+            });
+
+            batchMediaInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                files.forEach(f => {
+                    selectedMediaFiles.push({ file: f, caption: '' });
+                });
+                renderMediaPreviews();
+                batchMediaInput.value = ''; 
+            });
+
             function populateRelatedSelect() {
                 const currentVal = relatedArchiveSelect.value;
                 relatedArchiveSelect.innerHTML = '<option value="">無關聯 (獨立日程)</option>';
@@ -1349,18 +1277,15 @@
                 availableTags.forEach(tag => checkboxGroup.innerHTML += `<label class="tag-checkbox-label"><input type="checkbox" value="${tag}" class="modal-tag-cb"> ${tag}</label>`);
                 
                 if (e.target.value === 'schedule') {
-                    relatedArchiveGroup.style.display = 'block';
-                    populateRelatedSelect();
+                    relatedArchiveGroup.style.display = 'block'; populateRelatedSelect();
                 } else {
-                    relatedArchiveGroup.style.display = 'none';
-                    relatedArchiveSelect.value = '';
+                    relatedArchiveGroup.style.display = 'none'; relatedArchiveSelect.value = '';
                 }
 
                 if (e.target.value === 'event') {
                     fancamGroupWrapper.style.display = 'block';
                 } else {
-                    fancamGroupWrapper.style.display = 'none';
-                    fancamListContainer.innerHTML = ''; 
+                    fancamGroupWrapper.style.display = 'none'; fancamListContainer.innerHTML = ''; 
                 }
             });
 
@@ -1380,7 +1305,6 @@
             }
             window.removeCustomTag = function(index) { tempCustomTags.splice(index, 1); renderCustomTags(); };
 
-            addMediaBtn.addEventListener('click', () => createMediaBlock());
             addOfficialVidBtn.addEventListener('click', () => createOfficialVidBlock());
             addLinkBtn.addEventListener('click', () => createLinkBlock());
             addFancamBtn.addEventListener('click', () => createFancamBlock());
@@ -1416,34 +1340,24 @@
                     dailyOrder: parseInt(document.getElementById('dataDailyOrder').value) || 1,
                     source: document.getElementById('dataSource').value, mainTitle: document.getElementById('dataTitle').value, 
                     content: content, bgm: document.getElementById('dataBgm').value.trim(), 
-                    tags: finalTags, links: linksArray,
-                    relatedArchiveId: document.getElementById('relatedArchiveSelect').value || null
+                    tags: finalTags, links: linksArray, relatedArchiveId: document.getElementById('relatedArchiveSelect').value || null
                 };
 
-                const mediaBlocks = document.querySelectorAll('.media-block');
-                let mediaArray = [];
-                mediaBlocks.forEach(block => {
-                    const type = 'image';
-                    const caption = block.querySelector('.media-caption-input').value;
-                    let file = null, url = '';
-                    const fileInput = block.querySelector('.media-file-input');
-                    if (fileInput.files.length > 0) file = fileInput.files[0];
-                    if (file) mediaArray.push({ type, caption, file, url });
-                });
+                let mediaArray = [...existingMediaItems, ...selectedMediaFiles];
 
                 const officialVidBlocks = document.querySelectorAll('.official-vid-block');
                 let officialVidArray = [];
                 officialVidBlocks.forEach(block => {
-                    const type = 'youtube'; 
-                    const title = block.querySelector('.vid-title-input').value;
-                    const url = block.querySelector('.vid-url-input').value;
+                    const channelId = block.querySelector('.vid-channel-input').value.trim();
+                    const desc = block.querySelector('.vid-title-input').value.trim();
+                    const url = block.querySelector('.vid-url-input').value.trim();
                     
                     let file = null;
                     let picUrl = block.querySelector('.vid-old-pic-url').value;
                     const fileInput = block.querySelector('.vid-pic-input');
                     if (fileInput.files.length > 0) file = fileInput.files[0];
                     
-                    if(url) officialVidArray.push({ type, title, url, file, picUrl });
+                    if(url) officialVidArray.push({ channelId, desc, url, file, picUrl });
                 });
 
                 const fancamBlocks = document.querySelectorAll('.fancam-block');
@@ -1474,11 +1388,9 @@
 
             window.openDataModal = function(id) {
                 document.getElementById('dataModal').style.display = 'flex';
-                mediaListContainer.innerHTML = ''; 
-                officialVidListContainer.innerHTML = '';
-                externalLinksContainer.innerHTML = ''; 
-                fancamListContainer.innerHTML = ''; 
-                tempCustomTags = []; 
+                officialVidListContainer.innerHTML = ''; externalLinksContainer.innerHTML = ''; fancamListContainer.innerHTML = ''; tempCustomTags = []; 
+                
+                selectedMediaFiles = []; existingMediaItems = []; renderMediaPreviews(); batchMediaInput.value = '';
                 
                 document.querySelectorAll('.accordion-btn').forEach(btn => {
                     btn.classList.remove('active');
@@ -1502,7 +1414,14 @@
                     
                     item.tags.forEach(t => { const cb = document.querySelector(`.modal-tag-cb[value="${t}"]`); if(cb) cb.checked = true; else tempCustomTags.push(t); });
                     if(item.links) { item.links.forEach(l => createLinkBlock(l)); }
-                    if(item.media) { item.media.sort((a,b) => a.sort_order - b.sort_order).forEach(m => createMediaBlock(m)); }
+                    
+                    if(item.media && item.media.length > 0) { 
+                        item.media.sort((a,b) => a.sort_order - b.sort_order).forEach(m => {
+                            existingMediaItems.push({ url: m.media_url, caption: m.specific_caption || '' });
+                        });
+                        renderMediaPreviews();
+                    }
+                    
                     if(item.officialVids) { item.officialVids.forEach(v => createOfficialVidBlock(v)); }
                     if(item.fancams && item.module === 'event') { item.fancams.forEach(f => createFancamBlock(f)); }
                     
