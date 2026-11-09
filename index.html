@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
-    <!-- 網址分享預覽圖 (Open Graph / Twitter Card) -->
+    
     <meta property="og:title" content="CHAEWON Archive">
     <meta property="og:description" content="偶像多媒體足跡與動態典藏系統">
     <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
@@ -15,117 +15,10 @@
     <link rel="stylesheet" href="style.css">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <style>
-        .tag-selection-area { background: var(--silver-bg); border: 1px solid var(--silver-border); border-radius: 8px; padding: 15px; margin-top: 10px; }
-        .tag-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-        .tag-checkbox-label { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; cursor: pointer; color: var(--text-main); }
-        .custom-tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 32px; padding: 5px; border: 1px dashed var(--mint-green); border-radius: 6px; background: white; }
-        .custom-tag-pill { background: var(--mint-green); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 5px; }
-        .custom-tag-pill span { cursor: pointer; font-weight: bold; }
-        
-        .modal-divider { height: 1px; background: var(--silver-border); margin: 20px 0; }
-        .media-block, .link-block, .fancam-block, .official-vid-block { background: var(--silver-bg); border: 1px dashed var(--mint-green); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
-        .media-block-header, .link-block-header, .fancam-block-header, .official-vid-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .remove-block-btn { background: #FFEBEE; color: #C62828; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; font-weight: bold;}
-        
-        .internal-link-btn { background: var(--silver-bg); color: var(--text-main); border: 1px solid var(--mint-green); padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px;}
-        .internal-link-btn:hover { background: var(--mint-light); color: var(--mint-hover); }
-        .bgm-tag { display: inline-flex; align-items: center; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; gap: 5px; }
-
-        .month-navigator { display: flex; justify-content: space-between; align-items: center; background: var(--silver-bg); padding: 6px 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--silver-border); }
-        .month-navigator button { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--mint-hover); padding: 0 8px; transition: 0.2s; }
-        .month-navigator button:hover { transform: scale(1.15); }
-        #globalMonthDisplay { font-weight: 800; color: var(--text-main); font-size: 1rem; cursor: pointer; }
-        .btn-current-month { width: 100%; background: var(--mint-light); color: var(--mint-hover); border: 1px solid var(--mint-green); border-radius: 6px; padding: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
-        .btn-current-month:hover { background: var(--mint-green); color: white; }
-
-        /* 【修復 2】: 強制分離搜尋框的 z-index，突破 overflow: hidden 限制 */
-        .search-container { position: relative; z-index: 1000; }
-        .search-results { 
-            position: absolute; top: calc(100% + 5px); left: 0; width: 100%; 
-            background: white; border: 1px solid var(--silver-border); border-radius: 8px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 0; margin: 0; list-style: none;
-            max-height: 350px; overflow-y: auto; z-index: 9999;
-        }
-        .search-results li { padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.9rem; color: #333; }
-        .search-results li:hover, .search-results li.autocomplete-active { background-color: var(--mint-light); }
-        .search-results li .s-date { font-size: 0.8rem; color: #777; margin-right: 8px; background: #eee; padding: 2px 6px; border-radius: 4px; }
-
-        .carousel-container { position: relative; width: 100%; border-radius: 8px; overflow: hidden; background: #111; margin-top: 15px; border: 1px solid var(--silver-border); }
-        .carousel-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; }
-        .carousel-track::-webkit-scrollbar { display: none; }
-        .carousel-slide { flex: 0 0 100%; scroll-snap-align: center; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .carousel-slide img, .carousel-slide iframe { width: 100%; max-height: 60vh; object-fit: contain; display: block; cursor: zoom-in; }
-        .carousel-counter { position: absolute; top: 12px; right: 12px; background: rgba(0, 0, 0, 0.65); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; z-index: 10; backdrop-filter: blur(4px); }
-        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.8); border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #333; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: 0.2s;}
-        .carousel-btn:hover { background: white; transform: translateY(-50%) scale(1.1); }
-        .carousel-btn.prev { left: 10px; }
-        .carousel-btn.next { right: 10px; }
-        .media-caption { padding: 10px 15px; font-size: 0.9rem; color: #eee; background: #222; margin: 0; font-weight: 500; width: 100%; text-align: left; }
-        
-        .fancam-gallery { margin-top: 15px; background: #fdfdfd; border: 1px solid var(--silver-border); border-radius: 8px; padding: 12px; }
-        .fancam-gallery-title { font-size: 0.9rem; color: var(--mint-hover); font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid var(--silver-border); padding-bottom: 5px;}
-        .fancam-grid { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
-        
-        .fancam-group-card { background: white; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%; max-width: 280px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.2s; }
-        .fancam-group-card:hover { border-color: var(--mint-green); box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
-        
-        .fancam-group-header { background: #f9f9f9; padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; }
-        .fancam-platform { font-size: 0.7rem; color: white; background: #555; padding: 2px 6px; border-radius: 4px; }
-        .fancam-account { font-weight: bold; font-size: 0.85rem; color: #333; word-break: break-all; }
-        
-        .fancam-group-body { padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 8px; }
-        
-        .fancam-text-link { display: inline-flex; align-items: center; background: #f4f4f4; color: #333; font-size: 0.8rem; padding: 4px 10px; border-radius: 15px; text-decoration: none; border: 1px solid #ddd; transition: 0.2s; font-weight: bold; }
-        .fancam-text-link:hover { border-color: var(--mint-green); color: var(--mint-hover); background: #eafffa; transform: translateY(-1px); }
-        
-        .fancam-pic-link { position: relative; width: 65px; height: 65px; border-radius: 6px; overflow: hidden; border: 1px solid #eee; display: block; text-decoration: none; flex-shrink: 0;}
-        .fancam-pic-link img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; background: #f5f5f5; }
-        .fancam-pic-link:hover img { transform: scale(1.05); }
-        .pic-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); color: white; font-size: 0.65rem; text-align: center; padding: 2px 0; font-weight: bold; }
-
-        .official-vid-gallery { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .official-vid-card { position: relative; display: block; width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.3s; text-decoration: none; }
-        /* 【修復 1】: 控制官方影音的寬度切換 */
-        .official-vid-card.full-width { max-width: 600px; }
-        .official-vid-card.half-width { max-width: 320px; }
-        
-        .official-vid-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); border-color: #ff0000; }
-        .official-vid-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: #222; }
-        
-        .yt-play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 40px; background: rgba(30,30,30,0.8); border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .yt-play-icon::before { content: ''; width: 0; height: 0; border-style: solid; border-width: 10px 0 10px 18px; border-color: transparent transparent transparent white; margin-left: 5px; }
-        .official-vid-card:hover .yt-play-icon { background: #ff0000; }
-        
-        .official-vid-info { padding: 12px; background: white; display: flex; flex-direction: column; gap: 5px; border-top: 1px solid #eee; }
-        .official-vid-badge { align-self: flex-start; background: #ff0000; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.5px; }
-        .official-vid-title { color: #333; font-weight: bold; font-size: 0.95rem; line-height: 1.3; }
-
-        .lightbox-overlay { display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
-        .lightbox-overlay.active { display: flex; }
-        .lightbox-img { max-width: 90%; max-height: 90vh; object-fit: contain; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 4px; }
-        .lightbox-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .lightbox-close:hover, .lightbox-close:focus { color: #bbb; text-decoration: none; cursor: pointer; }
-
-        .accordion-btn { background-color: #f1f1f1; color: #444; cursor: pointer; padding: 10px; width: 100%; text-align: left; border: none; outline: none; transition: 0.4s; border-radius: 6px; margin-top: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .accordion-btn.active, .accordion-btn:hover { background-color: #ddd; }
-        .accordion-btn:after { content: '\002B'; color: #777; font-weight: bold; float: right; margin-left: 5px; font-size: 1.2rem;}
-        .accordion-btn.active:after { content: "\2212"; }
-        .accordion-panel { padding: 0 10px; background-color: white; overflow: hidden; max-height: 0; transition: max-height 0.2s ease-out; border-radius: 0 0 6px 6px; }
-
-        /* 【修復 3】: 多圖上傳預覽區塊樣式 */
-        .preview-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .preview-item { display: flex; align-items: center; gap: 15px; background: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 8px; }
-        .preview-thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; flex-shrink: 0; border: 1px solid #eee; }
-        .preview-caption { flex: 1; margin: 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; outline: none; font-size: 0.9rem; }
-        .preview-caption:focus { border-color: var(--mint-green); }
-        .preview-remove { background: #FFEBEE; color: #C62828; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .preview-remove:hover { background: #FFCDD2; transform: scale(1.1); }
-    </style>
 </head>
 <body>
 
+    <!-- 燈箱容器 (Lightbox) -->
     <div id="lightbox" class="lightbox-overlay">
         <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
         <img class="lightbox-img" id="lightboxImg">
@@ -296,6 +189,7 @@
             <label class="form-label">內文主文案 (選填，韓文/中文皆可)：</label>
             <textarea id="dataContent" class="modal-input" placeholder="輸入內容 (可留白)..." rows="3" style="margin-top: 5px; resize: vertical;"></textarea>
 
+            <!-- 摺疊面板區域 -->
             <button class="accordion-btn">🔗 附加外部連結 (出處 / 新聞 / 原文)</button>
             <div class="accordion-panel">
                 <div id="externalLinksContainer" style="margin-top: 10px;"></div>
@@ -318,14 +212,10 @@
                 </div>
             </div>
 
-            <!-- 【修復 3】: 圖片上傳區塊改為獨立預覽列表與隱藏式批次上傳 input -->
-            <button class="accordion-btn">📷 附加官方媒體檔案 (圖片上傳)</button>
+            <button class="accordion-btn">📷 附加官方媒體檔案 (上傳圖片)</button>
             <div class="accordion-panel">
-                <!-- 真正的批次上傳按鈕 (隱藏) -->
                 <input type="file" id="batchMediaInput" accept="image/*" multiple style="display: none;">
-                
                 <div id="mediaPreviewList" class="preview-list"></div>
-                
                 <button type="button" id="triggerBatchMediaBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed;">+ 從電腦選取圖片 (支援一次選取多張)</button>
             </div>
 
@@ -368,9 +258,7 @@
         let currentSortOrder = 'desc'; 
         let tempCustomTags = [];
         
-        // 存放選取的圖片檔案陣列 (Batch)
         let selectedMediaFiles = [];
-        // 存放編輯時從資料庫拉回來的舊圖片物件
         let existingMediaItems = []; 
         
         let savedFanAccounts = new Set();
@@ -467,10 +355,7 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             isUnlocked = !!session; 
             currentLoggedEmail = session ? session.user.email.toLowerCase() : null; 
-            
-            if (isUnlocked) { await checkEditorStatus(); } 
-            else { isEditor = false; }
-            
+            if (isUnlocked) { await checkEditorStatus(); } else { isEditor = false; }
             updateLockUI();
         }
 
@@ -588,8 +473,8 @@
                     let parsedMedia = item.archive_media || [];
                     let parsedLinks = item.links || [];
                     let officialVids = [];
-
                     const imgs = [];
+
                     parsedMedia.forEach(m => {
                         if (m.media_type === 'youtube') {
                             let cid = ''; let cdesc = ''; let ccover = '';
@@ -610,12 +495,8 @@
                         id: item.id, module: item.module, date: item.date, time: item.time, dailyOrder: item.daily_order,
                         source: item.source_platform || 'System', mainTitle: item.main_title || '', 
                         content: item.content_kr || item.content_tw || '', bgm: item.bgm || '',
-                        tags: item.tags || [], 
-                        links: parsedLinks, 
-                        media: imgs, 
-                        officialVids: officialVids,
-                        fancams: item.fancams || [], 
-                        relatedArchiveId: item.related_archive_id || null, isVirtual: false
+                        tags: item.tags || [], links: parsedLinks, media: imgs, officialVids: officialVids,
+                        fancams: item.fancams || [], relatedArchiveId: item.related_archive_id || null, isVirtual: false
                     };
                 });
                 
@@ -641,7 +522,6 @@
                 fDatalist.innerHTML = '';
                 savedFanAccounts.forEach(acc => { fDatalist.innerHTML += `<option value="${acc}">`; });
             }
-            
             const oDatalist = document.getElementById('officialAccountList');
             if(oDatalist) {
                 oDatalist.innerHTML = '';
@@ -664,7 +544,7 @@
             });
         }
 
-        async function saveToSupabase(itemData, officialVidArray, fancamArray) {
+        async function saveToSupabase(itemData, mediaArray, officialVidArray, fancamArray) {
             if (!supabaseClient) { alert("未連線 Supabase"); return false; }
             const payload = { 
                 module: itemData.module, date: itemData.date, time: itemData.time, daily_order: itemData.dailyOrder,
@@ -684,32 +564,32 @@
                 }
 
                 if (currentArchiveId) {
-                    // 【處理圖片與影音的混合儲存】
-                    if (itemData.id) { await supabaseClient.from('archive_media').delete().eq('archive_id', currentArchiveId); }
+                    // 【核心修復 2】: 刪除舊的子表資料，確保「移除」動作能真正生效
+                    if (itemData.id) { 
+                        await supabaseClient.from('archive_media').delete().eq('archive_id', currentArchiveId); 
+                        await supabaseClient.from('fancams').delete().eq('archive_id', currentArchiveId); 
+                    }
+                    
                     let mediaPayloads = [];
                     
-                    // 1. 處理新上傳或保留的舊圖片
-                    for (let i = 0; i < selectedMediaFiles.length; i++) {
-                        let f = selectedMediaFiles[i]; 
-                        let finalUrl = '';
-                        if (f.file) { // 新上傳的檔案
+                    // 重新寫入最新狀態的圖片
+                    for (let i = 0; i < mediaArray.length; i++) {
+                        let f = mediaArray[i]; let finalUrl = '';
+                        if (f.file) { 
                             const compressedFile = await compressImage(f.file);
                             const filePath = `post_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
                             const { error: uploadError } = await supabaseClient.storage.from('media').upload(filePath, compressedFile);
                             if (uploadError) throw uploadError;
                             const { data: publicUrlData } = supabaseClient.storage.from('media').getPublicUrl(filePath);
                             finalUrl = publicUrlData.publicUrl;
-                        } else if (f.url) { // 原本就存在的舊圖片 URL
-                            finalUrl = f.url;
-                        }
+                        } else if (f.url) { finalUrl = f.url; }
                         if (finalUrl) mediaPayloads.push({ archive_id: currentArchiveId, media_url: finalUrl, media_type: 'image', specific_caption: f.caption, sort_order: i + 1 });
                     }
                     
-                    // 2. 處理官方影片
-                    let vidOrderStart = selectedMediaFiles.length + 1;
+                    // 重新寫入最新狀態的官方影片
+                    let vidOrderStart = mediaArray.length + 1;
                     for (let i = 0; i < officialVidArray.length; i++) {
-                        let v = officialVidArray[i];
-                        let finalPicUrl = v.picUrl; 
+                        let v = officialVidArray[i]; let finalPicUrl = v.picUrl; 
                         if (v.file) {
                             const compressedFile = await compressImage(v.file, 1200); 
                             const filePath = `offvid_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
@@ -727,8 +607,7 @@
 
                     if (mediaPayloads.length > 0) { await supabaseClient.from('archive_media').insert(mediaPayloads); }
 
-                    // 3. 處理飯拍
-                    if (itemData.id) { await supabaseClient.from('fancams').delete().eq('archive_id', currentArchiveId); }
+                    // 重新寫入最新狀態的飯拍
                     let fancamPayloads = [];
                     for (let i = 0; i < fancamArray.length; i++) {
                         let f = fancamArray[i]; let finalPicUrl = f.url;
@@ -917,59 +796,77 @@
                         if (currentLoggedEmail === ADMIN_EMAIL.toLowerCase()) adminBtns += `<button class="btn-del-small" onclick="deleteItem('${item.id}')">刪除</button>`;
                     }
                     
-                    // 【升級 1】：排版重構 (外部連結 -> 飯拍 -> 官方影音 -> 官方圖片)
                     let linksHtml = '';
                     if (item.links && item.links.length > 0) {
                         linksHtml = '<div class="multi-links-group" style="margin-top: 10px;">' + item.links.map(l => `<a href="${l.url}" class="db-link" target="_blank" rel="noopener noreferrer">${l.title}</a>`).join('') + '</div>';
                     }
                     
-                    let fancamHtml = '';
+                    // 【核心修復 1 & 3】: 排版順序對調與空白圖修復 (外部連結 -> 官方影音 -> 飯拍 -> 一般圖片)
+                    let officialVidsHtml = '';
                     const hasFancams = item.fancams && item.fancams.length > 0;
+                    if (item.officialVids && item.officialVids.length > 0) {
+                        const cardWidthClass = hasFancams ? 'half-width' : 'full-width';
+                        officialVidsHtml = `<div class="official-vid-gallery" style="${hasFancams ? 'flex-direction: row; flex-wrap: wrap;' : ''}">`;
+                        item.officialVids.forEach((v) => {
+                            let cid = v.channelId || ''; let cdesc = v.desc || ''; let coverUrl = v.picUrl || '';
+                            
+                            officialVidsHtml += `<a href="${v.url}" target="_blank" rel="noopener noreferrer" class="official-vid-card ${cardWidthClass}">`;
+                            
+                            // 強健的圖片顯示邏輯：有圖秀圖，沒圖秀灰色方塊
+                            if (coverUrl && coverUrl.trim() !== '') { 
+                                officialVidsHtml += `<img src="${coverUrl}" loading="lazy" alt="${cdesc}">`; 
+                            } else { 
+                                officialVidsHtml += `<div style="width:100%; aspect-ratio:16/9; background:#333; display:flex; align-items:center; justify-content:center; color:#888;">無預覽圖</div>`; 
+                            }
+                            
+                            officialVidsHtml += `<div class="yt-play-icon"></div>`;
+                            officialVidsHtml += `<div class="official-vid-info">`;
+                            officialVidsHtml += `<div style="display:flex; align-items:center; gap:8px;">`;
+                            officialVidsHtml += `<span class="official-vid-badge">YouTube</span>`;
+                            if (cid) officialVidsHtml += `<span style="font-weight:bold; font-size:0.95rem; color:#333;">@${cid}</span>`;
+                            officialVidsHtml += `</div>`;
+                            // 即使沒有頻道ID，有影片說明(cdesc)依然要顯示
+                            if (cdesc) officialVidsHtml += `<span class="official-vid-title">${cdesc}</span>`;
+                            officialVidsHtml += `</div></a>`;
+                        });
+                        officialVidsHtml += `</div>`;
+                    }
+
+                    let fancamHtml = '';
                     if (hasFancams) {
                         let currentGroupOrder = 0;
                         const groupOrderMap = {};
-                        
                         item.fancams.forEach(f => {
                             let platText = f.platform;
                             if(platText === 'X (Twitter)') platText = 'X';
                             const key = platText + '::' + f.fan_account;
-                            
                             if (groupOrderMap[key] === undefined) { groupOrderMap[key] = currentGroupOrder++; }
                             f.groupKey = key;
                         });
-
                         item.fancams.sort((a, b) => {
-                            if (groupOrderMap[a.groupKey] !== groupOrderMap[b.groupKey]) {
-                                return groupOrderMap[a.groupKey] - groupOrderMap[b.groupKey];
-                            }
+                            if (groupOrderMap[a.groupKey] !== groupOrderMap[b.groupKey]) { return groupOrderMap[a.groupKey] - groupOrderMap[b.groupKey]; }
                             return 0;
                         });
-
                         const grouped = {};
                         item.fancams.forEach(f => {
                             if (!grouped[f.groupKey]) grouped[f.groupKey] = [];
                             grouped[f.groupKey].push(f);
                         });
-
                         fancamHtml = `<div class="fancam-gallery">`;
                         fancamHtml += `<div class="fancam-gallery-title">📸 粉絲拍攝內容 (${item.fancams.length})</div>`;
                         fancamHtml += `<div class="fancam-grid">`;
-                        
                         for (const key in grouped) {
                             const groupItems = grouped[key];
                             const [platText, account] = key.split('::');
-
                             fancamHtml += `<div class="fancam-group-card">`;
                             fancamHtml += `<div class="fancam-group-header">
                                               <span class="fancam-platform">${platText}</span>
                                               <span class="fancam-account">@${account}</span>
                                            </div>`;
                             fancamHtml += `<div class="fancam-group-body">`;
-                            
                             groupItems.forEach((f, idx) => {
                                 const hasPic = f.description && f.description.startsWith('http');
                                 const partLabel = groupItems.length > 1 ? `Part ${idx + 1}` : '🔗 觀看';
-                                
                                 if (hasPic) {
                                     fancamHtml += `<a href="${f.content_url}" target="_blank" rel="noopener noreferrer" class="fancam-pic-link" title="前往觀看原始貼文">`;
                                     fancamHtml += `<img src="${f.description}" loading="lazy" onclick="event.preventDefault(); openLightbox('${f.description}')" title="點擊放大預覽">`;
@@ -981,40 +878,6 @@
                             fancamHtml += `</div></div>`;
                         }
                         fancamHtml += `</div></div>`;
-                    }
-
-                    let officialVidsHtml = '';
-                    if (item.officialVids && item.officialVids.length > 0) {
-                        // 根據是否有飯拍，決定寬度 (半寬並排以節省空間 vs 全寬大橫幅)
-                        const cardWidthClass = hasFancams ? 'half-width' : 'full-width';
-                        
-                        // 將影音卡片改用 flex 橫向排列
-                        officialVidsHtml = `<div class="official-vid-gallery" style="${hasFancams ? 'flex-direction: row; flex-wrap: wrap;' : ''}">`;
-                        
-                        item.officialVids.forEach((v) => {
-                            let cid = v.channelId || ''; 
-                            let cdesc = v.desc || ''; 
-                            let coverUrl = v.picUrl || '';
-                            
-                            officialVidsHtml += `<a href="${v.url}" target="_blank" rel="noopener noreferrer" class="official-vid-card ${cardWidthClass}">`;
-                            if (coverUrl) {
-                                officialVidsHtml += `<img src="${coverUrl}" loading="lazy" alt="${cdesc}">`;
-                            } else {
-                                officialVidsHtml += `<div style="width:100%; aspect-ratio:16/9; background:#333; display:flex; align-items:center; justify-content:center; color:#888;">無預覽圖</div>`;
-                            }
-                            officialVidsHtml += `<div class="yt-play-icon"></div>`;
-                            officialVidsHtml += `<div class="official-vid-info">`;
-                            
-                            officialVidsHtml += `<div style="display:flex; align-items:center; gap:8px;">`;
-                            officialVidsHtml += `<span class="official-vid-badge">YouTube</span>`;
-                            if (cid) officialVidsHtml += `<span style="font-weight:bold; font-size:0.95rem; color:#333;">@${cid}</span>`;
-                            officialVidsHtml += `</div>`;
-                            
-                            if (cdesc) officialVidsHtml += `<span class="official-vid-title">${cdesc}</span>`;
-                            
-                            officialVidsHtml += `</div></a>`;
-                        });
-                        officialVidsHtml += `</div>`;
                     }
 
                     let relatedHtml = '';
@@ -1038,7 +901,6 @@
                             mediaHtml += `<div class="carousel-slide">`;
                             if (isMultiple) { mediaHtml += `<div class="carousel-counter">${idx + 1} / ${sortedMedia.length}</div>`; }
                             if (m.media_type === 'image') { mediaHtml += `<img src="${m.media_url}" loading="lazy" alt="Archive Image" onclick="openLightbox('${m.media_url}')" title="點擊看大圖">`; } 
-                            else if (m.media_type === 'vimeo' || m.media_type === 'youtube') { mediaHtml += `<iframe src="${m.media_url}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`; }
                             if (m.specific_caption) { mediaHtml += `<p class="media-caption">${m.specific_caption.replace(/\n/g, '<br>')}</p>`; }
                             mediaHtml += `</div>`;
                         });
@@ -1050,7 +912,7 @@
                         mediaHtml += `</div>`; 
                     }
 
-                    // 依照要求的順序渲染：連結 -> 飯拍 -> 官方影音 -> 官方圖片
+                    // 確保渲染順序：外部連結 -> 官方影音(變形寬度) -> 飯拍 -> 官方媒體圖片
                     card.innerHTML = `
                         <div class="card-date-col"><div class="time">${item.time.slice(0,5)}</div></div>
                         <div class="card-content-col">
@@ -1063,8 +925,8 @@
                             ${bgmHtml}
                             ${item.content ? `<p class="content-text">${item.content.replace(/\n/g, '<br>')}</p>` : ''}
                             ${linksHtml}
-                            ${fancamHtml}
                             ${officialVidsHtml}
+                            ${fancamHtml}
                             ${mediaHtml}
                         </div>
                     `;
@@ -1309,7 +1171,7 @@
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 5px;">
                         <input type="text" list="officialAccountList" class="vid-channel-input modal-input" placeholder="頻道ID (如: _TV_Daily)" value="${cid}" style="flex: 1; margin:0;" autocomplete="off">
-                        <input type="text" class="vid-title-input modal-input" placeholder="影片說明 (如: 藍毯全程)" value="${cdesc}" style="flex: 2; margin:0;" required>
+                        <input type="text" class="vid-title-input modal-input" placeholder="影片說明 (如: 藍毯全程)" value="${cdesc}" style="flex: 2; margin:0;">
                     </div>
                     <input type="url" class="vid-url-input modal-input" placeholder="YouTube 影片網址 (https://...)" value="${urlVal}" style="margin-top: 5px;" required>
                     
@@ -1356,13 +1218,10 @@
                 updateAccordionHeight(fancamListContainer.parentElement);
             }
 
-            // 【升級 3】：處理批次選擇多張圖片的預覽與文案渲染
             function renderMediaPreviews() {
                 mediaPreviewList.innerHTML = '';
                 
-                // 1. 渲染已經存在於資料庫的舊圖
                 existingMediaItems.forEach((m, idx) => {
-                    const id = `old-${idx}`;
                     const previewDiv = document.createElement('div');
                     previewDiv.className = 'preview-item';
                     previewDiv.innerHTML = `
@@ -1370,21 +1229,17 @@
                         <textarea class="preview-caption" rows="2" placeholder="該圖的專屬小文案...">${m.caption || ''}</textarea>
                         <button type="button" class="preview-remove" onclick="removeExistingMedia(${idx})">✖</button>
                     `;
-                    // 當輸入文案時即時更新
                     previewDiv.querySelector('textarea').addEventListener('input', (e) => {
                         existingMediaItems[idx].caption = e.target.value;
                     });
                     mediaPreviewList.appendChild(previewDiv);
                 });
 
-                // 2. 渲染新選取的本機檔案圖片
                 selectedMediaFiles.forEach((fileObj, idx) => {
-                    const id = `new-${idx}`;
                     const previewDiv = document.createElement('div');
                     previewDiv.className = 'preview-item';
                     
                     const url = URL.createObjectURL(fileObj.file);
-                    
                     previewDiv.innerHTML = `
                         <img src="${url}" class="preview-thumb" onload="URL.revokeObjectURL(this.src)">
                         <textarea class="preview-caption" rows="2" placeholder="為這張圖加上專屬文案...">${fileObj.caption || ''}</textarea>
@@ -1418,7 +1273,7 @@
                     selectedMediaFiles.push({ file: f, caption: '' });
                 });
                 renderMediaPreviews();
-                batchMediaInput.value = ''; // 讓下次選同一個檔案仍會觸發 change
+                batchMediaInput.value = ''; 
             });
 
             function populateRelatedSelect() {
@@ -1552,16 +1407,9 @@
 
             window.openDataModal = function(id) {
                 document.getElementById('dataModal').style.display = 'flex';
-                officialVidListContainer.innerHTML = '';
-                externalLinksContainer.innerHTML = ''; 
-                fancamListContainer.innerHTML = ''; 
-                tempCustomTags = []; 
+                officialVidListContainer.innerHTML = ''; externalLinksContainer.innerHTML = ''; fancamListContainer.innerHTML = ''; tempCustomTags = []; 
                 
-                // 重置圖片狀態
-                selectedMediaFiles = [];
-                existingMediaItems = [];
-                renderMediaPreviews();
-                batchMediaInput.value = '';
+                selectedMediaFiles = []; existingMediaItems = []; renderMediaPreviews(); batchMediaInput.value = '';
                 
                 document.querySelectorAll('.accordion-btn').forEach(btn => {
                     btn.classList.remove('active');
