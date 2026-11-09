@@ -149,25 +149,38 @@
     <!-- 新增/編輯資料彈窗 -->
     <div id="dataModal" class="modal-overlay">
         <div class="modal-box" style="max-width: 550px; text-align: left; max-height: 90vh; overflow-y: auto; overflow-x: hidden;">
-            <h3 id="dataModalTitle" style="text-align: center; margin-bottom: 15px;">新增典藏資料</h3>
+            <!-- 頂部標題與右上角取消按鈕 -->
+            <div class="modal-header-bar">
+                <h3 id="dataModalTitle">新增典藏資料</h3>
+                <button type="button" class="modal-top-cancel close-data-modal" title="取消返回">✖ 取消</button>
+            </div>
             <input type="hidden" id="dataId">
             
-            <label class="form-label">模組分類：</label>
-            <select id="dataModule" class="modal-input" style="margin-top: 5px;">
+            <label class="form-label" style="margin-top: 0;">模組分類：</label>
+            <select id="dataModule" class="modal-input">
                 <option value="social">社群動態</option>
                 <option value="event">公開演出活動與現場紀錄</option>
                 <option value="brand">品牌商務與官方公告</option>
                 <option value="schedule">重要日程</option>
             </select>
 
-            <!-- 關聯日程：優先顯示品牌商務與官方公告 + 支援關鍵字/日期即時篩選 -->
-            <div id="relatedArchiveGroup" style="display: none; background: #F8F9F9; padding: 12px; border-left: 4px solid var(--mint-green); border-radius: 6px; margin-top: 10px;">
-                <label class="form-label" style="color: var(--mint-hover); margin-top: 0;">🔗 內部系統關聯 (優先顯示品牌商務與官方公告)：</label>
-                <input type="text" id="relatedSearchInput" class="modal-input" placeholder="🔍 輸入日期 (如 11/09)、標題或內文快速過濾下方選項..." style="margin: 6px 0; padding: 8px 10px; font-size: 0.85rem; background: white;">
-                <select id="relatedArchiveSelect" class="modal-input" style="margin: 4px 0 0 0; font-size: 0.9rem; background: white;">
-                    <option value="">無關聯 (獨立日程)</option>
-                </select>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">(若綁定，時間軸上會出現快速跳轉按鈕)</p>
+            <!-- 重要日程：一鍵點選成立的智慧關聯選取器 -->
+            <div id="relatedArchiveGroup" class="related-group-box">
+                <label class="form-label" style="color: var(--mint-hover); margin-top: 0;">🔗 內部系統關聯 (選填，優先顯示品牌商務與官方公告)：</label>
+                <input type="hidden" id="relatedArchiveSelect" value="">
+                
+                <!-- 已選中狀態卡片 -->
+                <div id="relatedSelectedCard" class="related-selected-card">
+                    <div class="related-selected-info" id="relatedSelectedInfo"></div>
+                    <button type="button" class="related-clear-btn" onclick="clearRelatedSelection()">✖ 取消關聯</button>
+                </div>
+
+                <!-- 搜尋與即時彈出選單 -->
+                <div class="related-picker-wrapper" id="relatedPickerWrapper">
+                    <input type="text" id="relatedSearchInput" class="modal-input" placeholder="🔍 點擊或輸入日期、標題、內文即可直接點選綁定..." autocomplete="off" style="margin: 0; background: white;">
+                    <ul id="relatedDropdownList" class="related-dropdown-list"></ul>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">(點選清單項目後即刻成立綁定，時間軸上將出現快速跳轉按鈕)</p>
             </div>
 
             <div class="tag-selection-area">
@@ -178,10 +191,11 @@
                 <div id="customTagsDisplay" class="custom-tags-container"></div>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-                <div style="flex: 2; min-width: 130px;"><label class="form-label">日期：</label><input type="date" id="dataDate" class="modal-input" required></div>
-                <div style="flex: 2; min-width: 130px;"><label class="form-label">時間 (臺灣時間)：</label><input type="time" id="dataTime" class="modal-input" required></div>
-                <div style="flex: 1; min-width: 80px;"><label class="form-label">排序權重：</label><input type="number" id="dataDailyOrder" class="modal-input" value="1" min="1" title="當時間相同或未知時，數字越小越排在前面"></div>
+            <!-- 響應式三欄 (手機自動轉單欄防截字) -->
+            <div class="form-row-3col">
+                <div><label class="form-label">日期：</label><input type="date" id="dataDate" class="modal-input" required></div>
+                <div><label class="form-label">時間 (臺灣時間)：</label><input type="time" id="dataTime" class="modal-input" required></div>
+                <div><label class="form-label">排序權重：</label><input type="number" id="dataDailyOrder" class="modal-input" value="1" min="1" title="當時間相同或未知時，數字越小越排在前面"></div>
             </div>
 
             <label class="form-label">來源平台 (主活動，例如: YouTube, Weverse)：</label>
@@ -286,7 +300,6 @@
         }
         const moduleNames = { social: '社群動態', event: '公開演出活動與現場紀錄', brand: '品牌商務與官方公告', schedule: '重要日程' };
 
-        // 智慧解析官方影音字串，相容舊格式 "頻道|圖片URL" 與新格式 "頻道|說明|圖片URL"
         function parseOfficialVidCaption(captionStr) {
             if (!captionStr) return { cid: '', cdesc: '', ccover: '' };
             const parts = captionStr.split('|').map(s => s.trim());
@@ -670,7 +683,7 @@
                     }
                     if (fancamPayloads.length > 0) { await supabaseClient.from('fancams').insert(fancamPayloads); }
 
-                    // 清理在編輯時被按下「移除」的 Storage 實體圖片檔案
+                    // 自動從 Storage 清除被移除的舊圖片
                     const removedStoragePaths = oldStorageUrls
                         .filter(url => !keptStorageUrls.has(url) && url.includes('/storage/v1/object/public/media/'))
                         .map(url => url.split('/public/media/')[1])
@@ -740,12 +753,13 @@
             if(currentModule === 'schedule') renderCalendar();
         }
         
+        // 【關鍵修復 1】：所有模組皆與當前所選月份 (currentMonthFilter) 同步連動
         function filterData(targetDate = null) {
             currentData = masterData.filter(item => {
                 const matchModule = currentModule === 'all' || item.module === currentModule;
                 const matchDate = targetDate ? item.date === targetDate : true;
                 const matchTags = activeSubTags.length === 0 || activeSubTags.some(tag => item.tags.includes(tag) || item.source.includes(tag));
-                const matchMonth = (currentModule === 'schedule' && !targetDate) ? item.date.startsWith(currentMonthFilter) : true;
+                const matchMonth = !targetDate ? item.date.startsWith(currentMonthFilter) : true;
                 
                 return matchModule && matchDate && matchTags && matchMonth;
             });
@@ -1027,7 +1041,7 @@
                     const tagContent = document.createElement('div'); tagContent.className = 'tag-accordion-content';
                     tagsArray.forEach(tag => {
                         const btn = document.createElement('button'); btn.className = 'sub-tag-btn' + (activeSubTags.includes(tag) ? ' active' : ''); btn.innerText = tag;
-                        btn.onclick = (e) => { e.preventDefault(); btn.classList.toggle('active'); if(activeSubTags.includes(tag)) activeSubTags = activeSubTags.filter(t => t !== tag); else activeSubTags.push(tag); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); };
+                        btn.onclick = (e) => { e.preventDefault(); btn.classList.toggle('active'); if(activeSubTags.includes(tag)) activeSubTags = activeSubTags.filter(t => t !== tag); else activeSubTags.push(tag); updateClearTagsButton(); refreshView(selectedDate); };
                         tagContent.appendChild(btn);
                     });
                     details.appendChild(tagContent); container.appendChild(details);
@@ -1036,14 +1050,14 @@
                 container.className = 'sub-tags-flat';
                 tagsData.forEach(tag => {
                     const btn = document.createElement('button'); btn.className = 'sub-tag-btn' + (activeSubTags.includes(tag) ? ' active' : ''); btn.innerText = tag;
-                    btn.onclick = () => { btn.classList.toggle('active'); if(activeSubTags.includes(tag)) activeSubTags = activeSubTags.filter(t => t !== tag); else activeSubTags.push(tag); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); };
+                    btn.onclick = () => { btn.classList.toggle('active'); if(activeSubTags.includes(tag)) activeSubTags = activeSubTags.filter(t => t !== tag); else activeSubTags.push(tag); updateClearTagsButton(); refreshView(selectedDate); };
                     container.appendChild(btn);
                 });
             }
         }
         function updateClearTagsButton() {
             const container = document.getElementById('clearTagsContainer');
-            if (activeSubTags.length > 0) { container.innerHTML = `<button class="btn-clear-tags">✖ 清除所選標籤</button>`; container.querySelector('.btn-clear-tags').onclick = () => { activeSubTags = []; renderSubTags(); updateClearTagsButton(); refreshView(document.getElementById('dateText').value.replace(/\//g, '-')); }; } else { container.innerHTML = ''; }
+            if (activeSubTags.length > 0) { container.innerHTML = `<button class="btn-clear-tags">✖ 清除所選標籤</button>`; container.querySelector('.btn-clear-tags').onclick = () => { activeSubTags = []; renderSubTags(); updateClearTagsButton(); refreshView(selectedDate); }; } else { container.innerHTML = ''; }
         }
         
         function setupSearch() {
@@ -1053,7 +1067,7 @@
             input.addEventListener('input', function() {
                 const val = this.value.toLowerCase().trim();
                 resultsList.innerHTML = ''; currentFocus = -1;
-                if (!val) { refreshView(); return; }
+                if (!val) { refreshView(selectedDate); return; }
                 
                 const searchScope = masterData.filter(item => currentModule === 'all' || item.module === currentModule);
                 const matched = searchScope.filter(item => {
@@ -1075,12 +1089,18 @@
                     li.addEventListener('mousedown', (e) => {
                         e.preventDefault();
                         input.value = ''; resultsList.innerHTML = '';
-                        const targetCard = document.getElementById(`post-${item.id}`);
-                        if(targetCard) { 
-                            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-                            targetCard.style.boxShadow = '0 0 0 3px var(--mint-green)'; 
-                            setTimeout(() => targetCard.style.boxShadow = '', 2000); 
-                        }
+                        currentMonthFilter = item.date.substring(0, 7);
+                        selectedDate = null;
+                        document.getElementById('dateText').value = '';
+                        refreshView(null);
+                        setTimeout(() => {
+                            const targetCard = document.getElementById(`post-${item.id}`);
+                            if(targetCard) { 
+                                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+                                targetCard.style.boxShadow = '0 0 0 3px var(--mint-green)'; 
+                                setTimeout(() => targetCard.style.boxShadow = '', 2000); 
+                            }
+                        }, 150);
                     });
                     resultsList.appendChild(li);
                 });
@@ -1139,7 +1159,19 @@
             const resetToCurrentMonth = () => { currentMonthFilter = `${sysYear}-${sysMonthStr}`; selectedDate = null; document.getElementById('dateText').value = ''; refreshView(null); };
             document.getElementById('globalMonthDisplay').addEventListener('click', resetToCurrentMonth);
             document.getElementById('globalCurrentMonthBtn').addEventListener('click', resetToCurrentMonth);
-            document.getElementById('todayBtn').addEventListener('click', () => { currentMonthFilter = `${sysYear}-${sysMonthStr}`; selectedDate = trueTodayStr; document.getElementById('dateText').value = trueTodayStr.replace(/-/g, '/'); refreshView(trueTodayStr); });
+            
+            // 【關鍵修復 2】：點擊「今天」可切換選中，再次點擊「今天」即可取消單日篩選
+            document.getElementById('todayBtn').addEventListener('click', function() {
+                if (selectedDate === trueTodayStr) {
+                    clearDateFilter();
+                    this.blur();
+                } else {
+                    currentMonthFilter = `${sysYear}-${sysMonthStr}`;
+                    selectedDate = trueTodayStr;
+                    document.getElementById('dateText').value = trueTodayStr.replace(/-/g, '/');
+                    refreshView(trueTodayStr);
+                }
+            });
         }
         
         function clearDateFilter() { document.getElementById('dateText').value = ''; selectedDate = null; refreshView(null); }
@@ -1190,6 +1222,11 @@
             const relatedArchiveGroup = document.getElementById('relatedArchiveGroup');
             const relatedArchiveSelect = document.getElementById('relatedArchiveSelect');
             const relatedSearchInput = document.getElementById('relatedSearchInput');
+            const relatedDropdownList = document.getElementById('relatedDropdownList');
+            const relatedSelectedCard = document.getElementById('relatedSelectedCard');
+            const relatedSelectedInfo = document.getElementById('relatedSelectedInfo');
+            const relatedPickerWrapper = document.getElementById('relatedPickerWrapper');
+
             const fancamGroupWrapper = document.getElementById('fancamGroupWrapper');
             const fancamListContainer = document.getElementById('fancamListContainer');
             
@@ -1208,7 +1245,10 @@
                 const titleVal = data ? data.title : ''; const urlVal = data ? data.url : '';
                 block.innerHTML = `
                     <div class="link-block-header"><span style="font-weight: bold; font-size: 0.85rem; color: var(--text-muted);">🔗 外部連結</span><button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button></div>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;"><input type="text" class="link-title-input modal-input" placeholder="連結標題 (例：官方原文)" value="${titleVal}" style="margin: 0; padding: 8px; flex: 1; min-width: 150px;"><input type="url" class="link-url-input modal-input" placeholder="網址 (https://...)" value="${urlVal}" style="margin: 0; padding: 8px; flex: 2; min-width: 200px;"></div>
+                    <div class="block-flex-row">
+                        <input type="text" class="link-title-input modal-input" placeholder="連結標題 (例：官方原文)" value="${titleVal}">
+                        <input type="url" class="link-url-input modal-input" placeholder="網址 (https://...)" value="${urlVal}">
+                    </div>
                 `;
                 externalLinksContainer.appendChild(block);
                 updateAccordionHeight(externalLinksContainer.parentElement);
@@ -1228,9 +1268,9 @@
                         <span style="font-weight: bold; font-size: 0.85rem; color: #c0392b;">📺 官方影音紀錄</span>
                         <button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button>
                     </div>
-                    <div style="display: flex; gap: 10px; margin-top: 5px; flex-wrap: wrap;">
-                        <input type="text" list="officialAccountList" class="vid-channel-input modal-input" placeholder="頻道ID (如: _TV_Daily)" value="${cid}" style="flex: 1; min-width: 130px; margin:0;" autocomplete="off">
-                        <input type="text" class="vid-title-input modal-input" placeholder="影片說明 (選填，如: 藍毯全程)" value="${cdesc}" style="flex: 2; min-width: 160px; margin:0;">
+                    <div class="block-flex-row">
+                        <input type="text" list="officialAccountList" class="vid-channel-input modal-input" placeholder="頻道ID (如: _TV_Daily)" value="${cid}" autocomplete="off">
+                        <input type="text" class="vid-title-input modal-input" placeholder="影片說明 (選填，如: 藍毯全程)" value="${cdesc}">
                     </div>
                     <input type="url" class="vid-url-input modal-input" placeholder="YouTube 影片網址 (https://...)" value="${urlVal}" style="margin-top: 8px;" required>
                     
@@ -1255,9 +1295,9 @@
 
                 block.innerHTML = `
                     <div class="fancam-block-header"><span style="font-weight: bold; font-size: 0.85rem; color: #F39C12;">📸 粉絲拍攝紀錄</span><button type="button" class="remove-block-btn" onclick="document.getElementById('${block.id}').remove()">✖ 移除</button></div>
-                    <div style="display: flex; gap: 10px; margin-top: 5px; flex-wrap: wrap;">
-                        <input type="text" list="fancamAccountList" class="fc-account-input modal-input" placeholder="帳號 (如: wonder_0801)" value="${accountVal}" style="flex: 1; min-width: 140px; margin: 0;" required autocomplete="off">
-                        <select class="fc-platform-select modal-input" style="flex: 1; min-width: 120px; margin: 0;">
+                    <div class="block-flex-row">
+                        <input type="text" list="fancamAccountList" class="fc-account-input modal-input" placeholder="帳號 (如: wonder_0801)" value="${accountVal}" required autocomplete="off">
+                        <select class="fc-platform-select modal-input">
                             <option value="X" ${platformVal==='X'?'selected':''}>X</option>
                             <option value="Instagram" ${platformVal==='Instagram'?'selected':''}>Instagram</option>
                             <option value="YouTube" ${platformVal==='YouTube'?'selected':''}>YouTube</option>
@@ -1335,12 +1375,33 @@
                 batchMediaInput.value = ''; 
             });
 
-            // 重要日程內部系統關聯：優先顯示「品牌商務與官方公告」，並支援日期與標題內文即時搜尋
-            function populateRelatedSelect(filterKeyword = '', selectedId = null) {
-                const currentVal = selectedId !== null ? selectedId : relatedArchiveSelect.value;
-                relatedArchiveSelect.innerHTML = '<option value="">無關聯 (獨立日程)</option>';
-                
+            // 【關鍵修復 5】：重要日程關聯選取器 (點擊直接成立，優先顯示品牌商務與官方公告)
+            window.selectRelatedArchive = function(archiveId) {
+                const target = masterData.find(d => d.id === archiveId);
+                if (!target) return;
+                relatedArchiveSelect.value = target.id;
+                const title = target.mainTitle ? target.mainTitle : (target.content ? target.content.substring(0, 22) + '...' : '未命名貼文');
+                const badgeClass = target.module === 'brand' ? 'related-item-badge brand-priority' : 'related-item-badge';
+                relatedSelectedInfo.innerHTML = `
+                    <span class="${badgeClass}">${moduleNames[target.module] || target.module}</span>
+                    <span class="related-item-date">${target.date.replace(/-/g, '/')}</span>
+                    <span>${title}</span>
+                `;
+                relatedSelectedCard.style.display = 'flex';
+                relatedSearchInput.value = '';
+                relatedDropdownList.classList.remove('open');
+            };
+
+            window.clearRelatedSelection = function() {
+                relatedArchiveSelect.value = '';
+                relatedSelectedCard.style.display = 'none';
+                relatedSelectedInfo.innerHTML = '';
+            };
+
+            function renderRelatedDropdown(filterKeyword = '') {
+                relatedDropdownList.innerHTML = '';
                 const kw = filterKeyword.toLowerCase().trim();
+                
                 const candidates = masterData.filter(d => {
                     if (d.module === 'schedule' || d.isVirtual) return false;
                     if (!kw) return true;
@@ -1348,6 +1409,11 @@
                     const searchPool = `${d.date} ${dateSlash} ${d.mainTitle || ''} ${d.content || ''} ${d.source || ''}`.toLowerCase();
                     return searchPool.includes(kw);
                 });
+
+                if (candidates.length === 0) {
+                    relatedDropdownList.innerHTML = `<li style="padding: 12px; color: var(--text-muted); text-align: center; font-size: 0.85rem;">找不到符合「${filterKeyword}」的關聯紀錄</li>`;
+                    return;
+                }
 
                 const groupOrder = [
                     { key: 'brand', label: '📢 品牌商務與官方公告 (優先推薦)' },
@@ -1358,26 +1424,49 @@
                 groupOrder.forEach(grp => {
                     const items = candidates.filter(d => d.module === grp.key);
                     if (items.length > 0) {
-                        const optgroup = document.createElement('optgroup');
-                        optgroup.label = grp.label;
+                        const groupHeader = document.createElement('li');
+                        groupHeader.className = 'related-group-title';
+                        groupHeader.textContent = grp.label;
+                        relatedDropdownList.appendChild(groupHeader);
+
                         items.forEach(d => {
-                            const title = d.mainTitle ? d.mainTitle : (d.content ? d.content.substring(0, 18) + '...' : '未命名貼文');
-                            const opt = document.createElement('option');
-                            opt.value = d.id;
-                            opt.textContent = `[${d.date.replace(/-/g, '/')}] ${title}`;
-                            if (d.id === currentVal) opt.selected = true;
-                            optgroup.appendChild(opt);
+                            const li = document.createElement('li');
+                            li.className = 'related-dropdown-item';
+                            const title = d.mainTitle ? d.mainTitle : (d.content ? d.content.substring(0, 26) + '...' : '未命名貼文');
+                            const badgeClass = d.module === 'brand' ? 'related-item-badge brand-priority' : 'related-item-badge';
+                            li.innerHTML = `
+                                <div class="related-item-top">
+                                    <span class="related-item-date">${d.date.replace(/-/g, '/')}</span>
+                                    <span class="${badgeClass}">${d.source || moduleNames[d.module]}</span>
+                                </div>
+                                <div class="related-item-title">${title}</div>
+                            `;
+                            li.addEventListener('mousedown', (e) => {
+                                e.preventDefault();
+                                selectRelatedArchive(d.id);
+                            });
+                            relatedDropdownList.appendChild(li);
                         });
-                        relatedArchiveSelect.appendChild(optgroup);
                     }
                 });
             }
 
             if (relatedSearchInput) {
+                relatedSearchInput.addEventListener('focus', () => {
+                    renderRelatedDropdown(relatedSearchInput.value);
+                    relatedDropdownList.classList.add('open');
+                });
                 relatedSearchInput.addEventListener('input', (e) => {
-                    populateRelatedSelect(e.target.value);
+                    renderRelatedDropdown(e.target.value);
+                    relatedDropdownList.classList.add('open');
                 });
             }
+
+            document.addEventListener('mousedown', (e) => {
+                if (relatedPickerWrapper && !relatedPickerWrapper.contains(e.target)) {
+                    relatedDropdownList.classList.remove('open');
+                }
+            });
 
             document.getElementById('dataModule').addEventListener('change', (e) => {
                 checkboxGroup.innerHTML = '';
@@ -1390,10 +1479,10 @@
                 if (e.target.value === 'schedule') {
                     relatedArchiveGroup.style.display = 'block';
                     if (relatedSearchInput) relatedSearchInput.value = '';
-                    populateRelatedSelect('');
+                    renderRelatedDropdown('');
                 } else {
                     relatedArchiveGroup.style.display = 'none';
-                    relatedArchiveSelect.value = '';
+                    clearRelatedSelection();
                 }
 
                 if (e.target.value === 'event') {
@@ -1502,10 +1591,13 @@
 
             window.openDataModal = function(id) {
                 document.getElementById('dataModal').style.display = 'flex';
+                document.getElementById('dataModalTitle').innerText = id ? '編輯典藏資料' : '新增典藏資料';
                 officialVidListContainer.innerHTML = ''; externalLinksContainer.innerHTML = ''; fancamListContainer.innerHTML = ''; tempCustomTags = []; 
                 
                 selectedMediaFiles = []; existingMediaItems = []; renderMediaPreviews(); batchMediaInput.value = '';
                 if (relatedSearchInput) relatedSearchInput.value = '';
+                clearRelatedSelection();
+                relatedDropdownList.classList.remove('open');
                 
                 document.querySelectorAll('.accordion-btn').forEach(btn => {
                     btn.classList.remove('active');
@@ -1526,8 +1618,8 @@
                     document.getElementById('dataContent').value = item.content || '';
                     document.getElementById('dataBgm').value = item.bgm || ''; 
                     
-                    if (item.module === 'schedule') {
-                        populateRelatedSelect('', item.relatedArchiveId || '');
+                    if (item.module === 'schedule' && item.relatedArchiveId) {
+                        selectRelatedArchive(item.relatedArchiveId);
                     }
                     
                     item.tags.forEach(t => { const cb = document.querySelector(`.modal-tag-cb[value="${t}"]`); if(cb) cb.checked = true; else tempCustomTags.push(t); });
