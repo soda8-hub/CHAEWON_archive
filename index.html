@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- 【修復】：加入舊版社群分享預設圖與 Meta 標籤 -->
+    <!-- 社群分享預設圖與 Meta 標籤 -->
     <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
     <meta name="description" content="專為 LE SSERAFIM KIM CHAEWON 打造的多媒體足跡與動態典藏系統。">
     <link rel="icon" type="image/png" href="images/logo.png">
@@ -50,7 +50,7 @@
                 <div class="stats-summary">
                     <div class="month-navigator">
                         <button id="globalPrevMonth">◀</button>
-                        <span id="globalMonthDisplay" title="點擊篩選當月">2026年 11月</span>
+                        <span id="globalMonthDisplay" title="點擊回到當月">2026年 11月</span>
                         <button id="globalNextMonth">▶</button>
                     </div>
                     <button id="globalCurrentMonthBtn" class="btn-current-month">📍 回到當月</button>
@@ -265,7 +265,7 @@
         
         let currentModule = 'all'; 
         let currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
-        let isMonthFilterActive = false; // 【修復】：預設顯示所有月份資料
+        let isMonthFilterActive = false;
         let selectedDate = null; 
         
         let masterData = []; 
@@ -435,14 +435,14 @@
                     if (panel.style.maxHeight) {
                         panel.style.maxHeight = null;
                     } else {
-                        panel.style.maxHeight = panel.scrollHeight + 60 + "px"; 
+                        panel.style.maxHeight = panel.scrollHeight + 80 + "px"; 
                     }
                 });
             }
         }
         function updateAccordionHeight(panel) {
             if (panel && panel.style.maxHeight) {
-                panel.style.maxHeight = panel.scrollHeight + 60 + "px";
+                panel.style.maxHeight = panel.scrollHeight + 80 + "px";
             }
         }
 
@@ -820,7 +820,6 @@
             if(currentModule === 'schedule') renderCalendar();
         }
         
-        // 【修復 1】：時間軸連動統計區的上下月切換
         function filterData(targetDate = null) {
             currentData = masterData.filter(item => {
                 const matchModule = currentModule === 'all' || item.module === currentModule;
@@ -834,12 +833,12 @@
             const filterMsg = document.getElementById('filterMsg');
             if (filterMsg) {
                 if (targetDate) {
-                    filterMsg.innerText = `📅 指定單日篩選：${targetDate.replace(/-/g, '/')} (點選「清除」可顯示全部)`;
+                    filterMsg.innerHTML = `📅 指定單日篩選：${targetDate.replace(/-/g, '/')} <button type="button" class="btn-clear-tags" style="margin-left:8px;" onclick="clearDateFilter()">✖ 顯示全部</button>`;
                 } else if (isMonthFilterActive && currentModule !== 'schedule') {
                     const [y, m] = currentMonthFilter.split('-');
-                    filterMsg.innerText = `📅 目前篩選月份：${y}年 ${m}月 (點選「清除」或上方分類可顯示全部)`;
+                    filterMsg.innerHTML = `📅 目前篩選月份：${y}年 ${m}月 <button type="button" class="btn-clear-tags" style="margin-left:8px;" onclick="clearDateFilter()">✖ 顯示全部月份</button>`;
                 } else {
-                    filterMsg.innerText = '';
+                    filterMsg.innerHTML = '';
                 }
             }
 
@@ -1103,7 +1102,6 @@
         }
         function filterBySpecificDate(dateStr) { if (selectedDate === dateStr) { clearDateFilter(); } else { document.getElementById('dateText').value = dateStr.replace(/-/g, '/'); document.getElementById('applyDateBtn').click(); } }
         
-        // 【修復 1】：點選上方導覽列時，自動取消單月鎖定
         function setupNavigation() {
             const links = document.querySelectorAll('#navLinks li');
             links.forEach(link => { link.addEventListener('click', (e) => {
@@ -1240,12 +1238,16 @@
             document.getElementById('sortDropdown').addEventListener('click', function(e) { this.classList.toggle('open'); e.stopPropagation(); });
             document.querySelectorAll('.dropdown-options li').forEach(opt => opt.addEventListener('click', function() { currentSortOrder = this.getAttribute('data-value'); document.getElementById('sortText').innerText = this.innerText; document.getElementById('sortDropdown').classList.remove('open'); refreshView(selectedDate); }));
             
+            // 左側統計區與重要日程月曆的上下月切換綁定
             document.getElementById('globalPrevMonth').addEventListener('click', () => changeMonth(-1));
             document.getElementById('globalNextMonth').addEventListener('click', () => changeMonth(1));
+            document.getElementById('calPrevMonthBtn')?.addEventListener('click', () => changeMonth(-1));
+            document.getElementById('calNextMonthBtn')?.addEventListener('click', () => changeMonth(1));
             
+            // 點擊「回到當月」時，將統計歸位至當月，並自動解除單月鎖定(恢復顯示全部時間軸)
             const resetToCurrentMonth = () => { 
                 currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
-                isMonthFilterActive = true; 
+                isMonthFilterActive = false; 
                 selectedDate = null; 
                 document.getElementById('dateText').value = ''; 
                 refreshView(null); 
@@ -1253,7 +1255,6 @@
             document.getElementById('globalMonthDisplay').addEventListener('click', resetToCurrentMonth);
             document.getElementById('globalCurrentMonthBtn').addEventListener('click', resetToCurrentMonth);
             
-            // 【修復 2】: 點選今天取消單日篩選
             document.getElementById('todayBtn').addEventListener('click', function() {
                 if (selectedDate === trueTodayStr) {
                     clearDateFilter();
@@ -1267,7 +1268,6 @@
             });
         }
         
-        // 【修復 1】：點選清除時，重置為顯示全部資料
         function clearDateFilter() { 
             document.getElementById('dateText').value = ''; 
             selectedDate = null; 
@@ -1479,7 +1479,6 @@
                 batchMediaInput.value = ''; 
             });
 
-            // 【修復 5】: 一鍵選取即成立綁定
             window.selectRelatedArchive = function(archiveId) {
                 const target = masterData.find(d => d.id === archiveId);
                 if (!target) return;
