@@ -3,34 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 【修復】：加入舊版社群分享預設圖與 Meta 標籤 -->
     <title>CHAEWON Archive | 偶像多媒體足跡與動態典藏系統</title>
-    
-    <!-- 網址分享預覽圖 (Open Graph / LINE / Twitter Card 完整規範) -->
+    <meta name="description" content="專為 LE SSERAFIM KIM CHAEWON 打造的多媒體足跡與動態典藏系統。">
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="apple-touch-icon" href="images/logo.png">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="CHAEWON Archive">
     <meta property="og:title" content="CHAEWON Archive | 偶像多媒體足跡與動態典藏系統">
-    <meta property="og:description" content="KIM CHAEWON 偶像多媒體足跡與動態典藏系統">
+    <meta property="og:description" content="專為 LE SSERAFIM KIM CHAEWON 打造的多媒體足跡與動態典藏系統。">
     <meta property="og:url" content="https://soda8-hub.github.io/CHAEWON_archive/">
     <meta property="og:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
-    <meta property="og:image:secure_url" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
-    <meta property="og:image:type" content="image/png">
-    <meta property="og:image:width" content="512">
-    <meta property="og:image:height" content="512">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="CHAEWON Archive | 偶像多媒體足跡與動態典藏系統">
-    <meta name="twitter:description" content="KIM CHAEWON 偶像多媒體足跡與動態典藏系統">
-    <meta name="twitter:image" content="https://soda8-hub.github.io/CHAEWON_archive/images/logo.png">
     
-    <link rel="icon" type="image/png" href="images/logo.png">
     <link rel="stylesheet" href="style.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
     <!-- 燈箱容器 (Lightbox) -->
     <div id="lightbox" class="lightbox-overlay">
-        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <span class="lightbox-close" onclick="closeLightbox()">×</span>
         <img class="lightbox-img" id="lightboxImg">
     </div>
 
@@ -158,7 +149,6 @@
     <!-- 新增/編輯資料彈窗 -->
     <div id="dataModal" class="modal-overlay">
         <div class="modal-box" style="max-width: 550px; text-align: left; max-height: 90vh; overflow-y: auto; overflow-x: hidden;">
-            <!-- 頂部標題與右上角取消按鈕 -->
             <div class="modal-header-bar">
                 <h3 id="dataModalTitle">新增典藏資料</h3>
                 <button type="button" class="modal-top-cancel close-data-modal" title="取消返回">✖ 取消</button>
@@ -173,18 +163,15 @@
                 <option value="schedule">重要日程</option>
             </select>
 
-            <!-- 重要日程：一鍵點選成立的智慧關聯選取器 -->
             <div id="relatedArchiveGroup" class="related-group-box">
                 <label class="form-label" style="color: var(--mint-hover); margin-top: 0;">🔗 內部系統關聯 (選填，優先顯示品牌商務與官方公告)：</label>
                 <input type="hidden" id="relatedArchiveSelect" value="">
                 
-                <!-- 已選中狀態卡片 -->
                 <div id="relatedSelectedCard" class="related-selected-card">
                     <div class="related-selected-info" id="relatedSelectedInfo"></div>
                     <button type="button" class="related-clear-btn" onclick="clearRelatedSelection()">✖ 取消關聯</button>
                 </div>
 
-                <!-- 搜尋與即時彈出選單 -->
                 <div class="related-picker-wrapper" id="relatedPickerWrapper">
                     <input type="text" id="relatedSearchInput" class="modal-input" placeholder="🔍 點擊或輸入日期、標題、內文即可直接點選綁定..." autocomplete="off" style="margin: 0; background: white;">
                     <ul id="relatedDropdownList" class="related-dropdown-list"></ul>
@@ -200,7 +187,6 @@
                 <div id="customTagsDisplay" class="custom-tags-container"></div>
             </div>
 
-            <!-- 響應式三欄 (手機自動轉單欄防截字) -->
             <div class="form-row-3col">
                 <div><label class="form-label">日期：</label><input type="date" id="dataDate" class="modal-input" required></div>
                 <div><label class="form-label">時間 (臺灣時間)：</label><input type="time" id="dataTime" class="modal-input" required></div>
@@ -245,7 +231,7 @@
             <div class="accordion-panel">
                 <input type="file" id="batchMediaInput" accept="image/*" multiple style="display: none;">
                 <div id="mediaPreviewList" class="preview-list"></div>
-                <button type="button" id="triggerBatchMediaBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed;">+ 從電腦選取圖片 (支援一次選取多張)</button>
+                <button type="button" id="triggerBatchMediaBtn" class="btn-secondary-small" style="width: 100%; margin-top: 10px; border-style: dashed;">+ 選取圖片 (支援一次選取多張)</button>
             </div>
 
             <div class="modal-divider" style="margin-top: 25px;"></div>
@@ -279,7 +265,7 @@
         
         let currentModule = 'all'; 
         let currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
-        let isMonthFilterActive = false; // 預設不鎖定單月，讓全部時間軸顯示所有資料
+        let isMonthFilterActive = false; // 【修復】：預設顯示所有月份資料
         let selectedDate = null; 
         
         let masterData = []; 
@@ -449,14 +435,14 @@
                     if (panel.style.maxHeight) {
                         panel.style.maxHeight = null;
                     } else {
-                        panel.style.maxHeight = panel.scrollHeight + 80 + "px"; 
+                        panel.style.maxHeight = panel.scrollHeight + 60 + "px"; 
                     }
                 });
             }
         }
         function updateAccordionHeight(panel) {
             if (panel && panel.style.maxHeight) {
-                panel.style.maxHeight = panel.scrollHeight + 80 + "px";
+                panel.style.maxHeight = panel.scrollHeight + 60 + "px";
             }
         }
 
@@ -834,7 +820,7 @@
             if(currentModule === 'schedule') renderCalendar();
         }
         
-        // 預設在「全部時間軸」顯示所有月份；點選左側統計區上下月切換時，才鎖定顯示該月內容
+        // 【修復 1】：時間軸連動統計區的上下月切換
         function filterData(targetDate = null) {
             currentData = masterData.filter(item => {
                 const matchModule = currentModule === 'all' || item.module === currentModule;
@@ -1102,10 +1088,12 @@
             const grid = document.getElementById('calendarGrid'); const title = document.getElementById('calendarTitle'); grid.innerHTML = '';
             const [year, month] = currentMonthFilter.split('-').map(Number); title.innerText = `${year}年 ${month}月`;
             const firstDay = new Date(year, month - 1, 1).getDay(); const daysInMonth = new Date(year, month, 0).getDate();
+            
             const todayBtn = document.getElementById('todayBtn');
             if (todayBtn) {
                 todayBtn.classList.toggle('active', selectedDate === trueTodayStr);
             }
+            
             for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="cal-cell empty"></div>`;
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -1114,15 +1102,20 @@
             }
         }
         function filterBySpecificDate(dateStr) { if (selectedDate === dateStr) { clearDateFilter(); } else { document.getElementById('dateText').value = dateStr.replace(/-/g, '/'); document.getElementById('applyDateBtn').click(); } }
+        
+        // 【修復 1】：點選上方導覽列時，自動取消單月鎖定
         function setupNavigation() {
             const links = document.querySelectorAll('#navLinks li');
             links.forEach(link => { link.addEventListener('click', (e) => {
                 links.forEach(l => l.classList.remove('active')); e.target.classList.add('active'); currentModule = e.target.getAttribute('data-module');
-                activeSubTags = []; document.getElementById('searchInput').value = ''; clearDateFilter(); renderSubTags(); updateClearTagsButton();
+                activeSubTags = []; document.getElementById('searchInput').value = ''; 
+                clearDateFilter(); 
+                renderSubTags(); updateClearTagsButton();
                 const wrapper = document.getElementById('subTagsWrapper'); if (wrapper) wrapper.classList.remove('open');
                 if(window.innerWidth <= 1050) document.getElementById('sidebar').classList.remove('active');
             });});
         }
+        
         function renderSubTags() {
             const container = document.getElementById('subTagsContainer'); container.innerHTML = '';
             if (!moduleSubTags[currentModule]) { container.className = 'sub-tags-container'; return; }
@@ -1249,8 +1242,6 @@
             
             document.getElementById('globalPrevMonth').addEventListener('click', () => changeMonth(-1));
             document.getElementById('globalNextMonth').addEventListener('click', () => changeMonth(1));
-            document.getElementById('calPrevMonthBtn')?.addEventListener('click', () => changeMonth(-1));
-            document.getElementById('calNextMonthBtn')?.addEventListener('click', () => changeMonth(1));
             
             const resetToCurrentMonth = () => { 
                 currentMonthFilter = `${sysYear}-${sysMonthStr}`; 
@@ -1262,6 +1253,7 @@
             document.getElementById('globalMonthDisplay').addEventListener('click', resetToCurrentMonth);
             document.getElementById('globalCurrentMonthBtn').addEventListener('click', resetToCurrentMonth);
             
+            // 【修復 2】: 點選今天取消單日篩選
             document.getElementById('todayBtn').addEventListener('click', function() {
                 if (selectedDate === trueTodayStr) {
                     clearDateFilter();
@@ -1275,6 +1267,7 @@
             });
         }
         
+        // 【修復 1】：點選清除時，重置為顯示全部資料
         function clearDateFilter() { 
             document.getElementById('dateText').value = ''; 
             selectedDate = null; 
@@ -1486,6 +1479,7 @@
                 batchMediaInput.value = ''; 
             });
 
+            // 【修復 5】: 一鍵選取即成立綁定
             window.selectRelatedArchive = function(archiveId) {
                 const target = masterData.find(d => d.id === archiveId);
                 if (!target) return;
